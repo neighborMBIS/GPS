@@ -30,6 +30,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,30 +68,27 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
     ArrayList<Double> referenceLngPosition;
     double disValue[] = {0, 1, 2, 3, 4};
 
-    ArrayList<LatLng> a = new ArrayList<LatLng>();
+    //통신 변수들
+    Socket socket;
+    final String IP = "127.0.0.1"; //genymotion host
+    final int PORT = 12345; // port number
 
-    static int stationBuf = -1;
+    private InputStream is;
+    private OutputStream os;
+    private DataInputStream dis;
+    private DataOutputStream dos;
+    private Thread thread;
 
-    //mflag = socket에서 통신이 끊겼는지 안끊겼는지를 확인할 수 있는 플래그
-    static boolean mflag = false;
-    final int DETECTRANGE = 30;
-
-    int YEAR, MONTH, DAY, HOUR, MINNTE, SECOND;
-    //운행구분
-    int driveFlag = 0;
-    int diviceState = 127;
-    GPS_Info dis = GPS_Info.getInstance();
-    TransByte tb = TransByte.getInstance();
+    //이벤트 발생할 때 데이터 전송하려면 이벤트 발생하는곳에 사용 : sendData(byte[]배열);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        connectServer();
 
         checkGpsService();
-
         getItem();
-
         setLog();
 
     }
@@ -268,5 +271,63 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
 
     }
 
+    //서버와 연결하는 메소드
+    public void connectServer() {
+        new Thread() {
+            public void run() {
+                try {
+                    socket = new Socket(IP, PORT);
+                    Log.d("[Client]", " Server connected !!");
+
+                    //자바에서 한거랑 똑같으니 참고하기
+                    is = socket.getInputStream();
+                    dis = new DataInputStream(is);
+                    os = socket.getOutputStream();
+                    dos = new DataOutputStream(os);
+
+                    //서버에 접속하면 성별을 보내는 메서드 호출
+//                    dos.write(0x01);
+                    Log.d("[ChatActivity]", " connectServer() Success !!");
+
+                    thread = new Thread(new ReceiveMsg());
+                    thread.setDaemon(true);
+                    thread.start();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d("[ChatActivity]", " connectServer() Exception !!");
+                }
+            }
+        }.start();
+
+    }
+    // 내부클래스로 서버에서 받은 메세지를 처리
+    class ReceiveMsg implements Runnable {
+
+        @SuppressWarnings("null")
+        @Override
+        public synchronized void run() {
+            while (true) {
+                try {
+                    os.close();
+                    is.close();
+                    dos.close();
+                    dis.close();
+                    socket.close();
+                    break;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void sendData(byte[] data) {        //메세지를 보내는 메서드
+        try {
+            dos.write(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
