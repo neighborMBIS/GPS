@@ -7,21 +7,23 @@ public class B_0x22 extends Body{
         fullBody = new byte[67];
     }
 
+
     @Override
     public byte[] getBody() {
         return fullBody;
     }
-    public byte[] addEtcBody(byte[] stationID, byte[] stationNum, byte[] serviceTime, byte[] beforeToAfterSec, byte[] etc) {
-        if(checkByteLength_0x22(stationID, stationNum, serviceTime, beforeToAfterSec, etc)) {
-            byte[] buf = tb.mergyByte(tb.mergyByte(stationID, stationNum), tb.mergyByte(beforeToAfterSec, etc));
+    public byte[] addEtcBody(byte[] stationID, byte[] stationNum, byte[] driveNum, byte[] serviceTime, byte[] beforeToAfterSec, byte[] etc) {
+        if(checkByteLength_0x22(stationID, stationNum, driveNum, serviceTime, beforeToAfterSec, etc)) {
+            byte[] buf = tb.mergyByte(tb.mergyByte(tb.mergyByte(stationID, stationNum), tb.mergyByte(driveNum, serviceTime)), tb.mergyByte(beforeToAfterSec, etc));
             fullBody = tb.mergyByte(defaultBody, buf);
             return fullBody;
         } else return errcode;
     }
 
-    private boolean checkByteLength_0x22(byte[] stationID, byte[] stationNum, byte[] serviceTime, byte[] beforeToAfterSec, byte[] etc) {
+    private boolean checkByteLength_0x22(byte[] stationID, byte[] stationNum, byte[] driveNum, byte[] serviceTime, byte[] beforeToAfterSec, byte[] etc) {
         if (stationID.length == 10 &&
                 stationNum.length == 2 &&
+                driveNum.length == 2 &&
                 serviceTime.length == 2 &&
                 beforeToAfterSec.length == 2 &&
                 etc.length == 2

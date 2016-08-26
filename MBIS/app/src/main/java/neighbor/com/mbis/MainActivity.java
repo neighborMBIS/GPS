@@ -7,21 +7,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -36,37 +33,72 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import neighbor.com.mbis.Packet.B_0x15;
+import neighbor.com.mbis.Packet.B_0x21;
+import neighbor.com.mbis.Packet.B_0x22;
+import neighbor.com.mbis.Packet.B_0x31;
 import neighbor.com.mbis.Packet.Packet;
-import neighbor.com.mbis.file.FileManage;
+import neighbor.com.mbis.Util.BasicUtil;
+import neighbor.com.mbis.Util.ReferenceUtil;
+import neighbor.com.mbis.Util.U_0x15;
+import neighbor.com.mbis.Util.U_0x21;
+import neighbor.com.mbis.Util.U_0x22;
+import neighbor.com.mbis.Util.U_0x31;
+import neighbor.com.mbis.function.FileManage;
 import neighbor.com.mbis.function.GPS_Info;
 import neighbor.com.mbis.function.TransByte;
 import neighbor.com.mbis.googlemap.AddMarker;
 
-public class MainActivity extends Activity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+    byte[] version = {0x01};
+    byte[] opcode;
+    byte[] sr_cnt = {0x02, 0x02};
+    byte[] deviceID = {0x03, 0x03};
+    byte[] datalen = {0x04,0x04,0x04,0x04};
+
+    int bufTime[] = {0,0,0};
+    //beforeToAfter[0] : 출->도, 도->출
+    //beforeToAfter[1] : 출->도
+    int beforeToAfter[] = {0,0};
+    int stopCount = 0;
+    String today="000000";
+    String startTime="000000";
 
     private GoogleMap gmap;
     private MapView mapView;
     AddMarker maddmarker;
-    FileManage fileManage;
+    FileManage eventFileManage;
+    FileManage realFileManage;
     Marker busMarker;
-    LocationManager locationManager;
 
-    TextView currentlatView, currentlonView, eventtextView, realtimetextView;
+    ReferenceUtil ref = ReferenceUtil.getInstance();
+
+    GPS_Info gps_info = GPS_Info.getInstance();
+
+    BasicUtil basicUtil = BasicUtil.getInstance();
+    U_0x15 u_0x15 = U_0x15.getInstance();
+    U_0x21 u_0x21 = U_0x21.getInstance();
+    U_0x22 u_0x22 = U_0x22.getInstance();
+    U_0x31 u_0x31 = U_0x31.getInstance();
+
+    TransByte tb = TransByte.getInstance();
+
+    TextView currentlatView, currentlonView, eventtextView, realtimetextView, realBearing;
     ScrollView eventscroll, realscroll;
 
     PolylineOptions rectOptions;
 
-    ArrayList<String> referenceNamePosition;
-    ArrayList<Double> referenceLatPosition;
-    ArrayList<Double> referenceLngPosition;
     double disValue[] = {0, 1, 2, 3, 4};
+    Packet p;
+
+
+    static boolean mflag = false;
+    final int DETECTRANGE = 30;
+    static int stationBuf = -1;
 
     //통신 변수들
     Socket socket;
@@ -79,6 +111,7 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
     private DataOutputStream dos;
     private Thread thread;
 
+
     //이벤트 발생할 때 데이터 전송하려면 이벤트 발생하는곳에 사용 : sendData(byte[]배열);
 
     @Override
@@ -87,10 +120,18 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         setContentView(R.layout.activity_main);
         connectServer();
 
-        checkGpsService();
-        getItem();
-        setLog();
+        TimeZone jst = TimeZone.getTimeZone("JST");
+        Calendar cal = Calendar.getInstance(jst);
 
+        String fileName =  String.format("%02d", cal.get(Calendar.YEAR) - 2000) +  String.format("%02d", (cal.get(Calendar.MONTH) + 1)) +  String.format("%02d", cal.get(Calendar.DATE));
+
+        eventFileManage = new FileManage(fileName);
+        realFileManage = new FileManage("real");
+
+
+        checkGpsService();
+        getItem(savedInstanceState);
+        setLog();
     }
 
     private boolean checkGpsService() {
@@ -128,38 +169,19 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         }
     }
 
-    public void getItem() {
-        referenceNamePosition = new ArrayList<String>();
-        referenceLatPosition = new ArrayList<Double>();
-        referenceLngPosition = new ArrayList<Double>();
+    public void getItem(Bundle savedInstanceState) {
 
         currentlatView = (TextView) findViewById(R.id.curlat);
         currentlonView = (TextView) findViewById(R.id.curlon);
         eventtextView = (TextView) findViewById(R.id.eventtext);
         realtimetextView = (TextView) findViewById(R.id.realtimetext);
+        realBearing = (TextView) findViewById(R.id.bearing);
         eventscroll = (ScrollView) findViewById(R.id.eventscroll);
         realscroll = (ScrollView) findViewById(R.id.realscroll);
 
         mapView = (MapView) findViewById(R.id.map);
+        mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-
-        referenceNamePosition.add("00100-01");
-        referenceNamePosition.add("00100-02");
-        referenceNamePosition.add("00100-03");
-        referenceNamePosition.add("00100-04");
-        referenceNamePosition.add("00100-05");
-
-        referenceLatPosition.add(37.49568);
-        referenceLatPosition.add(37.49502);
-        referenceLatPosition.add(37.49455);
-        referenceLatPosition.add(37.49413);
-        referenceLatPosition.add(37.49373);
-
-        referenceLngPosition.add(127.12259);
-        referenceLngPosition.add(127.12140);
-        referenceLngPosition.add(127.12063);
-        referenceLngPosition.add(127.11979);
-        referenceLngPosition.add(127.11907);
     }
 
     private double getMin(double arr[]) {
@@ -184,11 +206,230 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         Log.d("Main", "isNetworkEnabled=" + isNetworkEnabled);
 
         LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
+            public void onLocationChanged(Location location) { //시간알아오기
+                TimeZone jst = TimeZone.getTimeZone("JST");
+                Calendar cal = Calendar.getInstance(jst);
                 //위치 정보를 가져올 수 있는 메소드
                 //위치 이동이나 시간 경과등으로 인해 호출된다.
                 //최신 위치는 location 파라메터가 가지고 있으니 최신 위치를 가져오려면 location 파라메터를 이용하면 됨
                 //즉 처음의 위치를 알고싶으면 처음의 값을 저장 해 주고 비교하면 됨.
+
+
+                double latD = location.getLatitude();
+                double lngD = location.getLongitude();
+
+                currentlatView.setText("위도 :" + String.format("%.5f", latD));
+                currentlonView.setText("경도 :" + String.format("%.5f", lngD));
+                realBearing.setText("방위각 :" + location.getBearing());
+
+
+                //5개의 지정된 장소와 거리를 비교 후 disValue에 저장한다.
+                //만약 우리가 임의로 결정한 x,y좌표가 아닌 실제 Location 객체와 비교한다면
+                //location.distanceTo() 메소드를 사용하여 비교하는 것이 바람직하다.
+                for (int i = 0; i < 5; i++) {
+                    disValue[i] = gps_info.getDistance(latD, lngD, ref.getReferenceLatPosition().get(i), ref.getReferenceLngPosition().get(i));
+                }
+
+                //가장 가까운 역과의 거리
+                double minDistance = getMin(disValue);
+
+                //가장 가까운 역의 이름
+                String minReferenceName;
+
+                int YEAR = cal.get(Calendar.YEAR) - 2000;
+                int MONTH = (cal.get(Calendar.MONTH) + 1);
+                int DAY = cal.get(Calendar.DATE);
+                int HOUR = (cal.get(Calendar.HOUR_OF_DAY)) + 9;
+                int MINNTE = cal.get(Calendar.MINUTE);
+                int SECOND = cal.get(Calendar.SECOND);
+
+                //시간정보
+                String ymd = String.format("%02d", YEAR) +
+                        String.format("%02d", MONTH) +
+                        String.format("%02d", DAY);
+
+                String hms = String.format("%02d", HOUR) +
+                        String.format("%02d", MINNTE) +
+                        String.format("%02d", SECOND);
+
+                //GPS 정보
+                double latbuf = location.getLatitude() * 100000;
+                double lngbuf = location.getLongitude() * 100000;
+                int lat = (int)latbuf;
+                int lng = (int)lngbuf;
+
+                int bearing = (int) location.getBearing();
+                int speed = (int) location.getSpeed();
+
+                //노선정보
+                String[] station;
+                byte[] routeForm = gps_info.getDirection(bearing);
+                int turn = 0;
+                if(routeForm.equals(0x01)) {
+                    turn = stationBuf;
+                } else if(routeForm.equals(0x02)) {
+                    turn = (ref.getRefernceUniqueNum().size()-1)-stationBuf;
+                }
+                String routeDivision = "aa";
+
+                //기기상태
+                String diviceState = "b";
+
+                realtimetextView.append("\nLat : " + latD + "\nLng : " + lngD+"\n----------------------------------------");
+                realFileManage.saveData("Lat : " + latD + "\nLng : " + lngD+"\n----------------------------------------\n");
+
+
+                //어느 역에 도착했는지 확인 후 메세지
+                for (int i = 0; i < disValue.length; i++) {
+                    if (minDistance == disValue[i]) {
+                        minReferenceName = ref.getReferenceNamePosition().get(i).toString();
+                    }
+
+                    if(disValue[i] < DETECTRANGE && i==ref.getReferenceNamePosition().size()-1 && !mflag) {
+                        //마지막 역 도착 운행종료
+                        stationBuf = i;
+                        station = ref.getReferenceNamePosition().get(stationBuf).split("-");
+
+                        beforeToAfter[0] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
+                        beforeToAfter[1] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
+
+                        opcode = new byte[]{0x31};
+                        setUtil(ymd, hms, ymd, hms, station[0], station[1], routeForm, routeDivision, lat, lng, bearing, speed, diviceState);
+                        set0x31(today, startTime, ref.getRefernceUniqueNum().get(stationBuf), turn, stationBuf ,stopCount);
+
+                        p = Packet.getInstance();
+                        p.setHeader(version, opcode, sr_cnt, deviceID, datalen);
+
+                        byte[] bd = new B_0x31(basicUtil.getSendDate(), basicUtil.getSendTime(), basicUtil.getEventDate(), basicUtil.getEventTime(), basicUtil.getRouteInfo(), basicUtil.getGPSInfo(), basicUtil.getDiviceState())
+                                .addEtcBody(u_0x31.getDriveDate(), u_0x31.getStartTime(), u_0x31.getStationID(), u_0x31.getStationNum(), u_0x31.getDriveNum(), u_0x31.getEventNum());
+                        byte[] data = p.addBodyPacket(bd);
+                        eventtextView.append("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - " );
+
+                        String dd = "";
+                        for (int j = 0; j < data.length; j++) {
+//                            System.out.format("Send Data : (0x%02X)",data[i] ); //array
+                            eventtextView.append(String.format("0x%02X ", data[j]));
+                            dd = dd + String.format("%02X ", data[j]);
+                        }
+                        eventFileManage.saveData("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - "  + dd);
+
+                        eventscroll.fullScroll(View.FOCUS_DOWN);
+                        mflag=true;
+
+
+                    } else if (disValue[i] < DETECTRANGE && !mflag) {
+                        //역에 도착했을 때
+                        stationBuf = i;
+                        station = ref.getReferenceNamePosition().get(stationBuf).split("-");
+
+                        beforeToAfter[0] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
+                        beforeToAfter[1] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
+
+                        opcode = new byte[]{0x21};
+                        setUtil(ymd, hms, ymd, hms, station[0], station[1], routeForm, routeDivision, lat, lng, bearing, speed, diviceState);
+
+                        set0x21(ref.getRefernceUniqueNum().get(stationBuf), turn, beforeToAfter[0], 1516);
+
+                        p = Packet.getInstance();
+                        p.setHeader(version, opcode, sr_cnt, deviceID, datalen);
+
+                        byte[] bd = new B_0x21(basicUtil.getSendDate(), basicUtil.getSendTime(), basicUtil.getEventDate(), basicUtil.getEventTime(), basicUtil.getRouteInfo(), basicUtil.getGPSInfo(), basicUtil.getDiviceState())
+                                .addEtcBody(u_0x21.getStationID(), u_0x21.getStationNum(), u_0x21.getBeforeStationToAfterStationSec(), u_0x21.getEtc());
+                        byte[] data = p.addBodyPacket(bd);                        eventtextView.append("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - " );
+
+                        String dd = "";
+                        for (int j = 0; j < data.length; j++) {
+//                            System.out.format("Send Data : (0x%02X)",data[i] ); //array
+                            eventtextView.append(String.format("0x%02X ", data[j]));
+                            dd = dd + String.format("%02X ", data[j]);
+                        }
+                        eventFileManage.saveData("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - "  + dd);
+
+                        eventscroll.fullScroll(View.FOCUS_DOWN);
+//                        sendData(data);
+
+
+                        bufTime[0] = HOUR;
+                        bufTime[1] = MINNTE;
+                        bufTime[2] = SECOND;
+                        mflag = true;
+                        stopCount++;
+                    }
+                }
+                //운행 시작 전
+                if (stationBuf == -1) {
+                    return;
+                } else if (disValue[stationBuf] >= DETECTRANGE && mflag) {
+
+                    if (stationBuf == 0) {
+                        //출발지점이 A라면 A가 차고지가 되어 운행시작을 알림
+                        station = ref.getReferenceNamePosition().get(stationBuf).split("-");
+                        opcode = new byte[]{0x15};
+
+                        bufTime[0] = HOUR;
+                        bufTime[1] = MINNTE;
+                        bufTime[2] = SECOND;
+
+                        today = ymd;
+                        startTime = hms;
+
+                        setUtil(ymd, hms, ymd, hms, station[0], station[1], routeForm, routeDivision, lat, lng, bearing, speed, diviceState);
+                        set0x15(21, 222324);
+
+                        p = Packet.getInstance();
+                        p.setHeader(version, opcode, sr_cnt, deviceID, datalen);
+
+                        byte[] data = p.addBodyPacket(
+                                new B_0x15(basicUtil.getSendDate(), basicUtil.getSendTime(), basicUtil.getEventDate(), basicUtil.getEventTime(), basicUtil.getRouteInfo(), basicUtil.getGPSInfo(), basicUtil.getDiviceState())
+                                .addEtcBody(u_0x15.getDriverDivision(), u_0x15.getEtc()));                        eventtextView.append("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - " );
+
+                        String dd = "";
+                        for (int j = 0; j < data.length; j++) {
+//                            System.out.format("Send Data : (0x%02X)",data[i] ); //array
+                            eventtextView.append(String.format("0x%02X ", data[j]));
+                            dd = dd + String.format("%02X ", data[j]);
+                        }
+                        eventFileManage.saveData("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - "  + dd);
+
+                        eventscroll.fullScroll(View.FOCUS_DOWN);
+
+//                        sendData(data);
+                    }
+                    //출발지점이 마지막 역이라면 출발 없음
+                    else if(stationBuf==ref.getReferenceNamePosition().size()-1) {
+                        return;
+                    }
+                    //출발지점이 A가 아니라면 그냥 해당 역에서 출발한 것을 알림
+                    else {
+                        station = ref.getReferenceNamePosition().get(stationBuf).split("-");
+                        opcode = new byte[]{0x22};
+                        beforeToAfter[0] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
+
+                        setUtil(ymd, hms, ymd, hms, station[0], station[1], routeForm, routeDivision, lat, lng, bearing, speed, diviceState);
+                        set0x22(ref.getRefernceUniqueNum().get(stationBuf),stationBuf,stationBuf,beforeToAfter[0],beforeToAfter[1],1010);
+
+                        p = Packet.getInstance();
+                        p.setHeader(version, opcode, sr_cnt, deviceID, datalen);
+
+                        byte[] data = p.addBodyPacket(
+                                new B_0x22(basicUtil.getSendDate(), basicUtil.getSendTime(), basicUtil.getEventDate(), basicUtil.getEventTime(), basicUtil.getRouteInfo(), basicUtil.getGPSInfo(), basicUtil.getDiviceState())
+                                        .addEtcBody(u_0x22.getStationID(), u_0x22.getStationNum(), u_0x22.getDriveNum(), u_0x22.getServiceTime(), u_0x22.getBeforeToAfterSec(), u_0x22.getEtc()));
+                        eventtextView.append("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - " );
+
+                        String dd = "";
+                        for (int j = 0; j < data.length; j++) {
+//                            System.out.format("Send Data : (0x%02X)",data[i] ); //array
+                            eventtextView.append(String.format("0x%02X ", data[j]));
+                            dd = dd + String.format("%02X ", data[j]);
+                        }
+                        eventFileManage.saveData("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - "  + dd);
+
+                        eventscroll.fullScroll(View.FOCUS_DOWN);
+
+//                        sendData(data);
+                    }
+                    mflag = false;
+                }
             }
 
 
@@ -256,16 +497,15 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         }
         gmap.setMyLocationEnabled(true);
         rectOptions = new PolylineOptions().color(0xffff0000);
-        for (int i = 0; i < referenceNamePosition.size(); i++) {
-            rectOptions
-                    .add(new LatLng(referenceLatPosition.get(i), referenceLngPosition.get(i)));
+        for (int i = 0; i < ref.getReferenceNamePosition().size(); i++) {
+            rectOptions.add(new LatLng(ref.getReferenceLatPosition().get(i), ref.getReferenceLngPosition().get(i)));
         }
 
 
         Polyline polyline = gmap.addPolyline(rectOptions);
 
-        for (int i = 0; i < referenceNamePosition.size(); i++) {
-            busMarker = maddmarker.getMark(referenceLatPosition.get(i), referenceLngPosition.get(i), getApplicationContext());
+        for (int i = 0; i < ref.getReferenceNamePosition().size(); i++) {
+            busMarker = maddmarker.getMark(ref.getReferenceLatPosition().get(i), ref.getReferenceLngPosition().get(i), getApplicationContext());
 
         }
 
@@ -301,6 +541,7 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         }.start();
 
     }
+
     // 내부클래스로 서버에서 받은 메세지를 처리
     class ReceiveMsg implements Runnable {
 
@@ -309,14 +550,22 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
         public synchronized void run() {
             while (true) {
                 try {
-                    os.close();
-                    is.close();
-                    dos.close();
-                    dis.close();
-                    socket.close();
-                    break;
+                    byte[] b = new byte[4096];
+                    dis.read(b);
+
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    //status = false;
+                    try {
+                        os.close();
+                        is.close();
+                        dos.close();
+                        dis.close();
+                        socket.close();
+                        break;
+                    } catch (IOException e1) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -325,9 +574,48 @@ public class MainActivity extends Activity implements OnMapReadyCallback {
     public void sendData(byte[] data) {        //메세지를 보내는 메서드
         try {
             dos.write(data);
+            Log.d("test", "success");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setUtil(String ymd, String hms, String ymd2, String hms2, String station0,
+                    String station1, byte[] routeForm, String routeDivision, int lat, int lng,
+                    int bearing, int speed, String diviceState) {
+        basicUtil.setSendDate(ymd);
+        basicUtil.setSendTime(hms);
+        basicUtil.setEventDate(ymd);
+        basicUtil.setEventTime(hms);
+        basicUtil.setRouteInfo(station0, station1, routeForm, routeDivision);
+        basicUtil.setGPSInfo(lat, lng, bearing, speed);
+        basicUtil.setDiviceState(diviceState);
+    }
+    public void set0x15(int driverDivision, int etc){
+        u_0x15.setDriverDivision(driverDivision);
+        u_0x15.setEtc(etc);
+    }
+    public void set0x21(int id, int num, int sec, int etc){
+        u_0x21.setStationID(id);
+        u_0x21.setStationNum(num);
+        u_0x21.setBeforeStationToAfterStationSec(sec);
+        u_0x21.setEtc(etc);
+    }
+    public void set0x22(int stationID, int stationNum, int driveNum, int serviceTime, int beforeToAfterSec, int etc){
+        u_0x22.setStationID(stationID);
+        u_0x22.setStationNum(stationNum);
+        u_0x22.setDriveNum(driveNum);
+        u_0x22.setServiceTime(serviceTime);
+        u_0x22.setBeforeToAfterSec(beforeToAfterSec);
+        u_0x22.setEtc(etc);
+    }
+    public void set0x31(String driveDate, String startTime, int stationID, int stationNum, int driveNum, int eventNum) {
+        u_0x31.setDriveDate(driveDate);
+        u_0x31.setStartTime(startTime);
+        u_0x31.setStationID(stationID);
+        u_0x31.setStationNum(stationNum);
+        u_0x31.setDriveNum(driveNum);
+        u_0x31.setEventNum(eventNum);
     }
 
 }

@@ -19,21 +19,21 @@
             android:layout_height="wrap_content"
             android:text="위도 :"
             android:id="@+id/curlat"
-            android:layout_weight="0.33" />
+            android:layout_weight="0.28" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="경도 :"
             android:id="@+id/curlon"
-            android:layout_weight="0.33" />
+            android:layout_weight="0.28" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="다음위치:"
-            android:id="@+id/nextarea"
-            android:layout_weight="0.33" />
+            android:text="방위각:"
+            android:id="@+id/bearing"
+            android:layout_weight="0.28" />
     </LinearLayout>
 
     <LinearLayout
@@ -58,7 +58,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="위도,경도,시간,실시간"
+                    android:text="실시간"
                     android:id="@+id/realtimetext" />
             </ScrollView>
         </LinearLayout>
@@ -77,7 +77,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="위도,경도,시간,이벤트"
+                    android:text="Event"
                     android:id="@+id/eventtext" />
             </ScrollView>
         </LinearLayout>

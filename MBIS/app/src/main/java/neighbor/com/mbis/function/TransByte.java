@@ -41,9 +41,10 @@ public class TransByte {
 
         for (int i = 0; i < list.size(); i++) {
             int buffer = Integer.parseInt(list.get(i));
-            bb[i] = (byte) buffer;
+            bb[i] = (byte)(buffer << 6);
         }
         return bb;
+
     }
 
     public static byte[] ItoB(int in) {
@@ -70,7 +71,53 @@ public class TransByte {
 
         for (int i = 0; i < list.size(); i++) {
             int buffer = Integer.parseInt(list.get(i));
-            bb[i] = (byte) buffer;
+            bb[i] = (byte)(buffer << 6);
+        }
+        return bb;
+
+
+    }
+
+    public static byte[] ItoB(int in, int size) {
+        String strBuf;
+        ArrayList<String> list = new ArrayList<String>();
+
+        strBuf = String.format("%0" + Integer.toString(size*2) + "d", in);
+        for (int i = 0; i < size*2; i = i + 2) {
+            if (i != size*2)
+                list.add(strBuf.substring(i, i + 2));
+        }
+
+        byte bb[] = new byte[list.size()];
+
+        for (int i = 0; i < list.size(); i++) {
+            int buffer = Integer.parseInt(list.get(i));
+            bb[i] = (byte)(buffer << 6);
+        }
+        return bb;
+    }
+
+    public static byte[] ItoB(String str, int size) {
+        int buf = 0;
+        String strBuf;
+        ArrayList<String> list = new ArrayList<String>();
+
+        buf = Integer.parseInt(str);
+
+        //자리수가 홀수일경우 앞에 0을 붙여주는 작업.
+        strBuf = String.format("%0" + Integer.toString(size*2) + "d", buf);
+
+        //2자리씩 끊어서 list에 저장. (String)
+        for (int i = 0; i < size*2; i = i + 2) {
+            if (i != size*2)
+                list.add(strBuf.substring(i, i + 2));
+        }
+        //2개씩 잘라서 bb배열에 넣어줌
+        byte bb[] = new byte[list.size()];
+
+        for (int i = 0; i < list.size(); i++) {
+            int buffer = Integer.parseInt(list.get(i));
+            bb[i] = (byte)(buffer << 6);
         }
         return bb;
 
