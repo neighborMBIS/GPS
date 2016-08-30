@@ -1,7 +1,6 @@
-package neighbor.com.mbis;
+package neighbor.com.mbis.Activity;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +10,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -42,6 +42,7 @@ import neighbor.com.mbis.Packet.B_0x21;
 import neighbor.com.mbis.Packet.B_0x22;
 import neighbor.com.mbis.Packet.B_0x31;
 import neighbor.com.mbis.Packet.Packet;
+import neighbor.com.mbis.R;
 import neighbor.com.mbis.Util.BasicUtil;
 import neighbor.com.mbis.Util.ReferenceUtil;
 import neighbor.com.mbis.Util.U_0x15;
@@ -53,7 +54,7 @@ import neighbor.com.mbis.function.GPS_Info;
 import neighbor.com.mbis.function.TransByte;
 import neighbor.com.mbis.googlemap.AddMarker;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     byte[] version = {0x01};
     byte[] opcode;
     byte[] sr_cnt = {0x02, 0x02};
@@ -97,13 +98,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     static boolean mflag = false;
-    final int DETECTRANGE = 30;
+    final int DETECTRANGE = 100;
     static int stationBuf = -1;
 
     //통신 변수들
     Socket socket;
     final String IP = "127.0.0.1"; //genymotion host
     final int PORT = 12345; // port number
+
 
     private InputStream is;
     private OutputStream os;
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_map);
         connectServer();
 
         TimeZone jst = TimeZone.getTimeZone("JST");
@@ -282,13 +284,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //어느 역에 도착했는지 확인 후 메세지
                 for (int i = 0; i < disValue.length; i++) {
                     if (minDistance == disValue[i]) {
-                        minReferenceName = ref.getReferenceNamePosition().get(i).toString();
+                        minReferenceName = ref.getRouteName().toString();
                     }
 
-                    if(disValue[i] < DETECTRANGE && i==ref.getReferenceNamePosition().size()-1 && !mflag) {
+                    if(disValue[i] < DETECTRANGE && i==ref.getReferenceLatPosition().size()-1 && !mflag) {
                         //마지막 역 도착 운행종료
                         stationBuf = i;
-                        station = ref.getReferenceNamePosition().get(stationBuf).split("-");
+                        station = ref.getRouteName().split("-");
 
                         beforeToAfter[0] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
                         beforeToAfter[1] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
@@ -314,13 +316,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         eventFileManage.saveData("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - "  + dd);
 
                         eventscroll.fullScroll(View.FOCUS_DOWN);
+                        sendData(data);
                         mflag=true;
 
 
                     } else if (disValue[i] < DETECTRANGE && !mflag) {
                         //역에 도착했을 때
                         stationBuf = i;
-                        station = ref.getReferenceNamePosition().get(stationBuf).split("-");
+                        station = ref.getRouteName().split("-");
 
                         beforeToAfter[0] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
                         beforeToAfter[1] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
@@ -346,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         eventFileManage.saveData("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - "  + dd);
 
                         eventscroll.fullScroll(View.FOCUS_DOWN);
-//                        sendData(data);
+                        sendData(data);
 
 
                         bufTime[0] = HOUR;
@@ -363,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     if (stationBuf == 0) {
                         //출발지점이 A라면 A가 차고지가 되어 운행시작을 알림
-                        station = ref.getReferenceNamePosition().get(stationBuf).split("-");
+                        station = ref.getRouteName().split("-");
                         opcode = new byte[]{0x15};
 
                         bufTime[0] = HOUR;
@@ -392,16 +395,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         eventFileManage.saveData("\n(" + HOUR + ":" + MINNTE + ":" + SECOND + ")\n[SEND:" + data.length + "] - "  + dd);
 
                         eventscroll.fullScroll(View.FOCUS_DOWN);
+                        sendData(data);
 
-//                        sendData(data);
                     }
                     //출발지점이 마지막 역이라면 출발 없음
-                    else if(stationBuf==ref.getReferenceNamePosition().size()-1) {
+                    else if(stationBuf==ref.getReferenceLatPosition().size()-1) {
                         return;
                     }
                     //출발지점이 A가 아니라면 그냥 해당 역에서 출발한 것을 알림
                     else {
-                        station = ref.getReferenceNamePosition().get(stationBuf).split("-");
+                        station = ref.getRouteName().split("-");
                         opcode = new byte[]{0x22};
                         beforeToAfter[0] = (HOUR - bufTime[0])*3600 + (MINNTE - bufTime[1])*60 + (SECOND - bufTime[2]);
 
@@ -426,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         eventscroll.fullScroll(View.FOCUS_DOWN);
 
-//                        sendData(data);
+                        sendData(data);
                     }
                     mflag = false;
                 }
@@ -485,6 +488,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
+        try {
+            os.close();
+            is.close();
+            dos.close();
+            dis.close();
+            socket.close();
+        } catch (IOException e) {
+        }
     }
 
     @Override
@@ -497,14 +508,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         gmap.setMyLocationEnabled(true);
         rectOptions = new PolylineOptions().color(0xffff0000);
-        for (int i = 0; i < ref.getReferenceNamePosition().size(); i++) {
+        for (int i = 0; i < ref.getReferenceLatPosition().size(); i++) {
             rectOptions.add(new LatLng(ref.getReferenceLatPosition().get(i), ref.getReferenceLngPosition().get(i)));
         }
 
 
         Polyline polyline = gmap.addPolyline(rectOptions);
 
-        for (int i = 0; i < ref.getReferenceNamePosition().size(); i++) {
+        for (int i = 0; i < ref.getReferenceLatPosition().size(); i++) {
             busMarker = maddmarker.getMark(ref.getReferenceLatPosition().get(i), ref.getReferenceLngPosition().get(i), getApplicationContext());
 
         }
@@ -525,16 +536,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     os = socket.getOutputStream();
                     dos = new DataOutputStream(os);
 
-                    //서버에 접속하면 성별을 보내는 메서드 호출
-//                    dos.write(0x01);
-                    Log.d("[ChatActivity]", " connectServer() Success !!");
-
                     thread = new Thread(new ReceiveMsg());
                     thread.setDaemon(true);
                     thread.start();
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    run();
                     Log.d("[ChatActivity]", " connectServer() Exception !!");
                 }
             }
@@ -542,6 +549,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    String recv="";
     // 내부클래스로 서버에서 받은 메세지를 처리
     class ReceiveMsg implements Runnable {
 
@@ -550,9 +558,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         public synchronized void run() {
             while (true) {
                 try {
-                    byte[] b = new byte[4096];
-                    dis.read(b);
+                    //바이트 크기는 넉넉하게 잡아서 할 것.
+                    //가변적으로 못바꾸니 넉넉하게 잡고 알아서 fix 하기
+                    byte[] bb = new byte[10];
 
+                    dis.read(bb);
+                    for(int i=0 ; i<bb.length ; i++) {
+                        recv = recv + String.format("02X ", bb[i]);
+                    }
+                    mHandler.sendEmptyMessage(1);
                 } catch (IOException e) {
                     //e.printStackTrace();
                     //status = false;
@@ -571,12 +585,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+
+    Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what==1) {
+                //스레드에서 view를 바꾸지 못하게 했다.
+                //그러므로 핸들러를 이용하여 View에 변화를 줄 수 있다.
+//                tv.append("\n" + recv);
+                recv = "";
+            }
+        }
+    };
+
     public void sendData(byte[] data) {        //메세지를 보내는 메서드
         try {
-            dos.write(data);
-            Log.d("test", "success");
+            if (socket != null) {
+                dos.write(data);
+                Log.d("[sendData]", " send byte Data !!");
+            } else {
+                Log.d("[sendData]", " Failed send byte Data null !!");
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d("[sendData]", " Failed send byte Data !!");
+            connectServer();
         }
     }
 
@@ -585,8 +617,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     int bearing, int speed, String diviceState) {
         basicUtil.setSendDate(ymd);
         basicUtil.setSendTime(hms);
-        basicUtil.setEventDate(ymd);
-        basicUtil.setEventTime(hms);
+        basicUtil.setEventDate(ymd2);
+        basicUtil.setEventTime(hms2);
         basicUtil.setRouteInfo(station0, station1, routeForm, routeDivision);
         basicUtil.setGPSInfo(lat, lng, bearing, speed);
         basicUtil.setDiviceState(diviceState);
