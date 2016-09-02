@@ -1,4 +1,4 @@
-package neighbor.com.mbis.Util;
+package neighbor.com.mbis.MapUtil;
 
 import java.util.ArrayList;
 
@@ -15,6 +15,16 @@ public class ReferenceUtil {
     private String routeName;
     private ArrayList<Double> referenceLatPosition;
     private ArrayList<Double> referenceLngPosition;
+
+    public ArrayList<Double> getDistance() {
+        return distance;
+    }
+
+    public void setDistance(ArrayList<Double> distance) {
+        this.distance = distance;
+    }
+
+    private ArrayList<Double> distance;
     private ArrayList<Integer> refernceUniqueNum;
 
     public String getRouteName() {
@@ -63,10 +73,12 @@ public class ReferenceUtil {
     public void addRefernceUniqueNum(int item) {
         refernceUniqueNum.add(item);
     }
+    public void addDistance(double item) {distance.add(item);}
 
     private ReferenceUtil() {
         referenceLatPosition = new ArrayList<Double>();
         referenceLngPosition = new ArrayList<Double>();
+        distance = new ArrayList<Double>();
         refernceUniqueNum = new ArrayList<Integer>();
     }
 }

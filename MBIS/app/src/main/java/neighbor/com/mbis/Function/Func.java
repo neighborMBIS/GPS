@@ -1,13 +1,73 @@
-package neighbor.com.mbis.function;
+package neighbor.com.mbis.Function;
 
-public class GPS_Info {
-    private static GPS_Info ourInstance = new GPS_Info();
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
-    public static GPS_Info getInstance() {
+/**
+ * Created by user on 2016-08-31.
+ */
+public class Func {
+    private static Func ourInstance = new Func();
+
+    public static Func getInstance() {
         return ourInstance;
     }
 
-    private GPS_Info() {
+    private Func() {
+    }
+
+    public static byte[] integerToByte(int in, int size) {
+        ByteBuffer buff = ByteBuffer.allocate(Integer.SIZE / 8);
+        buff.putInt(in);
+        buff.order(ByteOrder.BIG_ENDIAN);
+
+        byte[] rtn = new byte[size];
+        if(size == Integer.SIZE / 8) {
+            return buff.array();
+        } else if(size < Integer.SIZE / 8 ) {
+            System.arraycopy(buff.array(), buff.array().length - size, rtn, 0, size);
+            return rtn;
+        } else {
+            System.arraycopy(buff.array(), 0, rtn, size - buff.array().length, buff.array().length);
+            return rtn;
+        }
+    }
+
+    public static byte[] longToByte(long lng, int size) {
+        ByteBuffer buff = ByteBuffer.allocate(Long.SIZE / 8);
+        buff.putLong(lng);
+        buff.order(ByteOrder.BIG_ENDIAN);
+
+        byte[] rtn = new byte[size];
+        if(size == Long.SIZE / 8) {
+            return buff.array();
+        } else if(size < Long.SIZE / 8 ) {
+            System.arraycopy(buff.array(), buff.array().length - size, rtn, 0, size);
+            return rtn;
+        } else {
+            System.arraycopy(buff.array(), 0, rtn, size - buff.array().length, buff.array().length);
+            return rtn;
+        }
+    }
+
+    public static byte[] stringToByte(String s) {
+        byte[] b = new byte[s.length()];
+        try {
+            b = s.getBytes("ksc5601");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return b;
+    }
+
+    public static byte[] mergyByte(byte[] b1, byte[] b2) {
+        byte[] temp = new byte[b1.length + b2.length];
+
+        System.arraycopy(b1, 0, temp, 0, b1.length);
+        System.arraycopy(b2, 0, temp, b1.length, b2.length);
+
+        return temp;
     }
 
     // 두 지점 구하는 알고리즘 적용
@@ -86,38 +146,6 @@ public class GPS_Info {
         return c54;
     }
 
-    public static short bearingP1toP2(double P1_latitude, double P1_longitude,
-                               double P2_latitude, double P2_longitude) {
-        // 현재 위치 : 위도나 경도는 지구 중심을 기반으로 하는 각도이기 때문에
-        //라디안 각도로 변환한다.
-        double Cur_Lat_radian = P1_latitude * (3.141592 / 180);
-        double Cur_Lon_radian = P1_longitude * (3.141592 / 180);
-        // 목표 위치 : 위도나 경도는 지구 중심을 기반으로 하는 각도이기 때문에
-        // 라디안 각도로 변환한다.
-        double Dest_Lat_radian = P2_latitude * (3.141592 / 180);
-        double Dest_Lon_radian = P2_longitude * (3.141592 / 180);
-        // radian distance
-        double radian_distance = 0;
-        radian_distance = Math.acos(Math.sin(Cur_Lat_radian)
-                * Math.sin(Dest_Lat_radian) + Math.cos(Cur_Lat_radian)
-                * Math.cos(Dest_Lat_radian)
-                * Math.cos(Cur_Lon_radian - Dest_Lon_radian));
-        // 목적지 이동 방향을 구한다.(현재 좌표에서 다음 좌표로 이동하기 위해서는
-        //방향을 설정해야 한다. 라디안값이다.
-        double radian_bearing = Math.acos((Math.sin(Dest_Lat_radian) - Math
-                .sin(Cur_Lat_radian)
-                * Math.cos(radian_distance))
-                / (Math.cos(Cur_Lat_radian) * Math.sin(radian_distance)));
-        // acos의 인수로 주어지는 x는 360분법의 각도가 아닌 radian(호도)값이다.
-        double true_bearing = 0;
-        if (Math.sin(Dest_Lon_radian - Cur_Lon_radian) < 0) {
-            true_bearing = radian_bearing * (180 / 3.141592);
-            true_bearing = 360 - true_bearing;
-        } else {
-            true_bearing = radian_bearing * (180 / 3.141592);
-        }
-        return (short) true_bearing;
-    }
 
     public static byte[] getDirection(double bearing) {
         //A -> E 상행(0x01)
@@ -131,4 +159,5 @@ public class GPS_Info {
             return new byte[]{0x00};
         }
     }
+
 }

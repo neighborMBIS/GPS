@@ -7,18 +7,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
-import neighbor.com.mbis.DBManager.RouteStationDBManager;
-import neighbor.com.mbis.DBManager.StationDBManager;
+import neighbor.com.mbis.Database.DBManager;
 import neighbor.com.mbis.R;
-import neighbor.com.mbis.Util.ReferenceUtil;
+import neighbor.com.mbis.MapUtil.ReferenceUtil;
 
 public class RouteStationActivity extends AppCompatActivity {
 
     TextView tv;
 
     String key;
-    RouteStationDBManager rsDB = RouteStationDBManager.getInstance(this);
-    StationDBManager sDB = StationDBManager.getInstance(this);
+    DBManager db = DBManager.getInstance(this);
 
     ReferenceUtil rUtil = ReferenceUtil.getInstance();
 
@@ -32,14 +30,14 @@ public class RouteStationActivity extends AppCompatActivity {
         Intent intent = getIntent();
         key = intent.getStringExtra("routeInfo");
 
-        Cursor c = rsDB.query(new String[]{"station_id"}, "route_id=?", new String[]{key}, null, null, null);
+        Cursor c = db.queryRouteStation(new String[]{"station_id"}, "route_id=?", new String[]{key}, null, null, null);
 //        Cursor c = rsDB.myQuery(key);
 
 
         if(c != null) {
             while(c.moveToNext()) {
                 String sid = c.getString(0);
-                Cursor cs = sDB.query(
+                Cursor cs = db.queryStation(
                         new String[]{"station_id", "station_nm", "admin_nm", "sido_cd", "x", "y"},
                         "station_id=?",
                         new String[]{sid},
@@ -61,7 +59,6 @@ public class RouteStationActivity extends AppCompatActivity {
                         tv.append("[ 5 : " + idx[5] + " ] ");
                         tv.append("\n\n");
 
-
                         rUtil.addReferenceLatPosition(Double.parseDouble(idx[5]));
                         rUtil.addReferenceLngPosition(Double.parseDouble(idx[4]));
                         rUtil.addRefernceUniqueNum(Integer.parseInt(idx[0]));
@@ -78,7 +75,6 @@ public class RouteStationActivity extends AppCompatActivity {
         switch (v.getId()) {
             case R.id.goMap:
                 startActivity(new Intent(this, MapActivity.class));
-                finish();
                 break;
         }
     }
