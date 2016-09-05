@@ -5,14 +5,14 @@ import neighbor.com.mbis.Function.Func;
 /**
  * Created by user on 2016-09-01.
  */
-public class Form_Body_default {
-    private static Form_Body_default ourInstance = new Form_Body_default();
+public class Form_Body_Default {
+    private static Form_Body_Default ourInstance = new Form_Body_Default();
 
-    public static Form_Body_default getInstance() {
+    public static Form_Body_Default getInstance() {
         return ourInstance;
     }
 
-    private Form_Body_default() {
+    private Form_Body_Default() {
     }
 
     private byte[] sendDate;

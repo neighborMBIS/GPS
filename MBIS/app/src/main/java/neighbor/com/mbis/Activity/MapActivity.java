@@ -11,10 +11,7 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -40,7 +37,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Calendar;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.TimeZone;
 
 import neighbor.com.mbis.Function.Func;
@@ -48,7 +44,7 @@ import neighbor.com.mbis.MapUtil.Form.Form_Body_ArriveStation;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_EndDrive;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_StartDrive;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_StartStation;
-import neighbor.com.mbis.MapUtil.Form.Form_Body_default;
+import neighbor.com.mbis.MapUtil.Form.Form_Body_Default;
 import neighbor.com.mbis.MapUtil.Form.Form_Header;
 import neighbor.com.mbis.MapUtil.MapVal;
 import neighbor.com.mbis.MapUtil.OP_code;
@@ -77,7 +73,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
     Form_Header hd = Form_Header.getInstance();
-    Form_Body_default bd = Form_Body_default.getInstance();
+    Form_Body_Default bd = Form_Body_Default.getInstance();
     Form_Body_ArriveStation bas = Form_Body_ArriveStation.getInstance();
     Form_Body_StartStation bss = Form_Body_StartStation.getInstance();
     Form_Body_StartDrive bsd = Form_Body_StartDrive.getInstance();
@@ -88,8 +84,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     static boolean mflag = false;
     final int DETECTRANGE = 30;
     static int stationBuf = -1;
+    static int arriveStationTurn = 0;
 
     static byte[] op;
+    static int sr_cnt;
 
     //통신 변수들
     Socket socket;
@@ -195,22 +193,34 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             public void onLocationChanged(Location location) {
 
                 addUtilDefault(location, gpsStatus);
-                setHeader();
-                setBody_Default();
-
 
                 for (int i = 0; i < ref.getDistance().size(); i++) {
 
                     if (ref.getDistance().get(i) < DETECTRANGE && i == ref.getReferenceLatPosition().size() - 1 && !mflag) {
-                        stationBuf = i;
                         //마지막 역 도착 운행종료
+                        stationBuf = i;
+                        op = new byte[]{0x31};
+
+                        addUtilEndDrive();
+
+                        setHeader();
+                        setBody_Default();
+                        setBody_EndDrive();
+                        op_code = new OP_code(op);
+
+                        writeLogFile();
+
                         mflag = true;
                     } else if (ref.getDistance().get(i) < DETECTRANGE && !mflag) {
                         //역에 도착했을 때
                         stationBuf = i;
                         op = new byte[]{0x21};
+
 //
                         addUtilArriveStation();
+
+                        setHeader();
+                        setBody_Default();
                         setBody_ArriveStation();
                         op_code = new OP_code(op);
 
@@ -229,6 +239,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         op = new byte[]{0x15};
 
                         addUtilStartDrive();
+
+                        setHeader();
+                        setBody_Default();
                         setBody_StartDrive();
                         op_code = new OP_code(op);
 
@@ -241,6 +254,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         op = new byte[]{0x22};
 
                         addUtilStartStation();
+
+                        setHeader();
+                        setBody_Default();
                         setBody_StartStation();
                         op_code = new OP_code(op);
 
@@ -449,6 +465,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         bas.setStationTurn(mv.getArriveStationTurn());
         bas.setAdjacentTravelTime(mv.getAdjacentTravelTime());
         bas.setReservation(mv.getReservation());
+        arriveStationTurn++;
     }
     public void setBody_StartStation() {
         bss.setStationId(mv.getArriveStationID());
@@ -457,11 +474,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         bss.setServiceTime(mv.getServiceTime());
         bss.setAdjacentTravelTime(mv.getAdjacentTravelTime());
         bss.setReservation(mv.getReservation());
+        arriveStationTurn++;
     }
     public void setBody_StartDrive() {
         bsd.setDriveDivision(mv.getDriveDivision());
         bsd.setReservation(mv.getReservation());
     }
+    public void setBody_EndDrive() {
+        bed.setDriveDate(mv.getDriveDate());
+        bed.setStartTime(mv.getDriveStartTime());
+        bed.setStationId(mv.getArriveStationID());
+        bed.setStationTurn(mv.getArriveStationTurn());
+        bed.setDriveTurn(mv.getDriveTurn());
+        bed.setDetectStationNum(mv.getDetectStationNum());
+        bed.setUndetectStationNum(mv.getUndetectStationNum());
+        bed.setDetectCrossRoadNum(mv.getDetectCrossRoadNum());
+        bed.setUndetectCrossRoadNum(mv.getUndetectCrossRoadNum());
+        bed.setReservation(mv.getReservation());
+    }
+
     public void addUtilDefault(Location location, GpsStatus gpsStatus) {
         TimeZone jst = TimeZone.getTimeZone("JST");
         Calendar cal = Calendar.getInstance(jst);
@@ -493,8 +524,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mv.setEventSec(cal.get(Calendar.SECOND));
 
         //노선정보
-        mv.setRouteID(1L);
-        mv.setRouteNum("111-11");
+        mv.setRouteID(ref.getRouteID());
+        mv.setRouteNum(ref.getRouteName());
         mv.setRouteForm("1");
         mv.setRouteDivision("00");
 
@@ -522,22 +553,36 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     public void addUtilArriveStation() {
-        mv.setArriveStationID(10101010);
-        mv.setArriveStationTurn(1);
-        mv.setAdjacentTravelTime(10);
-        mv.setReservation(1);
+        mv.setArriveTimeBuf(mv.getSendHour()*3600 + mv.getSendMin()*60 + mv.getSendSec());
+        mv.setArriveStationID(ref.getRefernceUniqueNum().get(stationBuf));
+        mv.setArriveStationTurn(arriveStationTurn);
+        mv.setAdjacentTravelTime(mv.getArriveTimeBuf() - mv.getStartTimeBuf());
+        mv.setReservation(2);
     }
     public void addUtilStartStation() {
-        mv.setArriveStationID(20202020);
-        mv.setArriveStationTurn(2);
+        mv.setStartTimeBuf(mv.getSendHour()*3600 + mv.getSendMin()*60 + mv.getSendSec());
+        mv.setArriveStationID(ref.getRefernceUniqueNum().get(stationBuf));
+        mv.setArriveStationTurn(arriveStationTurn);
         mv.setDriveTurn(3);
         mv.setServiceTime(4);
-        mv.setAdjacentTravelTime(5);
-        mv.setReservation(1);
+        mv.setAdjacentTravelTime(mv.getArriveTimeBuf() - mv.getStartTimeBuf());
+        mv.setReservation(2);
     }
     public void addUtilStartDrive() {
-        mv.setDriveDivision(1);
+        mv.setDriveDate(String.format("%02d", mv.getSendYear()) + String.format("%02d", mv.getSendMonth()) + String.format("%02d", mv.getSendDay()));
+        mv.setDriveStartTime(String.format("%02d", mv.getSendHour()) + String.format("%02d", mv.getSendMin()) + String.format("%02d", mv.getSendSec()));
+        mv.setDriveDivision(0);
         mv.setReservation(3);
+    }
+    public void addUtilEndDrive() {
+        mv.setArriveStationID(ref.getRefernceUniqueNum().get(stationBuf));
+        mv.setArriveStationTurn(arriveStationTurn);
+        mv.setDriveTurn(65535);
+        mv.setDetectStationNum(56797);
+        mv.setUndetectStationNum(61166);
+        mv.setDetectCrossRoadNum(52428);
+        mv.setUndetectCrossRoadNum(43981);
+        mv.setReservation(43690);
     }
 
     public void writeLogFile() {
@@ -552,5 +597,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         eventtextView.append("\n");
         eventscroll.fullScroll(View.FOCUS_DOWN);
+        sr_cnt++;
     }
 }

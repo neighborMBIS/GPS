@@ -33,6 +33,7 @@ import neighbor.com.mbis.CSV_Util.RouteStationUtil;
 import neighbor.com.mbis.CSV_Util.RouteUtil;
 import neighbor.com.mbis.CSV_Util.StationUtil;
 import neighbor.com.mbis.Database.DBManager;
+import neighbor.com.mbis.MapUtil.MapVal;
 import neighbor.com.mbis.R;
 import neighbor.com.mbis.MapUtil.ReferenceUtil;
 
@@ -42,8 +43,8 @@ public class SelectRouteActivity extends AppCompatActivity {
     DBManager db;
     TextView tv;
     SimpleCursorAdapter scAdapter;
-    ArrayList<String> arr = new ArrayList<String>();
     ReferenceUtil rUtil = ReferenceUtil.getInstance();
+
     SharedPreferences pref;
     private static final String MY_DB="my_db";
     private static String HasVisited = "hasVisited";
@@ -78,6 +79,7 @@ public class SelectRouteActivity extends AppCompatActivity {
                 Cursor c = (Cursor)mList.getItemAtPosition(position);
 
                 String text = c.getString(1).toString();
+                rUtil.setRouteID(Long.parseLong(text));
                 rUtil.setRouteName(c.getString(2).toString());
 
 

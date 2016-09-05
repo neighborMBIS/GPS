@@ -12,6 +12,9 @@ public class ReferenceUtil {
         return ourInstance;
     }
 
+    private long routeID;
+
+
     private String routeName;
     private ArrayList<Double> referenceLatPosition;
     private ArrayList<Double> referenceLngPosition;
@@ -39,6 +42,13 @@ public class ReferenceUtil {
     }
 
 
+    public long getRouteID() {
+        return routeID;
+    }
+
+    public void setRouteID(long routeID) {
+        this.routeID = routeID;
+    }
 
     public ArrayList<Double> getReferenceLatPosition() {
         return referenceLatPosition;

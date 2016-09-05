@@ -16,6 +16,9 @@ public class MapVal {
         }
     }
 
+    //계산용 버퍼
+    int arriveTimeBuf, startTimeBuf;
+
     //헤더
     private int version = 1, sr_cnt = 0, localCode = 0, dataLength = 0;
     private long deviceID = 0;
@@ -35,6 +38,7 @@ public class MapVal {
     private int arriveStationTurn;
 
     //도출
+    public static int bufTime;
     private int adjacentTravelTime;
 
     //출종
@@ -46,13 +50,13 @@ public class MapVal {
     //시
     private int driveDivision;
 
-    //종종
+    //종
     private String driveDate;
     private String driveStartTime;
-    private int stationCheckSuccessNum;
-    private int stationCheckFailNum;
-    private int crossRoadDetectSuccessNum;
-    private int crossRoadDetectFailNum;
+    private int detectStationNum;
+    private int undetectStationNum;
+    private int detectCrossRoadNum;
+    private int undetectCrossRoadNum;
 
 
     public int getVersion() {
@@ -335,35 +339,53 @@ public class MapVal {
         this.driveStartTime = driveStartTime;
     }
 
-    public int getStationCheckSuccessNum() {
-        return stationCheckSuccessNum;
+    public int getDetectStationNum() {
+        return detectStationNum;
     }
 
-    public void setStationCheckSuccessNum(int stationCheckSuccessNum) {
-        this.stationCheckSuccessNum = stationCheckSuccessNum;
+    public void setDetectStationNum(int detectStationNum) {
+        this.detectStationNum = detectStationNum;
     }
 
-    public int getStationCheckFailNum() {
-        return stationCheckFailNum;
+    public int getUndetectStationNum() {
+        return undetectStationNum;
     }
 
-    public void setStationCheckFailNum(int stationCheckFailNum) {
-        this.stationCheckFailNum = stationCheckFailNum;
+    public void setUndetectStationNum(int undetectStationNum) {
+        this.undetectStationNum = undetectStationNum;
     }
 
-    public int getCrossRoadDetectSuccessNum() {
-        return crossRoadDetectSuccessNum;
+    public int getDetectCrossRoadNum() {
+        return detectCrossRoadNum;
     }
 
-    public void setCrossRoadDetectSuccessNum(int crossRoadDetectSuccessNum) {
-        this.crossRoadDetectSuccessNum = crossRoadDetectSuccessNum;
+    public void setDetectCrossRoadNum(int detectCrossRoadNum) {
+        this.detectCrossRoadNum = detectCrossRoadNum;
     }
 
-    public int getCrossRoadDetectFailNum() {
-        return crossRoadDetectFailNum;
+    public int getUndetectCrossRoadNum() {
+        return undetectCrossRoadNum;
     }
 
-    public void setCrossRoadDetectFailNum(int crossRoadDetectFailNum) {
-        this.crossRoadDetectFailNum = crossRoadDetectFailNum;
+    public void setUndetectCrossRoadNum(int undetectCrossRoadNum) {
+        this.undetectCrossRoadNum = undetectCrossRoadNum;
     }
+
+
+    public int getArriveTimeBuf() {
+        return arriveTimeBuf;
+    }
+
+    public void setArriveTimeBuf(int arriveTimeBuf) {
+        this.arriveTimeBuf = arriveTimeBuf;
+    }
+
+    public int getStartTimeBuf() {
+        return startTimeBuf;
+    }
+
+    public void setStartTimeBuf(int startTimeBuf) {
+        this.startTimeBuf = startTimeBuf;
+    }
+
 }

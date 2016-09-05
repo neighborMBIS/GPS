@@ -4,7 +4,7 @@ import neighbor.com.mbis.MapUtil.Form.Form_Body_ArriveStation;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_EndDrive;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_StartDrive;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_StartStation;
-import neighbor.com.mbis.MapUtil.Form.Form_Body_default;
+import neighbor.com.mbis.MapUtil.Form.Form_Body_Default;
 import neighbor.com.mbis.MapUtil.Form.Form_Header;
 
 /**
@@ -12,16 +12,18 @@ import neighbor.com.mbis.MapUtil.Form.Form_Header;
  */
 public class OP_code {
     Form_Header h = Form_Header.getInstance();
-    Form_Body_default bd = Form_Body_default.getInstance();
+    Form_Body_Default bd = Form_Body_Default.getInstance();
     Form_Body_ArriveStation bas = Form_Body_ArriveStation.getInstance();
     Form_Body_StartDrive bsd = Form_Body_StartDrive.getInstance();
     Form_Body_StartStation bss = Form_Body_StartStation.getInstance();
+    Form_Body_EndDrive bed = Form_Body_EndDrive.getInstance();
 
     static byte[] headerBuf = null;
     static byte[] bodyBuf_Default = null;
     static byte[] bodyBuf_ArriveStation = null;
     static byte[] bodyBuf_StartStation = null;
     static byte[] bodyBuf_StartDrive = null;
+    static byte[] bodyBuf_EndDrive = null;
 
 
     public OP_code(byte[] op) {
@@ -32,17 +34,15 @@ public class OP_code {
         if(op[0] == 0x15) {
             //drive start
             SendData.sendData = makeBodyStartDrive();
-//            SendData.sendData = op;
         } else if (op[0] == 0x21) {
             //station arrive
             SendData.sendData = makeBodyArriveStation();
-//            SendData.sendData = op;
         } else if(op[0] == 0x22) {
             //station start
             SendData.sendData = makeBodyStartStation();
-//            SendData.sendData = op;
         } else if(op[0] == 0x31) {
             //drive end
+            SendData.sendData = makeBodyEndDrive();
         }
     }
 
@@ -107,6 +107,25 @@ public class OP_code {
         return bodyBuf_StartDrive;
     }
 
+    private byte[] makeBodyEndDrive() {
+        bodyBuf_EndDrive = new byte[Position.BODY_DRIVE_END_SIZE];
+
+        putBody_EndDrive(bodyBuf_Default, Position.HEADER_VERSION_START);
+        putBody_EndDrive(bed.getDriveDate(), Position.BODY_DRIVE_END_DRIVEDATE);
+        putBody_EndDrive(bed.getStartTime(), Position.BODY_DRIVE_END_STARTTIME);
+        putBody_EndDrive(bed.getStationId(), Position.BODY_DRIVE_END_STATIONID);
+        putBody_EndDrive(bed.getStationTurn(), Position.BODY_DRIVE_END_STATIONTURN);
+        putBody_EndDrive(bed.getDriveTurn(), Position.BODY_DRIVE_END_DRIVETURN);
+        putBody_EndDrive(bed.getDetectStationNum(), Position.BODY_DRIVE_END_DETECTIONSTATIONNUM);
+        putBody_EndDrive(bed.getUndetectStationNum(), Position.BODY_DRIVE_END_UNSENTSTATIONNUM);
+        putBody_EndDrive(bed.getDetectCrossRoadNum(), Position.BODY_DRIVE_END_CROSSROADDETECTIONNUM);
+        putBody_EndDrive(bed.getUndetectCrossRoadNum(), Position.BODY_DRIVE_END_UNSENTCROSSROADNUM);
+        putBody_EndDrive(bed.getReservation(), Position.BODY_DRIVE_END_RESERVATION);
+
+        return bodyBuf_EndDrive;
+    }
+
+
     private void putHeader(byte[] b, int position) {
         System.arraycopy(b, 0, headerBuf, position, b.length);
     }
@@ -121,5 +140,8 @@ public class OP_code {
     }
     private void putBody_StartStation(byte[] b, int position) {
         System.arraycopy(b, 0, bodyBuf_StartStation, position, b.length);
+    }
+    private void putBody_EndDrive(byte[] b, int position) {
+        System.arraycopy(b, 0, bodyBuf_EndDrive, position, b.length);
     }
 }
