@@ -20,8 +20,8 @@ public class MapVal {
     int arriveTimeBuf, startTimeBuf;
 
     //헤더
-    private int version = 1, sr_cnt = 0, localCode = 0, dataLength = 0;
-    private long deviceID = 0;
+    private int version = 1, sr_cnt = 171, localCode = 52719, dataLength = 65535;
+    private long deviceID = 188900977659375L;
 
     //기본정보
     private int sendYear, sendMonth, sendDay, sendHour, sendMin, sendSec,

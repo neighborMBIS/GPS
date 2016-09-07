@@ -35,9 +35,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activity.RouteStationActivity"></activity>
+        <activity android:name=".Activity.RouteStationActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
-        <activity android:name=".Activity.MapActivity"></activity>
+        <activity android:name=".Activity.MapActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

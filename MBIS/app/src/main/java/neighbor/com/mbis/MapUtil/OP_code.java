@@ -33,16 +33,16 @@ public class OP_code {
 
         if(op[0] == 0x15) {
             //drive start
-            SendData.sendData = makeBodyStartDrive();
+            SendData.data = makeBodyStartDrive();
         } else if (op[0] == 0x21) {
             //station arrive
-            SendData.sendData = makeBodyArriveStation();
+            SendData.data = makeBodyArriveStation();
         } else if(op[0] == 0x22) {
             //station start
-            SendData.sendData = makeBodyStartStation();
+            SendData.data = makeBodyStartStation();
         } else if(op[0] == 0x31) {
             //drive end
-            SendData.sendData = makeBodyEndDrive();
+            SendData.data = makeBodyEndDrive();
         }
     }
 

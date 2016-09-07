@@ -9,11 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -27,15 +24,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 import neighbor.com.mbis.CSV_Util.RouteStationUtil;
-import neighbor.com.mbis.CSV_Util.RouteUtil;
-import neighbor.com.mbis.CSV_Util.StationUtil;
 import neighbor.com.mbis.Database.DBManager;
-import neighbor.com.mbis.MapUtil.MapVal;
+import neighbor.com.mbis.MapUtil.RouteBuffer;
 import neighbor.com.mbis.R;
-import neighbor.com.mbis.MapUtil.ReferenceUtil;
 
 public class SelectRouteActivity extends AppCompatActivity {
 
@@ -43,7 +36,7 @@ public class SelectRouteActivity extends AppCompatActivity {
     DBManager db;
     TextView tv;
     SimpleCursorAdapter scAdapter;
-    ReferenceUtil rUtil = ReferenceUtil.getInstance();
+    RouteBuffer rBuf = RouteBuffer.getInstance();
 
     SharedPreferences pref;
     private static final String MY_DB="my_db";
@@ -65,9 +58,9 @@ public class SelectRouteActivity extends AppCompatActivity {
         scAdapter = new SimpleCursorAdapter(
                 this,
                 R.layout.item,
-                db.queryRoute(new String[]{"_id", "id", "route_id"}, null, null, null, null, null),
-                new String[]{"route_id"},
-                new int[]{R.id.busNum}
+                db.queryRoute(new String[]{"_id", "id", "route_id", "direction"}, null, null, null, null, null),
+                new String[]{"route_id", "direction"},
+                new int[]{R.id.busNum, R.id.busDivision}
         );
 
         mList.setAdapter(scAdapter);
@@ -79,9 +72,10 @@ public class SelectRouteActivity extends AppCompatActivity {
                 Cursor c = (Cursor)mList.getItemAtPosition(position);
 
                 String text = c.getString(1).toString();
-                rUtil.setRouteID(Long.parseLong(text));
-                rUtil.setRouteName(c.getString(2).toString());
-
+                rBuf.setRouteID(Long.parseLong(text));
+                rBuf.setRouteName(c.getString(2).toString());
+                String dir = c.getString(3).toString();
+                rBuf.setDirection(Integer.parseInt(dir));
 
                 Intent i = new Intent(getApplicationContext(), RouteStationActivity.class);
                 i.putExtra("routeInfo", text);
@@ -104,7 +98,7 @@ public class SelectRouteActivity extends AppCompatActivity {
                 String[] rowData = line.split(",");
 
                 //Create a State object for this row's data.
-                RouteUtil r = new RouteUtil();
+                neighbor.com.mbis.CSV_Util.RouteUtil r = new neighbor.com.mbis.CSV_Util.RouteUtil();
                 r.setId(rowData[0]);
                 r.setRoute_id(rowData[1]);
                 r.setSt_sta_id(rowData[3]);
@@ -112,6 +106,7 @@ public class SelectRouteActivity extends AppCompatActivity {
                 r.setCompany_nm(rowData[9]);
                 r.setAdmin_nm(rowData[10]);
                 r.setCompany_id(rowData[11]);
+                r.setDirection(rowData[14]);
 
                 addRouteUtil(r);
             }
@@ -120,7 +115,7 @@ public class SelectRouteActivity extends AppCompatActivity {
         }
     }
 
-    private void addRouteUtil(RouteUtil ru) {
+    private void addRouteUtil(neighbor.com.mbis.CSV_Util.RouteUtil ru) {
 //        mDatabase = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -131,6 +126,7 @@ public class SelectRouteActivity extends AppCompatActivity {
         values.put("company_nm", ru.getCompany_nm());
         values.put("admin_nm", ru.getAdmin_nm());
         values.put("company_id", ru.getCompany_id());
+        values.put("direction", ru.getDirection());
 
         // Inserting Row
         db.insertRoute(values);
@@ -150,7 +146,7 @@ public class SelectRouteActivity extends AppCompatActivity {
                 String[] rowData = line.split(",");
 
                 //Create a State object for this row's data.
-                StationUtil s = new StationUtil();
+                neighbor.com.mbis.CSV_Util.StationUtil s = new neighbor.com.mbis.CSV_Util.StationUtil();
                 s.setStation_id(rowData[0]);
                 s.setStation_nm(rowData[1]);
                 s.setAdmin_nm(rowData[4]);
@@ -167,7 +163,7 @@ public class SelectRouteActivity extends AppCompatActivity {
 
     }
 
-    private void addStationUtil(StationUtil su) {
+    private void addStationUtil(neighbor.com.mbis.CSV_Util.StationUtil su) {
         ContentValues values = new ContentValues();
 
         values.put("station_id", su.getStation_id()); // Contact Name
@@ -198,12 +194,11 @@ public class SelectRouteActivity extends AppCompatActivity {
                 //Create a State object for this row's data.
                 RouteStationUtil rs = new RouteStationUtil();
                 rs.setRoute_id(rowData[0]);
-                rs.setStation_order(rowData[1]);
+                rs.setStation_order(Integer.parseInt(rowData[1]));
                 rs.setStation_id(rowData[2]);
                 rs.setLink_order(rowData[3]);
-                rs.setRemark(rowData[4]);
-
-
+                rs.setDirection(rowData[4]);
+                rs.setRemark(rowData[5]);
 
 
                 addRouteStationUtil(rs);
@@ -223,6 +218,7 @@ public class SelectRouteActivity extends AppCompatActivity {
         values.put("station_order", rsu.getStation_order());
         values.put("station_id", rsu.getStation_id());
         values.put("link_order", rsu.getLink_order());
+        values.put("direction", rsu.getDirection());
         values.put("remark", rsu.getRemark());
 
         // Inserting Row

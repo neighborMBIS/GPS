@@ -12,6 +12,8 @@ public class RouteUtil {
     private String company_nm;
     private String admin_nm;
     private String company_id;
+    private String direction;
+
 
     public String getCompany_id() {
         return company_id;
@@ -70,5 +72,12 @@ public class RouteUtil {
     }
 
 
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
 
 }

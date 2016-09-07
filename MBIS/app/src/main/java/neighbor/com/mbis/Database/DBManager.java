@@ -36,6 +36,7 @@ public class DBManager {
     private static final String company_nm = "company_nm";
     private static final String admin_nm = "admin_nm";
     private static final String company_id = "company_id";
+    private static final String direction = "direction";
 
 
     private static final String station_id = "station_id";
@@ -61,7 +62,8 @@ public class DBManager {
                 ed_sta_id + " TEXT," +
                 company_nm + " TEXT," +
                 admin_nm + " TEXT," +
-                company_id + " TEXT " +
+                company_id + " TEXT, " +
+                direction + " TEXT " +
                 ");";
 
         String makeDBS = "CREATE TABLE IF NOT EXISTS " + TABLE_NAMES + " (" +
@@ -77,9 +79,10 @@ public class DBManager {
         String makeDBRS = "CREATE TABLE IF NOT EXISTS " + TABLE_NAMERS + " (" +
                 "_id integer primary key autoincrement," +
                 route_id + " TEXT," +
-                station_order + " TEXT," +
+                station_order + " integer," +
                 station_id + " TEXT," +
                 link_order + " TEXT," +
+                direction + " TEXT, " +
                 remark + " TEXT" +
                 ");";
 

@@ -8,8 +8,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import neighbor.com.mbis.Database.DBManager;
+import neighbor.com.mbis.MapUtil.RouteBuffer;
 import neighbor.com.mbis.R;
-import neighbor.com.mbis.MapUtil.ReferenceUtil;
+import neighbor.com.mbis.MapUtil.StationBuffer;
 
 public class RouteStationActivity extends AppCompatActivity {
 
@@ -18,7 +19,8 @@ public class RouteStationActivity extends AppCompatActivity {
     String key;
     DBManager db = DBManager.getInstance(this);
 
-    ReferenceUtil rUtil = ReferenceUtil.getInstance();
+    StationBuffer sBuf = StationBuffer.getInstance();
+    RouteBuffer rBuf = RouteBuffer.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,13 +32,22 @@ public class RouteStationActivity extends AppCompatActivity {
         Intent intent = getIntent();
         key = intent.getStringExtra("routeInfo");
 
-        Cursor c = db.queryRouteStation(new String[]{"station_id"}, "route_id=?", new String[]{key}, null, null, null);
+        Cursor c = db.queryRouteStation(
+                new String[]{"station_id", "station_order", "direction", "remark"},
+                "route_id=? and direction=?",
+                new String[]{key, Integer.toString(rBuf.getDirection())},
+                null,
+                null,
+                "station_order"
+        );
+
 //        Cursor c = rsDB.myQuery(key);
 
 
         if(c != null) {
             while(c.moveToNext()) {
                 String sid = c.getString(0);
+
                 Cursor cs = db.queryStation(
                         new String[]{"station_id", "station_nm", "admin_nm", "sido_cd", "x", "y"},
                         "station_id=?",
@@ -59,9 +70,9 @@ public class RouteStationActivity extends AppCompatActivity {
                         tv.append("[ 5 : " + idx[5] + " ] ");
                         tv.append("\n\n");
 
-                        rUtil.addReferenceLatPosition(Double.parseDouble(idx[5]));
-                        rUtil.addReferenceLngPosition(Double.parseDouble(idx[4]));
-                        rUtil.addRefernceUniqueNum(Integer.parseInt(idx[0]));
+                        sBuf.getReferenceLatPosition().add( Double.parseDouble(idx[5]));
+                        sBuf.getReferenceLngPosition().add( Double.parseDouble(idx[4]));
+                        sBuf.getReferenceStationId().add( Long.parseLong(idx[0]));
                     }
                 }
 
@@ -77,5 +88,12 @@ public class RouteStationActivity extends AppCompatActivity {
                 startActivity(new Intent(this, MapActivity.class));
                 break;
         }
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        sBuf.getReferenceStationId().clear();
+        sBuf.getReferenceLatPosition().clear();
+        sBuf.getReferenceLngPosition().clear();
     }
 }

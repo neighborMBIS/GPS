@@ -6,10 +6,11 @@ package neighbor.com.mbis.CSV_Util;
 public class RouteStationUtil {
 
     private String route_id;
-    private String station_order;
+    private int station_order;
     private String station_id;
     private String link_order;
     private String remark;
+    private String direction;
 
     public String getRoute_id() {
         return route_id;
@@ -19,11 +20,11 @@ public class RouteStationUtil {
         this.route_id = route_id;
     }
 
-    public String getStation_order() {
+    public int getStation_order() {
         return station_order;
     }
 
-    public void setStation_order(String station_order) {
+    public void setStation_order(int station_order) {
         this.station_order = station_order;
     }
 
@@ -49,5 +50,14 @@ public class RouteStationUtil {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
     }
 }

@@ -6,41 +6,48 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:background="@drawable/my_border"
+        android:padding="3dp"
+        android:layout_margin="2dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="현재위치:  "
-            android:id="@+id/textView2" />
+            android:text="Location"
+            android:textSize="20dp"
+            android:textColor="#a000"
+            android:layout_marginTop="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/my_border"
+            android:padding="4dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="위도 :"
+            android:text="Lat :"
             android:id="@+id/curlat"
             android:layout_weight="0.28" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="경도 :"
+            android:text="Lng :"
             android:id="@+id/curlon"
             android:layout_weight="0.28" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="방위각:"
-            android:id="@+id/bearing"
-            android:layout_weight="0.28" />
+/>
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.6">
+        android:layout_weight="0.6"
+        android:background="@drawable/my_border"
+        android:padding="5dp"
+        android:layout_margin="3dp">
 
         <LinearLayout
             android:orientation="vertical"
@@ -50,6 +57,13 @@
             android:layout_gravity="top">
 
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000"
+                android:text="Network Log"
+                android:id="@+id/textView3" />
+
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -58,16 +72,31 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="실시간"
-                    android:id="@+id/realtimetext" />
+                    android:text=""
+                    android:id="@+id/eventtext" />
             </ScrollView>
         </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="#a0000000"></LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="0.5">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000"
+                android:text="Device Log"
+                android:id="@+id/textView4" />
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -77,8 +106,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Event"
-                    android:id="@+id/eventtext" />
+                    android:text=""
+                    android:id="@+id/devicetext" />
             </ScrollView>
         </LinearLayout>
 
@@ -87,8 +116,8 @@
     <com.google.android.gms.maps.MapView
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.2">
+        android:layout_height="250dp"
+        android:layout_margin="3dp">
     </com.google.android.gms.maps.MapView>
 
 </LinearLayout>
