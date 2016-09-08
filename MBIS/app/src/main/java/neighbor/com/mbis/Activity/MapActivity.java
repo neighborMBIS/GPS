@@ -40,18 +40,20 @@ import java.util.Iterator;
 import java.util.TimeZone;
 
 import neighbor.com.mbis.Function.Func;
+import neighbor.com.mbis.MapUtil.Value.LogicBuffer;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_ArriveStation;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_EndDrive;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_StartDrive;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_StartStation;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_Default;
 import neighbor.com.mbis.MapUtil.Form.Form_Header;
-import neighbor.com.mbis.MapUtil.MapVal;
+import neighbor.com.mbis.MapUtil.Value.MapVal;
 import neighbor.com.mbis.MapUtil.OP_code;
-import neighbor.com.mbis.MapUtil.RouteBuffer;
+import neighbor.com.mbis.MapUtil.Value.RouteBuffer;
 import neighbor.com.mbis.MapUtil.SendData;
+import neighbor.com.mbis.MapUtil.Value.StationSubBuffer;
 import neighbor.com.mbis.R;
-import neighbor.com.mbis.MapUtil.StationBuffer;
+import neighbor.com.mbis.MapUtil.Value.StationBuffer;
 import neighbor.com.mbis.Function.FileManage;
 import neighbor.com.mbis.googlemap.AddMarker;
 
@@ -63,6 +65,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     Marker busMarker;
 
     StationBuffer sBuf = StationBuffer.getInstance();
+    StationSubBuffer ssBuf = StationSubBuffer.getInstance();
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
     TextView currentlatView, currentlonView, eventtextView, devicetext;
@@ -77,13 +80,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     Form_Body_StartStation bss = Form_Body_StartStation.getInstance();
     Form_Body_StartDrive bsd = Form_Body_StartDrive.getInstance();
     Form_Body_EndDrive bed = Form_Body_EndDrive.getInstance();
+
     MapVal mv = MapVal.getInstance();
+    LogicBuffer lBuf = LogicBuffer.getInstance();
     OP_code op_code;
 
-    static boolean mflag = false;
     final int DETECTRANGE = 30;
+
+    static boolean mflag = false;
+    static boolean startFlag = false;
     static int stationBuf = -1;
     static int arriveStationTurn = 0;
+    int directionSwitch = rBuf.getDirection();
 
     static byte[] op;
     static int sr_cnt;
@@ -99,10 +107,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private DataOutputStream dos;
     private Thread thread;
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
     //이벤트 발생할 때 데이터 전송하려면 이벤트 발생하는곳에 사용 : sendData(byte[]배열);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,86 +193,214 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             public void onLocationChanged(Location location) {
 
                 addUtilDefault(location, gpsStatus);
+                if (directionSwitch == rBuf.getDirection()) {
+                    for (int i = 0; i < sBuf.getDistance().size(); i++) {
+                        if (sBuf.getDistance().get(i) < DETECTRANGE && i == 0 && !mflag) {
+                            //도착지점이 A라면 A가 차고지가 되어 운행시작을 알림
+                            driveStart();
+                            devicetext.append("\n첫 번째 역에서 운행 시작 " );
 
-                for (int i = 0; i < sBuf.getDistance().size(); i++) {
-                    if (sBuf.getDistance().get(i) < DETECTRANGE && i == 0 && !mflag) {
-                        //도착지점이 A라면 A가 차고지가 되어 운행시작을 알림
-                        op = new byte[]{0x15};
-                        devicetext.append("\n첫 번째 역에서 운행 시작");
+                            stationArrive(i);
+                            devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 역 도착");
+                            Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                    + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
 
-                        addUtilStartDrive();
+                        }
+                        if (sBuf.getDistance().get(i) < DETECTRANGE && !mflag) {
+                            //역에 도착했을 때
+                            stationBuf = i;
 
-                        setHeader();
-                        setBody_Default();
-                        setBody_StartDrive();
-                        op_code = new OP_code(op);
+                            LogicBuffer.jumpBuf[0] = LogicBuffer.jumpBuf[1];
+                            LogicBuffer.jumpBuf[1] = LogicBuffer.jumpBuf[2];
+                            LogicBuffer.jumpBuf[2] = stationBuf;
 
-                        writeLogFile();
+                            LogicBuffer.startBuf[0] = LogicBuffer.startBuf[1];
+                            LogicBuffer.startBuf[1] = LogicBuffer.startBuf[2];
+                            LogicBuffer.startBuf[2] = stationBuf;
 
-                    }
-                    if (sBuf.getDistance().get(i) < DETECTRANGE && !mflag) {
-                        //역에 도착했을 때
-                        stationBuf = i;
-                        op = new byte[]{0x21};
-                        devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 역 도착");
+                            //운행 시작 이후 도착 이벤트 발생
+                            if (startFlag) {
+                                //다음 순서대로 잘 갔는지 비교
+                                if (LogicBuffer.jumpBuf[2] - LogicBuffer.jumpBuf[1] == LogicBuffer.jumpBuf[1] - LogicBuffer.jumpBuf[0]
+                                        && LogicBuffer.jumpBuf[2] - LogicBuffer.jumpBuf[0] < 3) {
 
-                        addUtilArriveStation();
+                                    stationArrive();
 
-                        setHeader();
-                        setBody_Default();
-                        setBody_ArriveStation();
-                        op_code = new OP_code(op);
+                                    devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 역 도착");
+                                    Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                            + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
 
-                        writeLogFile();
-                        if(stationBuf != sBuf.getReferenceLatPosition().size() -1) {
-                            mflag = true;
+                                } else {
+                                    devicetext.append("\n역 점프로 인한 운행 종료");
+                                    Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                            + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
+                                    startFlag = false;
+                                }
+                            }
+                            //비정상 출발일 시 연속된 3역을 검사한다.
+                            else {
+                                //만약 3 역의 차이가 4보다 적다면 해당 역에서 출발시킨다.
+                                if (LogicBuffer.startBuf[2] - LogicBuffer.startBuf[0] < 4) {
+                                    driveStart();
+                                    stationArrive();
+
+                                    devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 에서 비정상 운행 시작");
+                                    devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 역 도착");
+                                    Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                            + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
+                                }
+                            }
+                            Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                    + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
+
+                            if (stationBuf != sBuf.getReferenceLatPosition().size() - 1) {
+                                mflag = true;
+                            }
+                        }
+
+                        if (sBuf.getDistance().get(i) < DETECTRANGE && i == sBuf.getReferenceLatPosition().size() - 1 && !mflag) {
+                            //마지막 역 도착 운행종료
+
+                            driveEnd(i);
+                            //상하행 변경
+
+                            devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 역에서 운행 종료");
+                            Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                    + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]
+                                    + "\n" + directionSwitch + " " + rBuf.getDirection());
                         }
                     }
-                    if (sBuf.getDistance().get(i) < DETECTRANGE && i == sBuf.getReferenceLatPosition().size() - 1 && !mflag) {
-                        //마지막 역 도착 운행종료
-                        stationBuf = i;
-                        op = new byte[]{0x31};
-                        devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 역에서 운행 종료");
 
-                        addUtilEndDrive();
+                    //운행 시작 전
+                    if (stationBuf < 0) {
+                        return;
+                    } else if (sBuf.getDistance().get(stationBuf) >= DETECTRANGE && mflag ) {
 
-                        setHeader();
-                        setBody_Default();
-                        setBody_EndDrive();
-                        op_code = new OP_code(op);
+                        if (stationBuf == sBuf.getReferenceLatPosition().size() - 1) {
+                            //출발지점이 마지막 역이라면 출발 없음
+                            return;
+                        } else {
+                            //출발지점이 마지막 역이 아니라면 그냥 해당 역에서 출발한 것을 알림
+                            if(startFlag) {
 
-                        writeLogFile();
+                                stationStart();
 
-                        mflag = true;
+                                devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 역 출발");
+                                Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                        + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
+
+                            }
+                        }
+                        mflag = false;
                     }
                 }
 
-                //운행 시작 전
-                if (stationBuf == -1) {
-                    return;
-                } else if (sBuf.getDistance().get(stationBuf) >= DETECTRANGE && mflag) {
 
-                    if (stationBuf == sBuf.getReferenceLatPosition().size() - 1) {
-                        //출발지점이 마지막 역이라면 출발 없음
-                        return;
-                    } else {
-                        //출발지점이 마지막 역이 아니라면 그냥 해당 역에서 출발한 것을 알림
-                        op = new byte[]{0x22};
-                        devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 역에서 출발");
 
-                        addUtilStartStation();
 
-                        setHeader();
-                        setBody_Default();
-                        setBody_StartStation();
-                        op_code = new OP_code(op);
+                //상하행 변경시 StationSubBuffer에 있는 값으로 바꿔준다.
+                else {
+                    for (int i = 0; i < ssBuf.getDistance().size(); i++) {
+                        if (ssBuf.getDistance().get(i) < DETECTRANGE && i == 0 && !mflag) {
+                            //도착지점이 A라면 A가 차고지가 되어 운행시작을 알림
+                            driveStart();
+                            devicetext.append("\n첫 번째 역에서 운행 시작 " );
 
-                        writeLogFile();
+                            stationArrive(i);
+                            devicetext.append("\n" + ssBuf.getReferenceStationId().get(stationBuf) + " 역 도착");
+                            Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                    + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
 
+                        }
+                        if (ssBuf.getDistance().get(i) < DETECTRANGE && !mflag) {
+                            //역에 도착했을 때
+                            stationBuf = i;
+
+                            LogicBuffer.jumpBuf[0] = LogicBuffer.jumpBuf[1];
+                            LogicBuffer.jumpBuf[1] = LogicBuffer.jumpBuf[2];
+                            LogicBuffer.jumpBuf[2] = stationBuf;
+
+                            LogicBuffer.startBuf[0] = LogicBuffer.startBuf[1];
+                            LogicBuffer.startBuf[1] = LogicBuffer.startBuf[2];
+                            LogicBuffer.startBuf[2] = stationBuf;
+
+                            //운행 시작 이후 도착 이벤트 발생
+                            if (startFlag) {
+                                //다음 순서대로 잘 갔는지 비교
+                                if (LogicBuffer.jumpBuf[2] - LogicBuffer.jumpBuf[1] == LogicBuffer.jumpBuf[1] - LogicBuffer.jumpBuf[0]
+                                        && LogicBuffer.jumpBuf[2] - LogicBuffer.jumpBuf[0] < 3) {
+
+                                    stationArrive();
+
+                                    devicetext.append("\n" + ssBuf.getReferenceStationId().get(stationBuf) + " 역 도착");
+                                    Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                            + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
+
+                                } else {
+                                    devicetext.append("\n역 점프로 인한 운행 종료");
+                                    Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                            + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
+                                    startFlag = false;
+                                }
+                            }
+                            //비정상 출발일 시 연속된 3역을 검사한다.
+                            else {
+                                //만약 3 역의 차이가 4보다 적다면 해당 역에서 출발시킨다.
+                                if (LogicBuffer.startBuf[2] - LogicBuffer.startBuf[0] < 4) {
+                                    driveStart();
+                                    stationArrive();
+
+                                    devicetext.append("\n" + ssBuf.getReferenceStationId().get(stationBuf) + " 에서 비정상 운행 시작");
+                                    Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                            + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
+                                }
+                            }
+                            Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                    + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
+
+                            if (stationBuf != ssBuf.getReferenceLatPosition().size() - 1) {
+                                mflag = true;
+                            }
+                        }
+
+                        if (ssBuf.getDistance().get(i) < DETECTRANGE && i == ssBuf.getReferenceLatPosition().size() - 1 && !mflag) {
+                            //마지막 역 도착 운행종료
+
+                            driveEnd(i);
+                            //상하행 변경
+
+                            devicetext.append("\n" + ssBuf.getReferenceStationId().get(stationBuf) + " 역에서 운행 종료");
+                            Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                    + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]
+                                    + "\n" + directionSwitch + " " + rBuf.getDirection());
+                        }
                     }
-                    mflag = false;
+
+                    //운행 시작 전
+                    if (stationBuf < 0) {
+                        return;
+                    } else if (ssBuf.getDistance().get(stationBuf) >= DETECTRANGE && mflag ) {
+
+                        if (stationBuf == ssBuf.getReferenceLatPosition().size() - 1) {
+                            //출발지점이 마지막 역이라면 출발 없음
+                            return;
+                        } else {
+                            //출발지점이 마지막 역이 아니라면 그냥 해당 역에서 출발한 것을 알림
+                            if(startFlag) {
+
+                                stationStart();
+
+                                devicetext.append("\n" + ssBuf.getReferenceStationId().get(stationBuf) + " 역 출발");
+                                Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                                        + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
+
+                            }
+                        }
+                        mflag = false;
+                    }
                 }
             }
+
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
                 //위치공급자의 상태가 바뀔 때 호출
@@ -342,16 +474,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         gmap.setMyLocationEnabled(true);
         rectOptions = new PolylineOptions().color(0xffff0000);
-        for (int i = 0; i < sBuf.getReferenceLatPosition().size(); i++) {
-            rectOptions.add(new LatLng(sBuf.getReferenceLatPosition().get(i), sBuf.getReferenceLngPosition().get(i)));
-        }
 
 
-        Polyline polyline = gmap.addPolyline(rectOptions);
-
-        for (int i = 0; i < sBuf.getReferenceLatPosition().size(); i++) {
-            busMarker = mAddmarker.getMark(sBuf.getReferenceLatPosition().get(i), sBuf.getReferenceLngPosition().get(i), getApplicationContext());
-
+        if(directionSwitch == rBuf.getDirection()) {
+            for (int i = 0; i < sBuf.getReferenceLatPosition().size(); i++) {
+                rectOptions.add(new LatLng(sBuf.getReferenceLatPosition().get(i), sBuf.getReferenceLngPosition().get(i)));
+            }
+            Polyline polyline = gmap.addPolyline(rectOptions);
+            for (int i = 0; i < sBuf.getReferenceLatPosition().size(); i++) {
+                busMarker = mAddmarker.getMark(sBuf.getReferenceLatPosition().get(i), sBuf.getReferenceLngPosition().get(i), getApplicationContext());
+            }
+        } else {
+            for (int i = 0; i < ssBuf.getReferenceLatPosition().size(); i++) {
+                rectOptions.add(new LatLng(ssBuf.getReferenceLatPosition().get(i), ssBuf.getReferenceLngPosition().get(i)));
+            }
+            Polyline polyline = gmap.addPolyline(rectOptions);
+            for (int i = 0; i < ssBuf.getReferenceLatPosition().size(); i++) {
+                busMarker = mAddmarker.getMark(ssBuf.getReferenceLatPosition().get(i), ssBuf.getReferenceLngPosition().get(i), getApplicationContext());
+            }
         }
 
     }
@@ -508,9 +648,47 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         double latD = location.getLatitude();
         double lngD = location.getLongitude();
 
-        sBuf.getDistance().clear();
-        for (int i = 0; i < sBuf.getReferenceLatPosition().size(); i++) {
-            sBuf.addDistance(Func.getDistance(latD, lngD, sBuf.getReferenceLatPosition().get(i), sBuf.getReferenceLngPosition().get(i)));
+        if(directionSwitch == rBuf.getDirection()) {
+            sBuf.getDistance().clear();
+            for (int i = 0; i < sBuf.getReferenceLatPosition().size(); i++) {
+                sBuf.addDistance(Func.getDistance(latD, lngD, sBuf.getReferenceLatPosition().get(i), sBuf.getReferenceLngPosition().get(i)));
+            }
+
+            if(stationBuf >= 0 && startFlag) {
+                if(sBuf.getDistance().get(stationBuf) > sBuf.getRemark().get(stationBuf) * 2) {//상하행 변경
+
+                    driveEnd();
+
+                    startFlag = false;
+                    mflag = true;
+
+                    devicetext.append("\n노선이탈 운행종료");
+                    Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                            + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]
+                            + "\n" + directionSwitch + " " + rBuf.getDirection());
+                }
+            }
+
+        } else {
+            ssBuf.getDistance().clear();
+            for (int i = 0; i < ssBuf.getReferenceLatPosition().size(); i++) {
+                ssBuf.addDistance(Func.getDistance(latD, lngD, ssBuf.getReferenceLatPosition().get(i), ssBuf.getReferenceLngPosition().get(i)));
+            }
+
+            if(stationBuf >= 0 && startFlag) {
+                if(ssBuf.getDistance().get(stationBuf) > ssBuf.getRemark().get(stationBuf) * 2) {//상하행 변경
+
+                    driveEnd();
+
+                    startFlag = false;
+                    mflag = true;
+
+                    devicetext.append("\n노선이탈 운행종료");
+                    Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
+                            + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]
+                            + "\n" + directionSwitch + " " + rBuf.getDirection());
+                }
+            }
         }
 
         currentlatView.setText("위도 : " + String.format("%.5f", latD));
@@ -557,28 +735,37 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (i >= 3) {
             mv.setGpsState(0);
         } else mv.setGpsState(128);
+
     }
 
     public void addUtilArriveStation() {
-        mv.setArriveTimeBuf(mv.getSendHour() * 3600 + mv.getSendMin() * 60 + mv.getSendSec());
-        mv.setArriveStationID(sBuf.getReferenceStationId().get(stationBuf));
+        lBuf.setArriveTimeBuf(mv.getSendHour() * 3600 + mv.getSendMin() * 60 + mv.getSendSec());
+        if(directionSwitch == rBuf.getDirection()) {
+            mv.setArriveStationID(sBuf.getReferenceStationId().get(stationBuf));
+        } else {
+            mv.setArriveStationID(ssBuf.getReferenceStationId().get(stationBuf));
+        }
         mv.setArriveStationTurn(arriveStationTurn);
-        mv.setAdjacentTravelTime(mv.getArriveTimeBuf() - mv.getStartTimeBuf());
+        mv.setAdjacentTravelTime(lBuf.getArriveTimeBuf() - lBuf.getStartTimeBuf());
         mv.setReservation(2);
     }
 
     public void addUtilStartStation() {
-        mv.setArriveStationID(sBuf.getReferenceStationId().get(stationBuf));
+        if(directionSwitch == rBuf.getDirection()) {
+            mv.setArriveStationID(sBuf.getReferenceStationId().get(stationBuf));
+        } else {
+            mv.setArriveStationID(ssBuf.getReferenceStationId().get(stationBuf));
+        }
         mv.setArriveStationTurn(arriveStationTurn);
         mv.setDriveTurn(3);
-        mv.setAdjacentTravelTime(mv.getArriveTimeBuf() - mv.getStartTimeBuf());
+        mv.setAdjacentTravelTime(lBuf.getArriveTimeBuf() - lBuf.getStartTimeBuf());
         mv.setReservation(2);
-        mv.setStartTimeBuf(mv.getSendHour() * 3600 + mv.getSendMin() * 60 + mv.getSendSec());
-        mv.setServiceTime(mv.getStartTimeBuf() - mv.getArriveTimeBuf());
+        lBuf.setStartTimeBuf(mv.getSendHour() * 3600 + mv.getSendMin() * 60 + mv.getSendSec());
+        mv.setServiceTime(lBuf.getStartTimeBuf() - lBuf.getArriveTimeBuf());
     }
 
     public void addUtilStartDrive() {
-        mv.setStartTimeBuf(mv.getSendHour() * 3600 + mv.getSendMin() * 60 + mv.getSendSec());
+        lBuf.setStartTimeBuf(mv.getSendHour() * 3600 + mv.getSendMin() * 60 + mv.getSendSec());
         mv.setDriveDate(String.format("%02d", mv.getSendYear()) + String.format("%02d", mv.getSendMonth()) + String.format("%02d", mv.getSendDay()));
         mv.setDriveStartTime(String.format("%02d", mv.getSendHour()) + String.format("%02d", mv.getSendMin()) + String.format("%02d", mv.getSendSec()));
         mv.setDriveDivision(0);
@@ -586,7 +773,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     public void addUtilEndDrive() {
-        mv.setArriveStationID(sBuf.getReferenceStationId().get(stationBuf));
+        if(directionSwitch == rBuf.getDirection()) {
+            mv.setArriveStationID(sBuf.getReferenceStationId().get(stationBuf));
+        } else {
+            mv.setArriveStationID(ssBuf.getReferenceStationId().get(stationBuf));
+        }
         mv.setArriveStationTurn(arriveStationTurn);
         mv.setDriveTurn(65535);
         mv.setDetectStationNum(56797);
@@ -610,5 +801,127 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         eventscroll.fullScroll(View.FOCUS_DOWN);
         sendData(SendData.data);
         sr_cnt++;
+    }
+
+    public void changeDirection() {
+        AlertDialog.Builder alt_bld = new AlertDialog.Builder(MapActivity.this);
+        alt_bld.setMessage("상/하행을 변경하시겠습니까?").setCancelable(
+                false).setPositiveButton("Yes",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (rBuf.getDirection() == 1) {
+                            rBuf.setDirection(2);
+                        } else if (rBuf.getDirection() == 2) {
+                            rBuf.setDirection(1);
+                        }
+                        stationBuf = -1;
+                        LogicBuffer.jumpBuf = new int[]{-2, -1, 0};
+                        LogicBuffer.startBuf = new int[]{-10, -10, -10};
+                        mflag = false;
+                    }
+                }).setNegativeButton("No",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Action for 'NO' Button
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = alt_bld.create();
+        // Title for AlertDialog
+        alert.setTitle("Change");
+        // Icon for AlertDialog
+        alert.setIcon(R.drawable.icon);
+        alert.show();
+    }
+
+    public void driveStart() {
+
+        op = new byte[]{0x15};
+
+        addUtilStartDrive();
+
+        setHeader();
+        setBody_Default();
+        setBody_StartDrive();
+        op_code = new OP_code(op);
+
+        writeLogFile();
+
+        startFlag = true;
+    }
+    public void stationArrive(int i) {
+        stationBuf = i;
+        op = new byte[]{0x21};
+
+        addUtilArriveStation();
+
+        setHeader();
+        setBody_Default();
+        setBody_ArriveStation();
+        op_code = new OP_code(op);
+
+        writeLogFile();
+        if (stationBuf != sBuf.getReferenceLatPosition().size() - 1) {
+            mflag = true;
+        }
+    }
+    public void stationArrive() {
+        op = new byte[]{0x21};
+        addUtilArriveStation();
+
+        setHeader();
+        setBody_Default();
+        setBody_ArriveStation();
+        op_code = new OP_code(op);
+
+        writeLogFile();
+    }
+    public void stationStart() {
+        op = new byte[]{0x22};
+        addUtilStartStation();
+
+        setHeader();
+        setBody_Default();
+        setBody_StartStation();
+        op_code = new OP_code(op);
+
+        writeLogFile();
+
+    }
+    public void driveEnd(int i) {
+        stationBuf = i;
+        op = new byte[]{0x31};
+
+        addUtilEndDrive();
+
+        setHeader();
+        setBody_Default();
+        setBody_EndDrive();
+        op_code = new OP_code(op);
+
+        writeLogFile();
+
+        startFlag = false;
+        mflag = true;
+        changeDirection();
+
+    }
+    public void driveEnd() {
+        op = new byte[]{0x31};
+
+        addUtilEndDrive();
+
+        setHeader();
+        setBody_Default();
+        setBody_EndDrive();
+        op_code = new OP_code(op);
+
+        writeLogFile();
+
+        startFlag = false;
+        mflag = true;
+
+        changeDirection();
+
     }
 }

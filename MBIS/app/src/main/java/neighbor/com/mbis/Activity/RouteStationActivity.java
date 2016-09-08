@@ -8,9 +8,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import neighbor.com.mbis.Database.DBManager;
-import neighbor.com.mbis.MapUtil.RouteBuffer;
+import neighbor.com.mbis.MapUtil.Value.RouteBuffer;
+import neighbor.com.mbis.MapUtil.Value.StationSubBuffer;
 import neighbor.com.mbis.R;
-import neighbor.com.mbis.MapUtil.StationBuffer;
+import neighbor.com.mbis.MapUtil.Value.StationBuffer;
 
 public class RouteStationActivity extends AppCompatActivity {
 
@@ -20,6 +21,8 @@ public class RouteStationActivity extends AppCompatActivity {
     DBManager db = DBManager.getInstance(this);
 
     StationBuffer sBuf = StationBuffer.getInstance();
+    StationSubBuffer ssBuf = StationSubBuffer.getInstance();
+
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
     @Override
@@ -40,13 +43,29 @@ public class RouteStationActivity extends AppCompatActivity {
                 null,
                 "station_order"
         );
+        int k = 0;
+        if (rBuf.getDirection() == 1) {
+            k = 2;
+        } else if (rBuf.getDirection() == 2) {
+            k = 1;
+        }
+        Cursor cc = db.queryRouteStation(
+                new String[]{"station_id", "station_order", "direction", "remark"},
+                "route_id=? and direction=?",
+                new String[]{key, Integer.toString(k)},
+                null,
+                null,
+                "station_order"
+        );
 
 //        Cursor c = rsDB.myQuery(key);
 
 
-        if(c != null) {
-            while(c.moveToNext()) {
+        if (c != null) {
+            while (c.moveToNext()) {
                 String sid = c.getString(0);
+                sBuf.addStationOrder(Integer.parseInt(c.getString(1)));
+                sBuf.addRemark(Integer.parseInt(c.getString(3)));
 
                 Cursor cs = db.queryStation(
                         new String[]{"station_id", "station_nm", "admin_nm", "sido_cd", "x", "y"},
@@ -56,10 +75,10 @@ public class RouteStationActivity extends AppCompatActivity {
                         null,
                         null
                 );
-                if(cs != null) {
-                    while(cs.moveToNext()) {
+                if (cs != null) {
+                    while (cs.moveToNext()) {
                         String idx[] = new String[6];
-                        for(int i=0 ; i<6 ; i++) {
+                        for (int i = 0; i < idx.length; i++) {
                             idx[i] = cs.getString(i);
                         }
                         tv.append("[ 0 : " + idx[0] + " ] ");
@@ -70,15 +89,54 @@ public class RouteStationActivity extends AppCompatActivity {
                         tv.append("[ 5 : " + idx[5] + " ] ");
                         tv.append("\n\n");
 
-                        sBuf.getReferenceLatPosition().add( Double.parseDouble(idx[5]));
-                        sBuf.getReferenceLngPosition().add( Double.parseDouble(idx[4]));
-                        sBuf.getReferenceStationId().add( Long.parseLong(idx[0]));
+                        sBuf.getReferenceLatPosition().add(Double.parseDouble(idx[5]));
+                        sBuf.getReferenceLngPosition().add(Double.parseDouble(idx[4]));
+                        sBuf.getReferenceStationId().add(Long.parseLong(idx[0]));
                     }
                 }
 
 
             }
             c.close();
+        }
+
+        if (cc != null) {
+            while (cc.moveToNext()) {
+                String sid = cc.getString(0);
+                ssBuf.addStationOrder(Integer.parseInt(cc.getString(1)));
+                ssBuf.addRemark(Integer.parseInt(cc.getString(3)));
+
+                Cursor cs = db.queryStation(
+                        new String[]{"station_id", "station_nm", "admin_nm", "sido_cd", "x", "y"},
+                        "station_id=?",
+                        new String[]{sid},
+                        null,
+                        null,
+                        null
+                );
+                if (cs != null) {
+                    while (cs.moveToNext()) {
+                        String idx[] = new String[6];
+                        for (int i = 0; i < idx.length; i++) {
+                            idx[i] = cs.getString(i);
+                        }
+                        tv.append("[ 0 : " + idx[0] + " ] ");
+                        tv.append("[ 1 : " + idx[1] + " ] ");
+                        tv.append("[ 2 : " + idx[2] + " ] ");
+                        tv.append("[ 3 : " + idx[3] + " ] ");
+                        tv.append("[ 4 : " + idx[4] + " ] ");
+                        tv.append("[ 5 : " + idx[5] + " ] ");
+                        tv.append("\n\n");
+
+                        ssBuf.getReferenceLatPosition().add(Double.parseDouble(idx[5]));
+                        ssBuf.getReferenceLngPosition().add(Double.parseDouble(idx[4]));
+                        ssBuf.getReferenceStationId().add(Long.parseLong(idx[0]));
+                    }
+                }
+
+
+            }
+            cc.close();
         }
     }
 
@@ -89,11 +147,18 @@ public class RouteStationActivity extends AppCompatActivity {
                 break;
         }
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         sBuf.getReferenceStationId().clear();
         sBuf.getReferenceLatPosition().clear();
         sBuf.getReferenceLngPosition().clear();
+        sBuf.getStationOrder().clear();
+        ssBuf.getReferenceStationId().clear();
+        ssBuf.getReferenceLatPosition().clear();
+        ssBuf.getReferenceLngPosition().clear();
+        ssBuf.getStationOrder().clear();
+
     }
 }

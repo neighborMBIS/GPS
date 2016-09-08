@@ -1,29 +1,32 @@
-package neighbor.com.mbis.MapUtil;
+package neighbor.com.mbis.MapUtil.Value;
 
 import java.util.ArrayList;
 
 /**
  * Created by user on 2016-08-25.
  */
-public class StationBuffer {
-    private static StationBuffer ourInstance = new StationBuffer();
+public class StationSubBuffer {
+    private static StationSubBuffer ourInstance = new StationSubBuffer();
 
-    public static StationBuffer getInstance() {
+    public static StationSubBuffer getInstance() {
         return ourInstance;
     }
 
+    private ArrayList<Long> referenceStationId;
     private ArrayList<Double> referenceLatPosition;
     private ArrayList<Double> referenceLngPosition;
     private ArrayList<Double> distance;
-    private ArrayList<Long> referenceStationId;
-    private ArrayList<Double> remark;
+    private ArrayList<Integer> remark;
+    private ArrayList<Integer> stationOrder;
 
 
-    private StationBuffer() {
+    private StationSubBuffer() {
         referenceLatPosition = new ArrayList<Double>();
         referenceLngPosition = new ArrayList<Double>();
         distance = new ArrayList<Double>();
         referenceStationId = new ArrayList<Long>();
+        remark = new ArrayList<Integer>();
+        stationOrder= new ArrayList<Integer>();
     }
 
     public ArrayList<Double> getDistance() {
@@ -60,12 +63,20 @@ public class StationBuffer {
         this.referenceStationId = refernceUniqueNum;
     }
 
-    public ArrayList<Double> getRemark() {
+    public ArrayList<Integer> getRemark() {
         return remark;
     }
 
-    public void setRemark(ArrayList<Double> remark) {
+    public void setRemark(ArrayList<Integer> remark) {
         this.remark = remark;
+    }
+
+    public ArrayList<Integer> getStationOrder() {
+        return stationOrder;
+    }
+
+    public void setStationOrder(ArrayList<Integer> stationOrder) {
+        this.stationOrder = stationOrder;
     }
 
     public void addReferenceLatPosition(double item) {
@@ -78,6 +89,7 @@ public class StationBuffer {
         referenceStationId.add(item);
     }
     public void addDistance(double item) {distance.add(item);}
-    public void addRemark(double item) {remark.add(item);}
+    public void addRemark(int item) {remark.add(item);}
+    public void addStationOrder(int item) {stationOrder.add(item);}
 
 }

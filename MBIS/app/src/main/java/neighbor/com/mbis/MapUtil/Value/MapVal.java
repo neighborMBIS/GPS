@@ -1,4 +1,4 @@
-package neighbor.com.mbis.MapUtil;
+package neighbor.com.mbis.MapUtil.Value;
 
 /**
  * Created by user on 2016-09-02.
@@ -15,9 +15,6 @@ public class MapVal {
             return ourInstance;
         }
     }
-
-    //계산용 버퍼
-    int arriveTimeBuf, startTimeBuf;
 
     //헤더
     private int version = 1, sr_cnt = 171, localCode = 52719, dataLength = 65535;
@@ -371,21 +368,5 @@ public class MapVal {
         this.undetectCrossRoadNum = undetectCrossRoadNum;
     }
 
-
-    public int getArriveTimeBuf() {
-        return arriveTimeBuf;
-    }
-
-    public void setArriveTimeBuf(int arriveTimeBuf) {
-        this.arriveTimeBuf = arriveTimeBuf;
-    }
-
-    public int getStartTimeBuf() {
-        return startTimeBuf;
-    }
-
-    public void setStartTimeBuf(int startTimeBuf) {
-        this.startTimeBuf = startTimeBuf;
-    }
 
 }

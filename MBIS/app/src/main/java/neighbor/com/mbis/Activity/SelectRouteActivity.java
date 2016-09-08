@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 
 import neighbor.com.mbis.CSV_Util.RouteStationUtil;
 import neighbor.com.mbis.Database.DBManager;
-import neighbor.com.mbis.MapUtil.RouteBuffer;
+import neighbor.com.mbis.MapUtil.Value.RouteBuffer;
 import neighbor.com.mbis.R;
 
 public class SelectRouteActivity extends AppCompatActivity {

@@ -1,4 +1,4 @@
-package neighbor.com.mbis.MapUtil;
+package neighbor.com.mbis.MapUtil.Value;
 
 /**
  * Created by user on 2016-09-07.
@@ -38,7 +38,6 @@ public class RouteBuffer {
     public int getDirection() {
         return direction;
     }
-
     public void setDirection(int direction) {
         this.direction = direction;
     }
