@@ -231,6 +231,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                             + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
 
                                 } else {
+                                    stationArrive();
+                                    driveEnd();
                                     devicetext.append("\n역 점프로 인한 운행 종료");
                                     Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
                                             + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
@@ -337,6 +339,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                             + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
 
                                 } else {
+                                    stationArrive();
+                                    driveEnd();
+
                                     devicetext.append("\n역 점프로 인한 운행 종료");
                                     Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
                                             + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]);
