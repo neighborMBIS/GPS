@@ -21,7 +21,7 @@ public class LogicBuffer {
 
     public static int jumpBuf[] = new int[]{-2, -1, 0};
     public static int startBuf[] = new int[]{-10, -10, -10};
-
+    public static double locationXBuf=0, locationYBuf=0;
 
     public int getArriveTimeBuf() {
         return arriveTimeBuf;

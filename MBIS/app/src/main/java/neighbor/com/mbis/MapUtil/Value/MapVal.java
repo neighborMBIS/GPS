@@ -8,7 +8,7 @@ public class MapVal {
     private static MapVal ourInstance = null;
 
     public static MapVal getInstance() {
-        if(ourInstance == null) {
+        if (ourInstance == null) {
             ourInstance = new MapVal();
             return ourInstance;
         } else {
@@ -17,7 +17,7 @@ public class MapVal {
     }
 
     //헤더
-    private int version = 1, sr_cnt = 171, localCode = 52719, dataLength = 65535;
+    private int version = 1, sr_cnt = 1, localCode = 1, dataLength;
     private long deviceID = 188900977659375L;
 
     //기본정보
@@ -27,15 +27,14 @@ public class MapVal {
     private long routeID;
     private String routeNum, routeForm, routeDivision;
 
-    //시도출종
+    //시도출종위반돌발
     private int reservation;
 
-    //도출종
+    //도출종위반
     private long arriveStationID;
     private int arriveStationTurn;
 
     //도출
-    public static int bufTime;
     private int adjacentTravelTime;
 
     //출종
@@ -55,6 +54,16 @@ public class MapVal {
     private int detectCrossRoadNum;
     private int undetectCrossRoadNum;
 
+    //위반, 돌발
+    private long afterArriveStationId;
+    private int afterArriveStationTurn;
+    private int speeding_ending;
+
+    //위반
+    private int offenceCode;
+
+    //돌발
+    private int emergencyCode;
 
     public int getVersion() {
         return version;
@@ -368,5 +377,43 @@ public class MapVal {
         this.undetectCrossRoadNum = undetectCrossRoadNum;
     }
 
+    public long getAfterArriveStationId() {
+        return afterArriveStationId;
+    }
 
+    public void setAfterArriveStationId(long afterArriveStationId) {
+        this.afterArriveStationId = afterArriveStationId;
+    }
+
+    public int getAfterArriveStationTurn() {
+        return afterArriveStationTurn;
+    }
+
+    public void setAfterArriveStationTurn(int afterArriveStationTurn) {
+        this.afterArriveStationTurn = afterArriveStationTurn;
+    }
+
+    public int getOffenceCode() {
+        return offenceCode;
+    }
+
+    public void setOffenceCode(int offenceCode) {
+        this.offenceCode = offenceCode;
+    }
+
+    public int getSpeeding_ending() {
+        return speeding_ending;
+    }
+
+    public void setSpeeding_ending(int speeding_ending) {
+        this.speeding_ending = speeding_ending;
+    }
+
+    public int getEmergencyCode() {
+        return emergencyCode;
+    }
+
+    public void setEmergencyCode(int emergencyCode) {
+        this.emergencyCode = emergencyCode;
+    }
 }

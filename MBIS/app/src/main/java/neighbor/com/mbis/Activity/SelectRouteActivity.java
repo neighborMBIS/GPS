@@ -248,9 +248,7 @@ public class SelectRouteActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
-                                            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
                                             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
-                                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
                                         }
 
                                     }
@@ -269,9 +267,7 @@ public class SelectRouteActivity extends AppCompatActivity {
                     else {
                         // CALL_PHONE 권한을 Android OS 에 요청한다.
                         requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
-                        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
                         requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
-                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
                     }
                 }
             }

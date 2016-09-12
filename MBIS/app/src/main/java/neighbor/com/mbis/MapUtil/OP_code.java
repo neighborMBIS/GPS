@@ -1,7 +1,9 @@
 package neighbor.com.mbis.MapUtil;
 
 import neighbor.com.mbis.MapUtil.Form.Form_Body_ArriveStation;
+import neighbor.com.mbis.MapUtil.Form.Form_Body_Emergency;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_EndDrive;
+import neighbor.com.mbis.MapUtil.Form.Form_Body_Offence;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_StartDrive;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_StartStation;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_Default;
@@ -17,6 +19,8 @@ public class OP_code {
     Form_Body_StartDrive bsd = Form_Body_StartDrive.getInstance();
     Form_Body_StartStation bss = Form_Body_StartStation.getInstance();
     Form_Body_EndDrive bed = Form_Body_EndDrive.getInstance();
+    Form_Body_Offence bof = Form_Body_Offence.getInstance();
+    Form_Body_Emergency beg = Form_Body_Emergency.getInstance();
 
     static byte[] headerBuf = null;
     static byte[] bodyBuf_Default = null;
@@ -24,6 +28,8 @@ public class OP_code {
     static byte[] bodyBuf_StartStation = null;
     static byte[] bodyBuf_StartDrive = null;
     static byte[] bodyBuf_EndDrive = null;
+    static byte[] bodyBuf_Offence = null;
+    static byte[] bodyBuf_Emergency = null;
 
 
     public OP_code(byte[] op) {
@@ -40,9 +46,15 @@ public class OP_code {
         } else if(op[0] == 0x22) {
             //station start
             SendData.data = makeBodyStartStation();
+        } else if(op[0] == 0x24) {
+            //offence
+            SendData.data = makeBodyOffence();
         } else if(op[0] == 0x31) {
             //drive end
             SendData.data = makeBodyEndDrive();
+        } else if(op[0] == 0x51) {
+            //emergency
+            SendData.data = makeBodyEmergency();
         }
     }
 
@@ -106,7 +118,6 @@ public class OP_code {
 
         return bodyBuf_StartDrive;
     }
-
     private byte[] makeBodyEndDrive() {
         bodyBuf_EndDrive = new byte[Position.BODY_DRIVE_END_SIZE];
 
@@ -123,6 +134,35 @@ public class OP_code {
         putBody_EndDrive(bed.getReservation(), Position.BODY_DRIVE_END_RESERVATION);
 
         return bodyBuf_EndDrive;
+    }
+    private byte[] makeBodyOffence() {
+        bodyBuf_Offence = new byte[Position.BODY_OFFENCE_SIZE];
+
+        putBody_Offence(bodyBuf_Default, Position.HEADER_VERSION_START);
+        putBody_Offence(bof.getPassStationId(), Position.BODY_OFFENCE_PASS_STATIONID);
+        putBody_Offence(bof.getPassStationTurn(), Position.BODY_OFFENCE_PASS_STATIONTURN);
+        putBody_Offence(bof.getArriveStationId(), Position.BODY_OFFENCE_ARRIVE_STATIONID);
+        putBody_Offence(bof.getArriveStationTurn(), Position.BODY_OFFENCE_ARRIVE_STATIONTURN);
+        putBody_Offence(bof.getOffenceCode(), Position.BODY_OFFENCE_OFFENCECODE);
+        putBody_Offence(bof.getSpeeding_ending(), Position.BODY_OFFENCE_SPEEDING_ENDING);
+        putBody_Offence(bof.getReservation(), Position.BODY_OFFENCE_RESERVATION);
+
+        return bodyBuf_Offence;
+
+    }
+    private byte[] makeBodyEmergency() {
+        bodyBuf_Emergency = new byte[Position.BODY_EMERGENCY_SIZE];
+
+        putBody_Emergency(bodyBuf_Default, Position.HEADER_VERSION_START);
+        putBody_Emergency(beg.getPassStationId(), Position.BODY_EMERGENCY_PASS_STATIONID);
+        putBody_Emergency(beg.getPassStationTurn(), Position.BODY_EMERGENCY_PASS_STATIONTURN);
+        putBody_Emergency(beg.getArriveStationId(), Position.BODY_EMERGENCY_ARRIVE_STATIONID);
+        putBody_Emergency(beg.getArriveStationTurn(), Position.BODY_EMERGENCY_ARRIVE_STATIONTURN);
+        putBody_Emergency(beg.getEmergencyCode(), Position.BODY_EMERGENCY_EMERGENCYCODE);
+        putBody_Emergency(beg.getReservation(), Position.BODY_EMERGENCY_RESERVATION);
+
+        return bodyBuf_Emergency;
+
     }
 
 
@@ -143,5 +183,11 @@ public class OP_code {
     }
     private void putBody_EndDrive(byte[] b, int position) {
         System.arraycopy(b, 0, bodyBuf_EndDrive, position, b.length);
+    }
+    private void putBody_Offence(byte[] b, int position) {
+        System.arraycopy(b, 0, bodyBuf_Offence, position, b.length);
+    }
+    private void putBody_Emergency(byte[] b, int position) {
+        System.arraycopy(b, 0, bodyBuf_Emergency, position, b.length);
     }
 }

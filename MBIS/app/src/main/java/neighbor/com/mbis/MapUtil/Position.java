@@ -77,4 +77,24 @@ public class Position {
     public final static int BODY_DRIVE_END_CROSSROADDETECTIONNUM = 103;
     public final static int BODY_DRIVE_END_UNSENTCROSSROADNUM = 105;
     public final static int BODY_DRIVE_END_RESERVATION = 107;
+
+    //BODY(OFFENCE)
+    public final static int BODY_OFFENCE_SIZE = 101;
+    public final static int BODY_OFFENCE_PASS_STATIONID = 73;
+    public final static int BODY_OFFENCE_PASS_STATIONTURN = 83;
+    public final static int BODY_OFFENCE_ARRIVE_STATIONID = 85;
+    public final static int BODY_OFFENCE_ARRIVE_STATIONTURN = 95;
+    public final static int BODY_OFFENCE_OFFENCECODE = 97;
+    public final static int BODY_OFFENCE_SPEEDING_ENDING = 99;
+    public final static int BODY_OFFENCE_RESERVATION = 100;
+
+    //BODY(EMERGENCY)
+
+    public final static int BODY_EMERGENCY_SIZE = 101;
+    public final static int BODY_EMERGENCY_PASS_STATIONID = 73;
+    public final static int BODY_EMERGENCY_PASS_STATIONTURN = 83;
+    public final static int BODY_EMERGENCY_ARRIVE_STATIONID = 85;
+    public final static int BODY_EMERGENCY_ARRIVE_STATIONTURN = 95;
+    public final static int BODY_EMERGENCY_EMERGENCYCODE = 97;
+    public final static int BODY_EMERGENCY_RESERVATION = 99;
 }
