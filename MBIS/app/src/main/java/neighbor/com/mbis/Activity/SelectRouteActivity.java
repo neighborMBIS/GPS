@@ -153,6 +153,7 @@ public class SelectRouteActivity extends AppCompatActivity {
                 s.setSido_cd(rowData[5]);
                 s.setLocalcoordinatesX(rowData[8]);
                 s.setLocalcoordinatesY(rowData[9]);
+                s.setStation_division(rowData[10]);
 
                 addStationUtil(s);
 
@@ -172,6 +173,7 @@ public class SelectRouteActivity extends AppCompatActivity {
         values.put("sido_cd", su.getSido_cd());
         values.put("x", su.getLocalcoordinatesX());
         values.put("y", su.getLocalcoordinatesY());
+        values.put("station_division", su.getStation_division());
 
         // Inserting Row
         db.insertStation(values);

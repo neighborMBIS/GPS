@@ -25,6 +25,9 @@ public class RouteStationActivity extends AppCompatActivity {
 
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
+    String[] routeStationDB = new String[]{"station_id", "station_order", "direction", "remark"};
+    String[] stationDB = new String[]{"station_id", "station_nm", "admin_nm", "sido_cd", "x", "y", "station_division"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +39,7 @@ public class RouteStationActivity extends AppCompatActivity {
         key = intent.getStringExtra("routeInfo");
 
         Cursor c = db.queryRouteStation(
-                new String[]{"station_id", "station_order", "direction", "remark"},
+                routeStationDB,
                 "route_id=? and direction=?",
                 new String[]{key, Integer.toString(rBuf.getDirection())},
                 null,
@@ -50,7 +53,7 @@ public class RouteStationActivity extends AppCompatActivity {
             k = 1;
         }
         Cursor cc = db.queryRouteStation(
-                new String[]{"station_id", "station_order", "direction", "remark"},
+                routeStationDB,
                 "route_id=? and direction=?",
                 new String[]{key, Integer.toString(k)},
                 null,
@@ -68,16 +71,16 @@ public class RouteStationActivity extends AppCompatActivity {
                 sBuf.addRemark(Integer.parseInt(c.getString(3)));
 
                 Cursor cs = db.queryStation(
-                        new String[]{"station_id", "station_nm", "admin_nm", "sido_cd", "x", "y"},
-                        "station_id=?",
-                        new String[]{sid},
-                        null,
-                        null,
+                        stationDB ,
+                        "station_id=?" ,
+                        new String[]{sid} ,
+                        null ,
+                        null ,
                         null
                 );
                 if (cs != null) {
                     while (cs.moveToNext()) {
-                        String idx[] = new String[6];
+                        String idx[] = new String[stationDB.length];
                         for (int i = 0; i < idx.length; i++) {
                             idx[i] = cs.getString(i);
                         }
@@ -87,11 +90,13 @@ public class RouteStationActivity extends AppCompatActivity {
                         tv.append("[ 3 : " + idx[3] + " ] ");
                         tv.append("[ 4 : " + idx[4] + " ] ");
                         tv.append("[ 5 : " + idx[5] + " ] ");
+                        tv.append("[ 6 : " + idx[6] + " ] ");
                         tv.append("\n\n");
 
                         sBuf.getReferenceLatPosition().add(Double.parseDouble(idx[5]));
                         sBuf.getReferenceLngPosition().add(Double.parseDouble(idx[4]));
                         sBuf.getReferenceStationId().add(Long.parseLong(idx[0]));
+                        sBuf.getStationDivision().add(Integer.parseInt(idx[6]));
                     }
                 }
 
@@ -107,7 +112,7 @@ public class RouteStationActivity extends AppCompatActivity {
                 ssBuf.addRemark(Integer.parseInt(cc.getString(3)));
 
                 Cursor cs = db.queryStation(
-                        new String[]{"station_id", "station_nm", "admin_nm", "sido_cd", "x", "y"},
+                        stationDB,
                         "station_id=?",
                         new String[]{sid},
                         null,
@@ -116,7 +121,7 @@ public class RouteStationActivity extends AppCompatActivity {
                 );
                 if (cs != null) {
                     while (cs.moveToNext()) {
-                        String idx[] = new String[6];
+                        String idx[] = new String[stationDB.length];
                         for (int i = 0; i < idx.length; i++) {
                             idx[i] = cs.getString(i);
                         }
@@ -126,11 +131,14 @@ public class RouteStationActivity extends AppCompatActivity {
                         tv.append("[ 3 : " + idx[3] + " ] ");
                         tv.append("[ 4 : " + idx[4] + " ] ");
                         tv.append("[ 5 : " + idx[5] + " ] ");
+                        tv.append("[ 6 : " + idx[6] + " ] ");
                         tv.append("\n\n");
 
                         ssBuf.getReferenceLatPosition().add(Double.parseDouble(idx[5]));
                         ssBuf.getReferenceLngPosition().add(Double.parseDouble(idx[4]));
                         ssBuf.getReferenceStationId().add(Long.parseLong(idx[0]));
+                        ssBuf.getStationDivision().add(Integer.parseInt(idx[6]));
+
                     }
                 }
 

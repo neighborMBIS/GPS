@@ -11,6 +11,7 @@ public class StationUtil {
     private String sido_cd;
     private String localcoordinatesX;
     private String localcoordinatesY;
+    private String station_division;
 
     public String getStation_id() {
         return station_id;
@@ -60,7 +61,11 @@ public class StationUtil {
         this.localcoordinatesY = localcoordinatesY;
     }
 
+    public String getStation_division() {
+        return station_division;
+    }
 
-
-
+    public void setStation_division(String station_division) {
+        this.station_division = station_division;
+    }
 }

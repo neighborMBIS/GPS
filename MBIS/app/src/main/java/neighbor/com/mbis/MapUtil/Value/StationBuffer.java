@@ -18,6 +18,7 @@ public class StationBuffer {
     private ArrayList<Double> distance;
     private ArrayList<Integer> remark;
     private ArrayList<Integer> stationOrder;
+    private ArrayList<Integer> stationDivision;
 
 
     private StationBuffer() {
@@ -27,6 +28,7 @@ public class StationBuffer {
         referenceStationId = new ArrayList<Long>();
         remark = new ArrayList<Integer>();
         stationOrder= new ArrayList<Integer>();
+        stationDivision= new ArrayList<Integer>();
     }
 
     public ArrayList<Double> getDistance() {
@@ -77,6 +79,14 @@ public class StationBuffer {
 
     public void setStationOrder(ArrayList<Integer> stationOrder) {
         this.stationOrder = stationOrder;
+    }
+
+    public ArrayList<Integer> getStationDivision() {
+        return stationDivision;
+    }
+
+    public void setStationDivision(ArrayList<Integer> stationDivision) {
+        this.stationDivision = stationDivision;
     }
 
     public void addReferenceLatPosition(double item) {

@@ -40,7 +40,7 @@ public class OP_code {
         if(op[0] == 0x15) {
             //drive start
             SendData.data = makeBodyStartDrive();
-        } else if (op[0] == 0x21) {
+        } else if (op[0] == 0x21 || op[0] == 0x23) {
             //station arrive
             SendData.data = makeBodyArriveStation();
         } else if(op[0] == 0x22) {

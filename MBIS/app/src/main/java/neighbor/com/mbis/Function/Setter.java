@@ -60,7 +60,6 @@ public class Setter {
         bss.setServiceTime(mv.getServiceTime());
         bss.setAdjacentTravelTime(mv.getAdjacentTravelTime());
         bss.setReservation(mv.getReservation());
-        MapActivity.arriveStationTurn++;
     }
 
     public static void setBody_StartDrive() {

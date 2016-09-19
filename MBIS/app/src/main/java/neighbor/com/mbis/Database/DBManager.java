@@ -44,6 +44,7 @@ public class DBManager {
     private static final String sido_cd = "sido_cd";
     private static final String x = "x";
     private static final String y = "y";
+    private static final String station_division = "station_division";
 
 
     private static final String station_order = "station_order";
@@ -73,7 +74,8 @@ public class DBManager {
                 admin_nm + " TEXT," +
                 sido_cd + " TEXT," +
                 x + " TEXT," +
-                y + " TEXT " +
+                y + " TEXT," +
+                station_division + " TEXT " +
                 ");";
 
         String makeDBRS = "CREATE TABLE IF NOT EXISTS " + TABLE_NAMERS + " (" +
@@ -83,7 +85,7 @@ public class DBManager {
                 station_id + " TEXT," +
                 link_order + " TEXT," +
                 direction + " TEXT, " +
-                remark + " TEXT" +
+                remark + " TEXT " +
                 ");";
 
         mDatabase.execSQL(makeDBR);

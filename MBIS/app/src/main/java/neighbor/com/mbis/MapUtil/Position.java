@@ -45,14 +45,14 @@ public class Position {
 
 
     //BODY(STATION_ARRIVE)
-    public final static int BODY_STATION_ARRIVE_SIZE = 89;
+    public final static int BODY_STATION_ARRIVE_SIZE = 91;
     public final static int BODY_STATION_ARRIVE_STATIONID = 73;
     public final static int BODY_STATION_ARRIVE_STATIONTURN = 83;
     public final static int BODY_STATION_ARRIVE_ADJACENTTRAVELTIME = 85;
     public final static int BODY_STATION_ARRIVE_RESERVATION = 87;
 
     //BODY(STATION_START)
-    public final static int BODY_STATION_START_SIZE = 93;
+    public final static int BODY_STATION_START_SIZE = 95;
     public final static int BODY_STATION_START_STATIONID = 73;
     public final static int BODY_STATION_START_STATIONTURN = 83;
     public final static int BODY_STATION_START_DRIVETURN = 85;
@@ -61,12 +61,12 @@ public class Position {
     public final static int BODY_STATION_START_RESERVATION = 91;
 
     //BODY(DRIVE_START)
-    public final static int BODY_DRIVE_START_SIZE = 77;
+    public final static int BODY_DRIVE_START_SIZE = 78;
     public final static int BODY_DRIVE_START_DRIVEDIVISION = 73;
     public final static int BODY_DRIVE_START_RESERVATION = 74;
 
     //BODY(DRIVE_END)
-    public final static int BODY_DRIVE_END_SIZE = 109;
+    public final static int BODY_DRIVE_END_SIZE = 111;
     public final static int BODY_DRIVE_END_DRIVEDATE = 73;
     public final static int BODY_DRIVE_END_STARTTIME = 79;
     public final static int BODY_DRIVE_END_STATIONID = 85;
@@ -79,22 +79,21 @@ public class Position {
     public final static int BODY_DRIVE_END_RESERVATION = 107;
 
     //BODY(OFFENCE)
-    public final static int BODY_OFFENCE_SIZE = 101;
+    public final static int BODY_OFFENCE_SIZE = 103;
     public final static int BODY_OFFENCE_PASS_STATIONID = 73;
     public final static int BODY_OFFENCE_PASS_STATIONTURN = 83;
     public final static int BODY_OFFENCE_ARRIVE_STATIONID = 85;
     public final static int BODY_OFFENCE_ARRIVE_STATIONTURN = 95;
     public final static int BODY_OFFENCE_OFFENCECODE = 97;
-    public final static int BODY_OFFENCE_SPEEDING_ENDING = 99;
-    public final static int BODY_OFFENCE_RESERVATION = 100;
+    public final static int BODY_OFFENCE_SPEEDING_ENDING = 98;
+    public final static int BODY_OFFENCE_RESERVATION = 99;
 
     //BODY(EMERGENCY)
-
-    public final static int BODY_EMERGENCY_SIZE = 101;
+    public final static int BODY_EMERGENCY_SIZE = 102;
     public final static int BODY_EMERGENCY_PASS_STATIONID = 73;
     public final static int BODY_EMERGENCY_PASS_STATIONTURN = 83;
     public final static int BODY_EMERGENCY_ARRIVE_STATIONID = 85;
     public final static int BODY_EMERGENCY_ARRIVE_STATIONTURN = 95;
     public final static int BODY_EMERGENCY_EMERGENCYCODE = 97;
-    public final static int BODY_EMERGENCY_RESERVATION = 99;
+    public final static int BODY_EMERGENCY_RESERVATION = 98;
 }
