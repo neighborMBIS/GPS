@@ -19,23 +19,20 @@ public class Form_Body_EndDrive {
     private byte[] startTime;
     private byte[] stationId;
     private byte[] stationTurn;
-    private byte[] driveTurn;
 
-    private byte[] detectStationNum;
-    private byte[] undetectStationNum;
-    private byte[] detectCrossRoadNum;
-    private byte[] undetectCrossRoadNum;
-
+    private byte[] detectStationArriveNum;
+    private byte[] detectStationStartNum;
+    private byte[] driveDivision;
     private byte[] reservation;
 
     public void setStationId(byte[] stationId) {
         this.stationId = stationId;
     }
     public void setStationId(long stationId) {
-        this.stationId = Func.longToByte(stationId, 10);
+        this.stationId = Func.longToByte(stationId, 5);
     }
     public void setStationId(String stationId) {
-        this.stationId = Func.longToByte(Long.parseLong(stationId), 10);
+        this.stationId = Func.longToByte(Long.parseLong(stationId), 5);
     }
     public void setStationTurn(byte[] stationNum) {
         this.stationTurn = stationNum;
@@ -88,85 +85,57 @@ public class Form_Body_EndDrive {
         this.startTime = Func.stringToByte(hms);
     }
 
-    public byte[] getDriveTurn() {
-        return driveTurn;
+//    public byte[] getDriveTurn() {
+//        return driveTurn;
+//    }
+//
+//    public void setDriveTurn(byte[] driveTurn) {
+//        this.driveTurn = driveTurn;
+//    }
+//    public void setDriveTurn(int driveTurn) {
+//        this.driveTurn = Func.integerToByte(driveTurn, 2);
+//    }
+//    public void setDriveTurn(String driveTurn) {
+//        this.driveTurn = Func.integerToByte(Integer.parseInt(driveTurn), 2);
+//    }
+
+    public byte[] getDetectStationArriveNum() {
+        return detectStationArriveNum;
     }
 
-    public void setDriveTurn(byte[] driveTurn) {
-        this.driveTurn = driveTurn;
+    public void setDetectStationArriveNum(byte[] detectStationNum) {
+        this.detectStationArriveNum = detectStationNum;
     }
-    public void setDriveTurn(int driveTurn) {
-        this.driveTurn = Func.integerToByte(driveTurn, 2);
+    public void setDetectStationArriveNum(int detectStationNum) {
+        this.detectStationArriveNum = Func.integerToByte(detectStationNum, 1);
     }
-    public void setDriveTurn(String driveTurn) {
-        this.driveTurn = Func.integerToByte(Integer.parseInt(driveTurn), 2);
-    }
-
-    public byte[] getDetectStationNum() {
-        return detectStationNum;
-    }
-
-    public void setDetectStationNum(byte[] detectStationNum) {
-        this.detectStationNum = detectStationNum;
-    }
-    public void setDetectStationNum(int detectStationNum) {
-        this.detectStationNum = Func.integerToByte(detectStationNum, 2);
-    }
-    public void setDetectStationNum(String detectStationNum) {
-        this.detectStationNum = Func.integerToByte(Integer.parseInt(detectStationNum), 2);
+    public void setDetectStationArriveNum(String detectStationNum) {
+        this.detectStationArriveNum = Func.integerToByte(Integer.parseInt(detectStationNum), 1);
     }
 
 
-    public byte[] getUndetectStationNum() {
-        return undetectStationNum;
+    public byte[] getDetectStationStartNum() {
+        return detectStationStartNum;
     }
 
-    public void setUndetectStationNum(byte[] undetectStationNum) {
-        this.undetectStationNum = undetectStationNum;
+    public void setDetectStationStartNum(byte[] detectStationStartNum) {
+        this.detectStationStartNum = detectStationStartNum;
     }
-    public void setUndetectStationNum(int undetectStationNum) {
-        this.undetectStationNum = Func.integerToByte(undetectStationNum, 2);
+    public void setDetectStationStartNum(int detectStationStartNum) {
+        this.detectStationStartNum = Func.integerToByte(detectStationStartNum, 1);
     }
-    public void setUndetectStationNum(String undetectStationNum) {
-        this.undetectStationNum = Func.integerToByte(Integer.parseInt(undetectStationNum), 2);
-    }
-
-    public byte[] getDetectCrossRoadNum() {
-        return detectCrossRoadNum;
-    }
-
-    public void setDetectCrossRoadNum(byte[] detectCrossRoadNum) {
-        this.detectCrossRoadNum = detectCrossRoadNum;
-    }
-    public void setDetectCrossRoadNum(int detectCrossRoadNum) {
-        this.detectCrossRoadNum = Func.integerToByte(detectCrossRoadNum, 2);
-    }
-    public void setDetectCrossRoadNum(String detectCrossRoadNum) {
-        this.detectCrossRoadNum = Func.integerToByte(Integer.parseInt(detectCrossRoadNum), 2);
-    }
-
-    public byte[] getUndetectCrossRoadNum() {
-        return undetectCrossRoadNum;
-    }
-
-    public void setUndetectCrossRoadNum(byte[] undetectCrossRoadNum) {
-        this.undetectCrossRoadNum = undetectCrossRoadNum;
-    }
-    public void setUndetectCrossRoadNum(int undetectCrossRoadNum) {
-        this.undetectCrossRoadNum = Func.integerToByte(undetectCrossRoadNum, 2);
-    }
-    public void setUndetectCrossRoadNum(String undetectCrossRoadNum) {
-        this.undetectCrossRoadNum = Func.integerToByte(Integer.parseInt(undetectCrossRoadNum), 2);
+    public void setDetectStationStartNum(String detectStationStartNum) {
+        this.detectStationStartNum = Func.integerToByte(Integer.parseInt(detectStationStartNum), 1);
     }
 
     public void setReservation(byte[] reservation) {
         this.reservation = reservation;
     }
     public void setReservation(int reservation) {
-        this.reservation = Func.integerToByte(reservation, 2);
+        this.reservation = Func.integerToByte(reservation, 4);
     }
     public void setReservation(String reservation) {
-        this.reservation = Func.integerToByte(Integer.parseInt(reservation), 2);
+        this.reservation = Func.integerToByte(Integer.parseInt(reservation), 4);
     }
 
     public byte[] getStationId() {
@@ -180,4 +149,19 @@ public class Form_Body_EndDrive {
     public byte[] getReservation() {
         return reservation;
     }
+
+    public void setDriveDivision(byte[] driveDivision) {
+        this.driveDivision = driveDivision;
+    }
+    public void setDriveDivision(int driveDivision) {
+        this.driveDivision = Func.integerToByte(driveDivision, 1);
+    }
+    public void setDriveDivision(String driveDivision) {
+        this.driveDivision = Func.integerToByte(Integer.parseInt(driveDivision), 1);
+    }
+
+    public byte[] getDriveDivision() {
+        return driveDivision;
+    }
+
 }

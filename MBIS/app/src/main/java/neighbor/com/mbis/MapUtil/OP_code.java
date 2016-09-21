@@ -1,6 +1,7 @@
 package neighbor.com.mbis.MapUtil;
 
 import neighbor.com.mbis.MapUtil.Form.Form_Body_ArriveStation;
+import neighbor.com.mbis.MapUtil.Form.Form_Body_BusLocation;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_Emergency;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_EndDrive;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_Offence;
@@ -21,6 +22,7 @@ public class OP_code {
     Form_Body_EndDrive bed = Form_Body_EndDrive.getInstance();
     Form_Body_Offence bof = Form_Body_Offence.getInstance();
     Form_Body_Emergency beg = Form_Body_Emergency.getInstance();
+    Form_Body_BusLocation bbl = Form_Body_BusLocation.getInstance();
 
     static byte[] headerBuf = null;
     static byte[] bodyBuf_Default = null;
@@ -30,6 +32,7 @@ public class OP_code {
     static byte[] bodyBuf_EndDrive = null;
     static byte[] bodyBuf_Offence = null;
     static byte[] bodyBuf_Emergency = null;
+    static byte[] bodyBuf_BusLocation = null;
 
 
     public OP_code(byte[] op) {
@@ -40,7 +43,10 @@ public class OP_code {
         if(op[0] == 0x15) {
             //drive start
             SendData.data = makeBodyStartDrive();
-        } else if (op[0] == 0x21 || op[0] == 0x23) {
+        } else if (op[0] == 0x20) {
+            //bus location information
+            SendData.data = makeBodyBusLocation();
+        } else if (op[0] == 0x21) {
             //station arrive
             SendData.data = makeBodyArriveStation();
         } else if(op[0] == 0x22) {
@@ -59,109 +65,126 @@ public class OP_code {
     }
 
     private byte[] makeHeader() {
-        headerBuf = new byte[Position.HEADER_SIZE];
+        headerBuf = new byte[BytePosition.HEADER_SIZE];
 
-        putHeader(h.getVersion(), Position.HEADER_VERSION_START);
-        putHeader(h.getOp_code(), Position.HEADER_OPCODE);
-        putHeader(h.getSr_cnt(), Position.HEADER_SRCNT);
-        putHeader(h.getDeviceID(), Position.HEADER_DEVICEID);
-        putHeader(h.getLocalCode(), Position.HEADER_LOCALCODE);
-        putHeader(h.getDataLength(), Position.HEADER_DATALENGTH);
+        putHeader(h.getVersion(), BytePosition.HEADER_VERSION_START);
+        putHeader(h.getOp_code(), BytePosition.HEADER_OPCODE);
+        putHeader(h.getSr_cnt(), BytePosition.HEADER_SRCNT);
+        putHeader(h.getDeviceID(), BytePosition.HEADER_DEVICEID);
+        putHeader(h.getLocalCode(), BytePosition.HEADER_LOCALCODE);
+        putHeader(h.getDataLength(), BytePosition.HEADER_DATALENGTH);
 
         return headerBuf;
     }
     private byte[] makeBodyDefault() {
-        bodyBuf_Default = new byte[Position.BODY_DEFAULT_SIZE];
+        bodyBuf_Default = new byte[BytePosition.BODY_DEFAULT_SIZE];
 
-        putBody_Default(headerBuf, Position.HEADER_VERSION_START);
+        putBody_Default(headerBuf, BytePosition.HEADER_VERSION_START);
 
-        putBody_Default(bd.getSendDate(), Position.BODY_DEFAULT_SENDYEAR_DATE);
-        putBody_Default(bd.getSendTime(), Position.BODY_DEFAULT_SENDHOUR_TIME);
-        putBody_Default(bd.getEventDate(), Position.BODY_DEFAULT_EVENTYEAR_DATE);
-        putBody_Default(bd.getEventTime(), Position.BODY_DEFAULT_EVENTHOUR_TIME);
-        putBody_Default(bd.getRouteInfo(), Position.BODY_DEFAULT_ROUTEID_INFO);
-        putBody_Default(bd.getGpsInfo(), Position.BODY_DEFAULT_LOCATIONX_GPS);
-        putBody_Default(bd.getDeviceState(), Position.BODY_DEFAULT_DEVICESTATE);
+        putBody_Default(bd.getSendDate(), BytePosition.BODY_DEFAULT_SENDYEAR_DATE);
+        putBody_Default(bd.getSendTime(), BytePosition.BODY_DEFAULT_SENDHOUR_TIME);
+        putBody_Default(bd.getEventDate(), BytePosition.BODY_DEFAULT_EVENTYEAR_DATE);
+        putBody_Default(bd.getEventTime(), BytePosition.BODY_DEFAULT_EVENTHOUR_TIME);
+        putBody_Default(bd.getRouteInfo(), BytePosition.BODY_DEFAULT_ROUTEID_INFO);
+        putBody_Default(bd.getGpsInfo(), BytePosition.BODY_DEFAULT_LOCATIONX_GPS);
+        putBody_Default(bd.getDeviceState(), BytePosition.BODY_DEFAULT_DEVICESTATE);
 
         return bodyBuf_Default;
     }
-    private byte[] makeBodyArriveStation() {
-        bodyBuf_ArriveStation = new byte[Position.BODY_STATION_ARRIVE_SIZE];
 
-        putBody_ArriveStation(bodyBuf_Default, Position.HEADER_VERSION_START);
-        putBody_ArriveStation(bas.getStationId(), Position.BODY_STATION_ARRIVE_STATIONID);
-        putBody_ArriveStation(bas.getStationTurn(), Position.BODY_STATION_ARRIVE_STATIONTURN);
-        putBody_ArriveStation(bas.getAdjacentTravelTime(), Position.BODY_STATION_ARRIVE_ADJACENTTRAVELTIME);
-        putBody_ArriveStation(bas.getReservation(), Position.BODY_STATION_ARRIVE_RESERVATION);
+
+    private byte[] makeBodyArriveStation() {
+        bodyBuf_ArriveStation = new byte[BytePosition.BODY_STATION_ARRIVE_SIZE];
+
+        putBody_ArriveStation(bodyBuf_Default, BytePosition.HEADER_VERSION_START);
+
+        putBody_ArriveStation(bas.getStationId(), BytePosition.BODY_STATION_ARRIVE_STATIONID);
+        putBody_ArriveStation(bas.getStationTurn(), BytePosition.BODY_STATION_ARRIVE_STATIONTURN);
+        putBody_ArriveStation(bas.getAdjacentTravelTime(), BytePosition.BODY_STATION_ARRIVE_ADJACENTTRAVELTIME);
+        putBody_ArriveStation(bas.getDriveDivision(), BytePosition.BODY_STATION_ARRIVE_DRIVEDIVISION);
+        putBody_ArriveStation(bas.getReservation(), BytePosition.BODY_STATION_ARRIVE_RESERVATION);
 
         return bodyBuf_ArriveStation;
     }
     private byte[] makeBodyStartStation() {
-        bodyBuf_StartStation = new byte[Position.BODY_STATION_START_SIZE];
+        bodyBuf_StartStation = new byte[BytePosition.BODY_STATION_START_SIZE];
 
-        putBody_StartStation(bodyBuf_Default, Position.HEADER_VERSION_START);
-        putBody_StartStation(bss.getStationId(), Position.BODY_STATION_START_STATIONID);
-        putBody_StartStation(bss.getStationTurn(), Position.BODY_STATION_START_STATIONTURN);
-        putBody_StartStation(bss.getDriveTurn(), Position.BODY_STATION_START_DRIVETURN);
-        putBody_StartStation(bss.getServiceTime(), Position.BODY_STATION_START_SERVICETIME);
-        putBody_StartStation(bss.getAdjacentTravelTime(), Position.BODY_STATION_START_ADJACENTTRAVELTIME);
-        putBody_StartStation(bss.getReservation(), Position.BODY_STATION_START_RESERVATION);
+        putBody_StartStation(bodyBuf_Default, BytePosition.HEADER_VERSION_START);
+
+        putBody_StartStation(bss.getStationId(), BytePosition.BODY_STATION_START_STATIONID);
+        putBody_StartStation(bss.getStationTurn(), BytePosition.BODY_STATION_START_STATIONTURN);
+        putBody_StartStation(bss.getServiceTime(), BytePosition.BODY_STATION_START_SERVICETIME);
+        putBody_StartStation(bss.getAdjacentTravelTime(), BytePosition.BODY_STATION_START_ADJACENTTRAVELTIME);
+        putBody_StartStation(bss.getDriveDivision(), BytePosition.BODY_STATION_START_DRIVEDIVISION);
+        putBody_StartStation(bss.getReservation(), BytePosition.BODY_STATION_START_RESERVATION);
 
         return bodyBuf_StartStation;
     }
     private byte[] makeBodyStartDrive() {
-        bodyBuf_StartDrive = new byte[Position.BODY_DRIVE_START_SIZE];
+        bodyBuf_StartDrive = new byte[BytePosition.BODY_DRIVE_START_SIZE];
 
-        putBody_StartDrive(bodyBuf_Default, Position.HEADER_VERSION_START);
-        putBody_StartDrive(bsd.getDriveDivision(), Position.BODY_DRIVE_START_DRIVEDIVISION);
-        putBody_StartDrive(bsd.getReservation(), Position.BODY_DRIVE_START_RESERVATION);
+        putBody_StartDrive(bodyBuf_Default, BytePosition.HEADER_VERSION_START);
+        putBody_StartDrive(bsd.getDriveDivision(), BytePosition.BODY_DRIVE_START_DRIVEDIVISION);
+        putBody_StartDrive(bsd.getReservation(), BytePosition.BODY_DRIVE_START_RESERVATION);
 
         return bodyBuf_StartDrive;
     }
     private byte[] makeBodyEndDrive() {
-        bodyBuf_EndDrive = new byte[Position.BODY_DRIVE_END_SIZE];
+        bodyBuf_EndDrive = new byte[BytePosition.BODY_DRIVE_END_SIZE];
 
-        putBody_EndDrive(bodyBuf_Default, Position.HEADER_VERSION_START);
-        putBody_EndDrive(bed.getDriveDate(), Position.BODY_DRIVE_END_DRIVEDATE);
-        putBody_EndDrive(bed.getStartTime(), Position.BODY_DRIVE_END_STARTTIME);
-        putBody_EndDrive(bed.getStationId(), Position.BODY_DRIVE_END_STATIONID);
-        putBody_EndDrive(bed.getStationTurn(), Position.BODY_DRIVE_END_STATIONTURN);
-        putBody_EndDrive(bed.getDriveTurn(), Position.BODY_DRIVE_END_DRIVETURN);
-        putBody_EndDrive(bed.getDetectStationNum(), Position.BODY_DRIVE_END_DETECTIONSTATIONNUM);
-        putBody_EndDrive(bed.getUndetectStationNum(), Position.BODY_DRIVE_END_UNSENTSTATIONNUM);
-        putBody_EndDrive(bed.getDetectCrossRoadNum(), Position.BODY_DRIVE_END_CROSSROADDETECTIONNUM);
-        putBody_EndDrive(bed.getUndetectCrossRoadNum(), Position.BODY_DRIVE_END_UNSENTCROSSROADNUM);
-        putBody_EndDrive(bed.getReservation(), Position.BODY_DRIVE_END_RESERVATION);
+        putBody_EndDrive(bodyBuf_Default, BytePosition.HEADER_VERSION_START);
+
+        putBody_EndDrive(bed.getDriveDate(), BytePosition.BODY_DRIVE_END_DRIVEDATE);
+        putBody_EndDrive(bed.getStartTime(), BytePosition.BODY_DRIVE_END_STARTTIME);
+        putBody_EndDrive(bed.getStationId(), BytePosition.BODY_DRIVE_END_STATIONID);
+        putBody_EndDrive(bed.getStationTurn(), BytePosition.BODY_DRIVE_END_STATIONTURN);
+
+        putBody_EndDrive(bed.getDetectStationArriveNum(), BytePosition.BODY_DRIVE_END_DETECTSTATION_ARRIVENUM);
+        putBody_EndDrive(bed.getDetectStationStartNum(), BytePosition.BODY_DRIVE_END_DETECTSTATION_STARTNUM);
+        putBody_EndDrive(bed.getDriveDivision(), BytePosition.BODY_DRIVE_END_DRIVEDIVISION);
+        putBody_EndDrive(bed.getReservation(), BytePosition.BODY_DRIVE_END_RESERVATION);
 
         return bodyBuf_EndDrive;
     }
     private byte[] makeBodyOffence() {
-        bodyBuf_Offence = new byte[Position.BODY_OFFENCE_SIZE];
+        bodyBuf_Offence = new byte[BytePosition.BODY_OFFENCE_SIZE];
 
-        putBody_Offence(bodyBuf_Default, Position.HEADER_VERSION_START);
-        putBody_Offence(bof.getPassStationId(), Position.BODY_OFFENCE_PASS_STATIONID);
-        putBody_Offence(bof.getPassStationTurn(), Position.BODY_OFFENCE_PASS_STATIONTURN);
-        putBody_Offence(bof.getArriveStationId(), Position.BODY_OFFENCE_ARRIVE_STATIONID);
-        putBody_Offence(bof.getArriveStationTurn(), Position.BODY_OFFENCE_ARRIVE_STATIONTURN);
-        putBody_Offence(bof.getOffenceCode(), Position.BODY_OFFENCE_OFFENCECODE);
-        putBody_Offence(bof.getSpeeding_ending(), Position.BODY_OFFENCE_SPEEDING_ENDING);
-        putBody_Offence(bof.getReservation(), Position.BODY_OFFENCE_RESERVATION);
+        putBody_Offence(bodyBuf_Default, BytePosition.HEADER_VERSION_START);
+
+        putBody_Offence(bof.getPassStationId(), BytePosition.BODY_OFFENCE_PASS_STATIONID);
+        putBody_Offence(bof.getPassStationTurn(), BytePosition.BODY_OFFENCE_PASS_STATIONTURN);
+        putBody_Offence(bof.getOffenceCode(), BytePosition.BODY_OFFENCE_OFFENCECODE);
+        putBody_Offence(bof.getReservation(), BytePosition.BODY_OFFENCE_RESERVATION);
 
         return bodyBuf_Offence;
 
     }
     private byte[] makeBodyEmergency() {
-        bodyBuf_Emergency = new byte[Position.BODY_EMERGENCY_SIZE];
+        bodyBuf_Emergency = new byte[BytePosition.BODY_EMERGENCY_SIZE];
 
-        putBody_Emergency(bodyBuf_Default, Position.HEADER_VERSION_START);
-        putBody_Emergency(beg.getPassStationId(), Position.BODY_EMERGENCY_PASS_STATIONID);
-        putBody_Emergency(beg.getPassStationTurn(), Position.BODY_EMERGENCY_PASS_STATIONTURN);
-        putBody_Emergency(beg.getArriveStationId(), Position.BODY_EMERGENCY_ARRIVE_STATIONID);
-        putBody_Emergency(beg.getArriveStationTurn(), Position.BODY_EMERGENCY_ARRIVE_STATIONTURN);
-        putBody_Emergency(beg.getEmergencyCode(), Position.BODY_EMERGENCY_EMERGENCYCODE);
-        putBody_Emergency(beg.getReservation(), Position.BODY_EMERGENCY_RESERVATION);
+        putBody_Emergency(bodyBuf_Default, BytePosition.HEADER_VERSION_START);
+
+        putBody_Emergency(beg.getPassStationId(), BytePosition.BODY_EMERGENCY_PASS_STATIONID);
+        putBody_Emergency(beg.getPassStationTurn(), BytePosition.BODY_EMERGENCY_PASS_STATIONTURN);
+        putBody_Emergency(beg.getEmergencyCode(), BytePosition.BODY_EMERGENCY_EMERGENCYCODE);
+        putBody_Emergency(beg.getReservation(), BytePosition.BODY_EMERGENCY_RESERVATION);
 
         return bodyBuf_Emergency;
+
+    }
+    private byte[] makeBodyBusLocation() {
+        bodyBuf_BusLocation = new byte[BytePosition.BODY_BUSLOCATION_SIZE];
+
+        putBody_BusLocation(bodyBuf_Default, BytePosition.HEADER_VERSION_START);
+
+        putBody_BusLocation(bbl.getPassStationId(), BytePosition.BODY_BUSLOCATION_PASS_STATIONID);
+        putBody_BusLocation(bbl.getPassStationTurn(), BytePosition.BODY_BUSLOCATION_PASS_STATIONTURN);
+        putBody_BusLocation(bbl.getArriveStationId(), BytePosition.BODY_BUSLOCATION_ARRIVE_STATIONID);
+        putBody_BusLocation(bbl.getArriveStationTurn(), BytePosition.BODY_BUSLOCATION_ARRIVE_STATIONTURN);
+        putBody_BusLocation(bbl.getDriveDivision(), BytePosition.BODY_BUSLOCATION_DRIVEDIVISION);
+        putBody_BusLocation(bbl.getReservation(), BytePosition.BODY_BUSLOCATION_RESERVATION);
+
+        return bodyBuf_BusLocation;
 
     }
 
@@ -189,5 +212,8 @@ public class OP_code {
     }
     private void putBody_Emergency(byte[] b, int position) {
         System.arraycopy(b, 0, bodyBuf_Emergency, position, b.length);
+    }
+    private void putBody_BusLocation(byte[] b, int position) {
+        System.arraycopy(b, 0, bodyBuf_BusLocation, position, b.length);
     }
 }

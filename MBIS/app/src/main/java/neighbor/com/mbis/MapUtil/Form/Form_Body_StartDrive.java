@@ -17,6 +17,7 @@ public class Form_Body_StartDrive {
     }
 
     private byte[] driveDivision;
+    private byte[] reservation;
 
     public byte[] getReservation() {
         return reservation;
@@ -26,7 +27,6 @@ public class Form_Body_StartDrive {
         return driveDivision;
     }
 
-    private byte[] reservation;
 
     public void setDriveDivision(byte[] driveDivision) {
         this.driveDivision = driveDivision;
@@ -41,10 +41,10 @@ public class Form_Body_StartDrive {
         this.reservation = reservation;
     }
     public void setReservation(int reservation) {
-        this.reservation = Func.integerToByte(reservation, 3);
+        this.reservation = Func.integerToByte(reservation, 4);
     }
     public void setReservation(String reservation) {
-        this.reservation = Func.integerToByte(Integer.parseInt(reservation), 3);
+        this.reservation = Func.integerToByte(Integer.parseInt(reservation), 4);
     }
 
 }

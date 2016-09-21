@@ -17,11 +17,12 @@ public class LogicBuffer {
     }
 
     //계산용 버퍼
-    private int arriveTimeBuf, startTimeBuf, stationNumBuf, crossRoadNumBuf;
+    private int arriveTimeBuf, startTimeBuf, stationArriveNumBuf, stationStartNumBuf;
 
     public static int jumpBuf[] = new int[]{-2, -1, 0};
     public static int startBuf[] = new int[]{-10, -10, -10};
     public static double locationXBuf=0, locationYBuf=0;
+    public static int countBy_30sec = 30;
 
 
     public int getArriveTimeBuf() {
@@ -40,19 +41,19 @@ public class LogicBuffer {
         this.startTimeBuf = startTimeBuf;
     }
 
-    public int getStationNumBuf() {
-        return stationNumBuf;
+    public int getStationArriveNumBuf() {
+        return stationArriveNumBuf;
     }
 
-    public void setStationNumBuf(int stationNumBuf) {
-        this.stationNumBuf = stationNumBuf;
+    public void setStationArriveNumBuf(int stationArriveNumBuf) {
+        this.stationArriveNumBuf = stationArriveNumBuf;
     }
 
-    public int getCrossRoadNumBuf() {
-        return crossRoadNumBuf;
+    public int getStationStartNumBuf() {
+        return stationStartNumBuf;
     }
 
-    public void setCrossRoadNumBuf(int crossRoadNumBuf) {
-        this.crossRoadNumBuf = crossRoadNumBuf;
+    public void setStationStartNumBuf(int stationStartNumBuf) {
+        this.stationStartNumBuf = stationStartNumBuf;
     }
 }

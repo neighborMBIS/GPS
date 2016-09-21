@@ -37,22 +37,17 @@ public class MapVal {
     //도출
     private int adjacentTravelTime;
 
-    //출종
-    private int driveTurn;
-
     //출
     private int serviceTime;
 
-    //시
+    //시도출종
     private int driveDivision;
 
     //종
     private String driveDate;
     private String driveStartTime;
-    private int detectStationNum;
-    private int undetectStationNum;
-    private int detectCrossRoadNum;
-    private int undetectCrossRoadNum;
+    private int detectStationArriveNum;
+    private int detectStationStartNum;
 
     //위반, 돌발
     private long afterArriveStationId;
@@ -305,13 +300,6 @@ public class MapVal {
         this.adjacentTravelTime = adjacentTravelTime;
     }
 
-    public int getDriveTurn() {
-        return driveTurn;
-    }
-
-    public void setDriveTurn(int driveTurn) {
-        this.driveTurn = driveTurn;
-    }
 
     public int getServiceTime() {
         return serviceTime;
@@ -345,36 +333,20 @@ public class MapVal {
         this.driveStartTime = driveStartTime;
     }
 
-    public int getDetectStationNum() {
-        return detectStationNum;
+    public int getDetectStationArriveNum() {
+        return detectStationArriveNum;
     }
 
-    public void setDetectStationNum(int detectStationNum) {
-        this.detectStationNum = detectStationNum;
+    public void setDetectStationArriveNum(int detectStationArriveNum) {
+        this.detectStationArriveNum = detectStationArriveNum;
     }
 
-    public int getUndetectStationNum() {
-        return undetectStationNum;
+    public int getDetectStationStartNum() {
+        return detectStationStartNum;
     }
 
-    public void setUndetectStationNum(int undetectStationNum) {
-        this.undetectStationNum = undetectStationNum;
-    }
-
-    public int getDetectCrossRoadNum() {
-        return detectCrossRoadNum;
-    }
-
-    public void setDetectCrossRoadNum(int detectCrossRoadNum) {
-        this.detectCrossRoadNum = detectCrossRoadNum;
-    }
-
-    public int getUndetectCrossRoadNum() {
-        return undetectCrossRoadNum;
-    }
-
-    public void setUndetectCrossRoadNum(int undetectCrossRoadNum) {
-        this.undetectCrossRoadNum = undetectCrossRoadNum;
+    public void setDetectStationStartNum(int detectStationStartNum) {
+        this.detectStationStartNum = detectStationStartNum;
     }
 
     public long getAfterArriveStationId() {

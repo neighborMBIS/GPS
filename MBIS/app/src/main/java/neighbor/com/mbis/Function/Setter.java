@@ -1,7 +1,7 @@
 package neighbor.com.mbis.Function;
 
-import neighbor.com.mbis.Activity.MapActivity;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_ArriveStation;
+import neighbor.com.mbis.MapUtil.Form.Form_Body_BusLocation;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_Default;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_Emergency;
 import neighbor.com.mbis.MapUtil.Form.Form_Body_EndDrive;
@@ -23,6 +23,7 @@ public class Setter {
     static Form_Body_EndDrive bed = Form_Body_EndDrive.getInstance();
     static Form_Body_Offence bof = Form_Body_Offence.getInstance();
     static Form_Body_Emergency beg = Form_Body_Emergency.getInstance();
+    static Form_Body_BusLocation bbl = Form_Body_BusLocation.getInstance();
 
 
     static MapVal mv = MapVal.getInstance();
@@ -50,15 +51,16 @@ public class Setter {
         bas.setStationId(mv.getArriveStationID());
         bas.setStationTurn(mv.getArriveStationTurn());
         bas.setAdjacentTravelTime(mv.getAdjacentTravelTime());
+        bas.setDriveDivision(mv.getDriveDivision());
         bas.setReservation(mv.getReservation());
     }
 
     public static void setBody_StartStation() {
         bss.setStationId(mv.getArriveStationID());
         bss.setStationTurn(mv.getArriveStationTurn());
-        bss.setDriveTurn(mv.getDriveTurn());
         bss.setServiceTime(mv.getServiceTime());
         bss.setAdjacentTravelTime(mv.getAdjacentTravelTime());
+        bss.setDriveDivision(mv.getDriveDivision());
         bss.setReservation(mv.getReservation());
     }
 
@@ -72,30 +74,33 @@ public class Setter {
         bed.setStartTime(mv.getDriveStartTime());
         bed.setStationId(mv.getArriveStationID());
         bed.setStationTurn(mv.getArriveStationTurn());
-        bed.setDriveTurn(mv.getDriveTurn());
-        bed.setDetectStationNum(mv.getDetectStationNum());
-        bed.setUndetectStationNum(mv.getUndetectStationNum());
-        bed.setDetectCrossRoadNum(mv.getDetectCrossRoadNum());
-        bed.setUndetectCrossRoadNum(mv.getUndetectCrossRoadNum());
+
+        bed.setDetectStationArriveNum(mv.getDetectStationArriveNum());
+        bed.setDetectStationStartNum(mv.getDetectStationStartNum());
+        bed.setDriveDivision(mv.getDriveDivision());
         bed.setReservation(mv.getReservation());
     }
 
     public static void setBody_Offence() {
         bof.setPassStationId(mv.getArriveStationID());
         bof.setPassStationNum(mv.getArriveStationTurn());
-        bof.setArriveStationId(mv.getAfterArriveStationId());
-        bof.setArriveStationNum(mv.getAfterArriveStationTurn());
         bof.setOffenceCode(mv.getOffenceCode());
-        bof.setSpeeding_ending(mv.getSpeeding_ending());
         bof.setReservation(mv.getReservation());
     }
 
     public static void setBody_Emergency() {
         beg.setPassStationId(mv.getArriveStationID());
         beg.setPassStationNum(mv.getArriveStationTurn());
-        beg.setArriveStationId(mv.getAfterArriveStationId());
-        beg.setArriveStationNum(mv.getAfterArriveStationTurn());
         beg.setEmergencyCode(mv.getEmergencyCode());
         beg.setReservation(mv.getReservation());
+    }
+
+    public static void setBody_BusLocation() {
+        bbl.setPassStationId(mv.getArriveStationID());
+        bbl.setPassStationNum(mv.getArriveStationTurn());
+        bbl.setArriveStationId(mv.getAfterArriveStationId());
+        bbl.setArriveStationNum(mv.getAfterArriveStationTurn());
+        bbl.setDriveDivision(mv.getDriveDivision());
+        bbl.setReservation(mv.getReservation());
     }
 }
