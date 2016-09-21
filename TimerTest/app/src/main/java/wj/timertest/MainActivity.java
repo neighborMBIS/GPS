@@ -1,10 +1,14 @@
 package wj.timertest;
 
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,9 +17,8 @@ public class MainActivity extends AppCompatActivity {
 
     TextView time, log;
     Button button;
-    int count = 30;
 
-    Timer timer;
+    BusLocationInfoTimer busTimerTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,34 +30,32 @@ public class MainActivity extends AppCompatActivity {
         button = (Button) findViewById(R.id.button);
         log.append("\n");
 
-        timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(count > 0) {
-                            time.setText(String.valueOf(count));
-                        } else {
-                            time.setText("Time out!");
-                            count = 30;
-                            log.append("\nTime out!");
-                        }
-                    }
-                });
-                count--;
-            }
-        }, 1000, 1000);
+        busTimerTask = new BusLocationInfoTimer(mHandler);
+        busTimerTask.start();
     }
 
     public void restart(View v) {
         switch (v.getId()) {
             case R.id.button:
-                count = 30;
-                time.setText(String.valueOf(count));
+                MessagePosition.count = 30;
+                time.setText(String.valueOf(MessagePosition.count));
                 break;
         }
     }
+
+    final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg){
+            switch (msg.what) {
+                case MessagePosition.SEND_BUS_LOCATION_INFO:
+                    time.setText(String.valueOf(MessagePosition.count));
+                    log.append("\nTime Out!!");
+                    MessagePosition.count = 30;
+                    break;
+                case MessagePosition.TIME_CHANGE:
+                    time.setText(String.valueOf(MessagePosition.count));
+                    break;
+            }
+        }
+    };
 }
