@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import neighbor.com.mbis.R;
 
@@ -18,13 +19,15 @@ import neighbor.com.mbis.R;
  */
 public class MyArrayAdapter extends ArrayAdapter {
 
-    private ArrayList<Long> items;
+    private ArrayList<String> items = new ArrayList<String>();
     Context c;
 
-    public MyArrayAdapter(Context context, int resource, ArrayList<Long> stationName) {
+    public MyArrayAdapter(Context context, int resource, ArrayList<String> stationName) {
         super(context, resource, stationName);
         c = context;
-        items = stationName;
+        for(int i=0 ; i<stationName.size() ; i++) {
+            items.add(stationName.get(stationName.size()-i-1));
+        }
     }
 
     @Override

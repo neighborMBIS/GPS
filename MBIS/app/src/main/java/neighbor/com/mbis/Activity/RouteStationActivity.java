@@ -9,7 +9,8 @@ import android.widget.TextView;
 
 import neighbor.com.mbis.Database.DBManager;
 import neighbor.com.mbis.MapUtil.Value.RouteBuffer;
-import neighbor.com.mbis.MapUtil.Value.StationSubBuffer;
+import neighbor.com.mbis.MapUtil.Value.StationSubBuffer_1;
+import neighbor.com.mbis.MapUtil.Value.StationSubBuffer_2;
 import neighbor.com.mbis.R;
 import neighbor.com.mbis.MapUtil.Value.StationBuffer;
 
@@ -21,7 +22,8 @@ public class RouteStationActivity extends AppCompatActivity {
     DBManager db = DBManager.getInstance(this);
 
     StationBuffer sBuf = StationBuffer.getInstance();
-    StationSubBuffer ssBuf = StationSubBuffer.getInstance();
+    StationSubBuffer_1 ssBuf = StationSubBuffer_1.getInstance();
+    StationSubBuffer_2 sssBuf = StationSubBuffer_2.getInstance();
 
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
@@ -69,6 +71,8 @@ public class RouteStationActivity extends AppCompatActivity {
                 String sid = c.getString(0);
                 sBuf.addStationOrder(Integer.parseInt(c.getString(1)));
                 sBuf.addRemark(Integer.parseInt(c.getString(3)));
+                ssBuf.addStationOrder(Integer.parseInt(c.getString(1)));
+                ssBuf.addRemark(Integer.parseInt(c.getString(3)));
 
                 Cursor cs = db.queryStation(
                         stationDB ,
@@ -97,6 +101,14 @@ public class RouteStationActivity extends AppCompatActivity {
                         sBuf.getReferenceLngPosition().add(Double.parseDouble(idx[4]));
                         sBuf.getReferenceStationId().add(Long.parseLong(idx[0]));
                         sBuf.getStationDivision().add(Integer.parseInt(idx[6]));
+                        sBuf.getReferenceStationName().add(idx[1]);
+
+
+                        ssBuf.getReferenceLatPosition().add(Double.parseDouble(idx[5]));
+                        ssBuf.getReferenceLngPosition().add(Double.parseDouble(idx[4]));
+                        ssBuf.getReferenceStationId().add(Long.parseLong(idx[0]));
+                        ssBuf.getStationDivision().add(Integer.parseInt(idx[6]));
+                        ssBuf.getReferenceStationName().add(idx[1]);
                     }
                 }
 
@@ -108,8 +120,8 @@ public class RouteStationActivity extends AppCompatActivity {
         if (cc != null) {
             while (cc.moveToNext()) {
                 String sid = cc.getString(0);
-                ssBuf.addStationOrder(Integer.parseInt(cc.getString(1)));
-                ssBuf.addRemark(Integer.parseInt(cc.getString(3)));
+                sssBuf.addStationOrder(Integer.parseInt(cc.getString(1)));
+                sssBuf.addRemark(Integer.parseInt(cc.getString(3)));
 
                 Cursor cs = db.queryStation(
                         stationDB,
@@ -134,11 +146,12 @@ public class RouteStationActivity extends AppCompatActivity {
                         tv.append("[ 6 : " + idx[6] + " ] ");
                         tv.append("\n\n");
 
-                        ssBuf.getReferenceLatPosition().add(Double.parseDouble(idx[5]));
-                        ssBuf.getReferenceLngPosition().add(Double.parseDouble(idx[4]));
-                        ssBuf.getReferenceStationId().add(Long.parseLong(idx[0]));
-                        ssBuf.getStationDivision().add(Integer.parseInt(idx[6]));
+                        sssBuf.getReferenceLatPosition().add(Double.parseDouble(idx[5]));
+                        sssBuf.getReferenceLngPosition().add(Double.parseDouble(idx[4]));
+                        sssBuf.getReferenceStationId().add(Long.parseLong(idx[0]));
+                        sssBuf.getStationDivision().add(Integer.parseInt(idx[6]));
 
+                        sssBuf.getReferenceStationName().add(idx[1]);
                     }
                 }
 
@@ -159,14 +172,24 @@ public class RouteStationActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         sBuf.getReferenceStationId().clear();
         sBuf.getReferenceLatPosition().clear();
         sBuf.getReferenceLngPosition().clear();
         sBuf.getStationOrder().clear();
+        sBuf.getReferenceStationName().clear();
+
         ssBuf.getReferenceStationId().clear();
         ssBuf.getReferenceLatPosition().clear();
         ssBuf.getReferenceLngPosition().clear();
         ssBuf.getStationOrder().clear();
+        ssBuf.getReferenceStationName().clear();
+
+        sssBuf.getReferenceStationId().clear();
+        sssBuf.getReferenceLatPosition().clear();
+        sssBuf.getReferenceLngPosition().clear();
+        sssBuf.getStationOrder().clear();
+        sssBuf.getReferenceStationName().clear();
 
     }
 }

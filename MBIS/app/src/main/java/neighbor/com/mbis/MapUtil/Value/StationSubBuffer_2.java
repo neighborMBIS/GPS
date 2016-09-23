@@ -5,10 +5,10 @@ import java.util.ArrayList;
 /**
  * Created by user on 2016-08-25.
  */
-public class StationBuffer {
-    private static StationBuffer ourInstance = new StationBuffer();
+public class StationSubBuffer_2 {
+    private static StationSubBuffer_2 ourInstance = new StationSubBuffer_2();
 
-    public static StationBuffer getInstance() {
+    public static StationSubBuffer_2 getInstance() {
         return ourInstance;
     }
 
@@ -19,8 +19,8 @@ public class StationBuffer {
     private ArrayList<Integer> remark;
     private ArrayList<Integer> stationOrder;
     private ArrayList<Integer> stationDivision;
-
     private ArrayList<String> referenceStationName;
+
     public ArrayList<String> getReferenceStationName() {
         return referenceStationName;
     }
@@ -31,7 +31,7 @@ public class StationBuffer {
 
 
 
-    private StationBuffer() {
+    private StationSubBuffer_2() {
         referenceLatPosition = new ArrayList<Double>();
         referenceLngPosition = new ArrayList<Double>();
         distance = new ArrayList<Double>();
@@ -99,7 +99,6 @@ public class StationBuffer {
     public void setStationDivision(ArrayList<Integer> stationDivision) {
         this.stationDivision = stationDivision;
     }
-
     public void addReferenceLatPosition(double item) {
         referenceLatPosition.add(item);
     }
