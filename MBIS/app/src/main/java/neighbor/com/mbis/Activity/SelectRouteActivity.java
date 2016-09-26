@@ -57,7 +57,7 @@ public class SelectRouteActivity extends AppCompatActivity {
 
         scAdapter = new SimpleCursorAdapter(
                 this,
-                R.layout.item,
+                R.layout.route_select_item,
                 db.queryRoute(new String[]{"_id", "id", "route_id", "direction"}, null, null, null, null, null),
                 new String[]{"route_id", "direction"},
                 new int[]{R.id.busNum, R.id.busDivision}

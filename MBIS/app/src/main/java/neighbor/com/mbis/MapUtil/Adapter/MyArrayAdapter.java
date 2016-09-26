@@ -19,15 +19,16 @@ import neighbor.com.mbis.R;
  */
 public class MyArrayAdapter extends ArrayAdapter {
 
-    private ArrayList<String> items = new ArrayList<String>();
+    private ArrayList<String> items;
     Context c;
 
     public MyArrayAdapter(Context context, int resource, ArrayList<String> stationName) {
         super(context, resource, stationName);
+
+
         c = context;
-        for(int i=0 ; i<stationName.size() ; i++) {
-            items.add(stationName.get(stationName.size()-i-1));
-        }
+        items = stationName;
+
     }
 
     @Override
@@ -38,11 +39,13 @@ public class MyArrayAdapter extends ArrayAdapter {
         }
         if (items.get(position) != null) {
             TextView tt = (TextView) v.findViewById(R.id.item_textView);
-            ImageView iv = (ImageView) v.findViewById(R.id.item_imageView);
-
             if (tt != null){
                 tt.setText(items.get(position).toString());
+                tt.setSelected(true);
             }
+
+//            Toast.makeText(c, "" + v.findViewById(R.id.item_imageView), Toast.LENGTH_SHORT).show();
+//            Log.e("Adapter", v.findViewById(R.id.item_imageView) + "");
         }
         return v;
     }

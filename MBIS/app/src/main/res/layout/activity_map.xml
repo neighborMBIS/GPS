@@ -148,7 +148,7 @@
             android:layout_weight="1">
         </com.google.android.gms.maps.MapView>
 
-        <LinearLayout
+        <FrameLayout
             android:orientation="horizontal"
             android:layout_width="200dp"
             android:layout_margin="3dp"
@@ -159,8 +159,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/movingStationList"
-                android:layout_alignParentTop="true" />
-        </LinearLayout>
+                android:layout_alignParentTop="true"
+                android:layout_gravity="center" />
+
+            <include
+                layout="@layout/focus_item"
+                android:id="@+id/lockImage"
+                />
+        </FrameLayout>
 
     </LinearLayout>
 

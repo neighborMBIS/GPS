@@ -1,5 +1,7 @@
 package neighbor.com.mbis.MapUtil.Value;
 
+import java.util.ArrayList;
+
 /**
  * Created by user on 2016-09-08.
  */
@@ -23,6 +25,7 @@ public class LogicBuffer {
     public static int startBuf[] = new int[]{-10, -10, -10};
     public static double locationXBuf=0, locationYBuf=0;
     public static int countBy_30sec = 30;
+    ArrayList<String> stationListBuf = new ArrayList<String>();
 
 
     public int getArriveTimeBuf() {
@@ -55,5 +58,13 @@ public class LogicBuffer {
 
     public void setStationStartNumBuf(int stationStartNumBuf) {
         this.stationStartNumBuf = stationStartNumBuf;
+    }
+
+    public ArrayList<String> getStationListBuf() {
+        return stationListBuf;
+    }
+
+    public void setStationListBuf(ArrayList<String> stationListBuf) {
+        this.stationListBuf = stationListBuf;
     }
 }

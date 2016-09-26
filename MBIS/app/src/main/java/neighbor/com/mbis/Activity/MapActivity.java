@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -20,7 +21,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -73,9 +76,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     StationSubBuffer_1 sssBuf = StationSubBuffer_1.getInstance();
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
-    TextView emergencyButton, currentlatView, currentlonView, eventtextView, devicetext, timerText;
+    TextView emergencyButton, currentlatView, currentlonView, eventtextView, devicetext, timerText, startDisplay, arriveDisplay, waitDisplay;
     ScrollView eventscroll, realscroll;
     ListView movingStationList;
+    private ImageView busImage;
+    private ViewGroup lockImage;
 
     PolylineOptions rectOptions;
 
@@ -174,6 +179,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         devicetext = (TextView) findViewById(R.id.devicetext);
         timerText = (TextView) findViewById(R.id.timer);
 
+        busImage = (ImageView) findViewById(R.id.busImage);
+        startDisplay = (TextView) findViewById(R.id.startDisplay);
+        arriveDisplay = (TextView) findViewById(R.id.arriveDisplay);
+        waitDisplay = (TextView) findViewById(R.id.waitDisplay);
+        lockImage = (ViewGroup) findViewById(R.id.lockImage);
+        lockImage.setBackgroundResource(R.drawable.focus_wait);
+
         movingStationList = (ListView) findViewById(R.id.movingStationList);
 
         eventscroll = (ScrollView) findViewById(R.id.eventscroll);
@@ -183,8 +195,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
+        lBuf.getStationListBuf().add("");
+        lBuf.getStationListBuf().add("");
+        lBuf.getStationListBuf().add("");
+        lBuf.getStationListBuf().add("");
+        lBuf.getStationListBuf().add("");
+
+        for(int i=0 ; i<sBuf.getReferenceStationName().size() ; i++) {
+            lBuf.getStationListBuf().add(sBuf.getReferenceStationName().get(sBuf.getReferenceStationName().size() -1 -i));
+        }
+        lBuf.getStationListBuf().add("");
+
 //        ArrayAdapter mAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, sBuf.getReferenceStationId());
-        MyArrayAdapter mAdapter = new MyArrayAdapter(this, R.layout.map_item, sBuf.getReferenceStationName());
+        MyArrayAdapter mAdapter = new MyArrayAdapter(this, R.layout.map_item, lBuf.getStationListBuf());
         movingStationList.setAdapter(mAdapter);
         movingStationList.setClickable(false);
         movingStationList.setOnTouchListener(new View.OnTouchListener() {
@@ -507,7 +530,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mv.setAdjacentTravelTime(lBuf.getArriveTimeBuf() - lBuf.getStartTimeBuf());
         mv.setReservation(0);
 
-        movingBox(false);
+        movingStationList.setSelection(lBuf.getStationListBuf().size() - movingStationList.getChildCount() - stationBuf);
+        //밥먹고 화면 올라갈 부분 숫자 계산하기
+        lockImage.setBackgroundResource(R.drawable.focus_arrive);
+        busImage.setVisibility(View.VISIBLE);
+        arriveDisplay.setVisibility(View.VISIBLE);
+        startDisplay.setVisibility(View.INVISIBLE);
+        waitDisplay.setVisibility(View.INVISIBLE);
     }
 
     private void addUtilStartStation() {
@@ -518,7 +547,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         lBuf.setStartTimeBuf(mv.getSendHour() * 3600 + mv.getSendMin() * 60 + mv.getSendSec());
         mv.setServiceTime(lBuf.getStartTimeBuf() - lBuf.getArriveTimeBuf());
 
-        movingBox(true);
+        lockImage.setBackgroundResource(R.drawable.focus_start);
+        busImage.setVisibility(View.VISIBLE);
+        arriveDisplay.setVisibility(View.INVISIBLE);
+        startDisplay.setVisibility(View.VISIBLE);
+        waitDisplay.setVisibility(View.INVISIBLE);
+
     }
 
     private void addUtilStartDrive() {
@@ -535,6 +569,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mv.setDetectStationStartNum(lBuf.getStationStartNumBuf());
 
         mv.setReservation(0);
+
+        lockImage.setBackgroundResource(R.drawable.focus_wait);
+        busImage.setVisibility(View.INVISIBLE);
+        arriveDisplay.setVisibility(View.INVISIBLE);
+        startDisplay.setVisibility(View.INVISIBLE);
+        waitDisplay.setVisibility(View.VISIBLE);
+
+        movingStationList.setSelection(sBuf.getReferenceStationId().size() - 1);
+
     }
 
     private void addUtilOffence(int offenceCode) {
@@ -885,11 +928,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     if (LogicBuffer.startBuf[2] - LogicBuffer.startBuf[0] < 3) {
                         driveStart();
                         stationArrive();
-                        movingStationList.setSelection(0);
-                        movingStationList
-                                .getChildAt(sBuf.getReferenceStationId().size()-1 - stationBuf)
-                                .findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-
                         devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 비정상 운행 시작");
                         devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 도착");
                     }
@@ -925,46 +963,46 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void movingBox(boolean flag) {
-
-//        if (stationBuf != 0 && !flag) {
-        movingStationList.setSelection(sBuf.getReferenceStationId().size() - stationBuf - movingStationList.getChildCount() + 1);
+//    private void movingBox(boolean flag) {
+//
+////        if (stationBuf != 0 && !flag) {
+//        movingStationList.setSelection(sBuf.getReferenceStationId().size() - stationBuf - movingStationList.getChildCount() + 1);
+////        }
+//
+//
+//        for (int a = 0; a < movingStationList.getChildCount(); a++) {
+//            movingStationList.getChildAt(a).setBackgroundResource(R.drawable.focus_after);
+//            movingStationList.getChildAt(a).findViewById(R.id.item_imageView).setVisibility(View.INVISIBLE);
 //        }
-
-
-        for (int a = 0; a < movingStationList.getChildCount(); a++) {
-            movingStationList.getChildAt(a).setBackgroundResource(R.drawable.focus_after);
-            movingStationList.getChildAt(a).findViewById(R.id.item_imageView).setVisibility(View.INVISIBLE);
-        }
-        if (stationBuf == 0) {
-            movingStationList.getChildAt(movingStationList.getChildCount() - 1).setBackgroundResource(R.drawable.focus);
-            movingStationList.getChildAt(movingStationList.getChildCount() - 1).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-//            movingStationList.getChildAt(0).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
-        } else if (stationBuf == 1) {
-            movingStationList.getChildAt(movingStationList.getChildCount() - 2).setBackgroundResource(R.drawable.focus);
-            movingStationList.getChildAt(movingStationList.getChildCount() - 2).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-        }
-        else if (stationBuf >= movingStationList.getChildCount()) {
-            movingStationList.setSelection(0);
-            movingStationList
-                    .getChildAt(sBuf.getReferenceStationId().size()-1 - stationBuf)
-                    .findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-            movingStationList.getChildAt(sBuf.getReferenceStationId().size()-1 - stationBuf)
-                    .setBackgroundResource(R.drawable.focus);
-            movingStationList.getChildAt(movingStationList.getChildCount() - (sBuf.getReferenceStationId().size() - stationBuf)).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
-        }
-        else {
-//            if(flag) {
-            movingStationList.getChildAt(movingStationList.getChildCount() - 3).setBackgroundResource(R.drawable.focus);
-            movingStationList.getChildAt(movingStationList.getChildCount() - 3).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-//            movingStationList.getChildAt(2).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
-//            } else {
-//                movingStationList.getChildAt(movingStationList.getChildCount() - 3).setBackgroundResource(R.drawable.focus);
-//                movingStationList.getChildAt(movingStationList.getChildCount() - 3).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
+//        if (stationBuf == 0) {
+//            movingStationList.getChildAt(movingStationList.getChildCount() - 1).setBackgroundResource(R.drawable.focus);
+//            movingStationList.getChildAt(movingStationList.getChildCount() - 1).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
+////            movingStationList.getChildAt(0).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
+//        } else if (stationBuf == 1) {
+//            movingStationList.getChildAt(movingStationList.getChildCount() - 2).setBackgroundResource(R.drawable.focus);
+//            movingStationList.getChildAt(movingStationList.getChildCount() - 2).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
+//        }
+//        else if (stationBuf >= movingStationList.getChildCount()) {
+//            movingStationList.setSelection(0);
+//            movingStationList
+//                    .getChildAt(sBuf.getReferenceStationId().size()-1 - stationBuf)
+//                    .findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
+//            movingStationList.getChildAt(sBuf.getReferenceStationId().size()-1 - stationBuf)
+//                    .setBackgroundResource(R.drawable.focus);
+//            movingStationList.getChildAt(movingStationList.getChildCount() - (sBuf.getReferenceStationId().size() - stationBuf)).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
+//        }
+//        else {
+////            if(flag) {
+//            movingStationList.getChildAt(movingStationList.getChildCount() - 3).setBackgroundResource(R.drawable.focus);
+//            movingStationList.getChildAt(movingStationList.getChildCount() - 3).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
 ////            movingStationList.getChildAt(2).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
-//            }
-        }
-    }
+////            } else {
+////                movingStationList.getChildAt(movingStationList.getChildCount() - 3).setBackgroundResource(R.drawable.focus);
+////                movingStationList.getChildAt(movingStationList.getChildCount() - 3).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
+//////            movingStationList.getChildAt(2).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
+////            }
+//        }
+//    }
 
 
     final Handler mHandler = new Handler() {
