@@ -40,28 +40,59 @@ public class OP_code {
         makeHeader();
         makeBodyDefault();
 
-        if(op[0] == 0x15) {
-            //drive start
-            SendData.data = makeBodyStartDrive();
-        } else if (op[0] == 0x20) {
-            //bus location information
-            SendData.data = makeBodyBusLocation();
-        } else if (op[0] == 0x21) {
-            //station arrive
-            SendData.data = makeBodyArriveStation();
-        } else if(op[0] == 0x22) {
-            //station start
-            SendData.data = makeBodyStartStation();
-        } else if(op[0] == 0x24) {
-            //offence
-            SendData.data = makeBodyOffence();
-        } else if(op[0] == 0x31) {
-            //drive end
-            SendData.data = makeBodyEndDrive();
-        } else if(op[0] == 0x51) {
-            //emergency
-            SendData.data = makeBodyEmergency();
+        switch (op[0]) {
+            case OPUtil.OP_START_DRIVE:
+                //drive start
+                Data.writeData = makeBodyStartDrive();
+                break;
+            case OPUtil.OP_BUS_LOCATION:
+                //bus location information
+                Data.writeData = makeBodyBusLocation();
+                break;
+            case OPUtil.OP_ARRIVE_STATION:
+                //station arrive
+                Data.writeData = makeBodyArriveStation();
+                break;
+            case OPUtil.OP_START_STATION:
+                //station start
+                Data.writeData = makeBodyStartStation();
+                break;
+            case OPUtil.OP_OFFENCE_INFO:
+                //offence
+                Data.writeData = makeBodyOffence();
+                break;
+            case OPUtil.OP_END_DRIVE:
+                //drive end
+                Data.writeData = makeBodyEndDrive();
+                break;
+            case OPUtil.OP_EMERGENCY_INFO:
+                //emergency
+                Data.writeData = makeBodyEmergency();
+                break;
         }
+
+//        if(op[0] == OPUtil.OP_START_DRIVE) {
+//            //drive start
+//            Data.writeData = makeBodyStartDrive();
+//        } else if (op[0] == OPUtil.OP_BUS_LOCATION) {
+//            //bus location information
+//            Data.writeData = makeBodyBusLocation();
+//        } else if (op[0] == OPUtil.OP_ARRIVE_STATION) {
+//            //station arrive
+//            Data.writeData = makeBodyArriveStation();
+//        } else if(op[0] == OPUtil.OP_START_STATION) {
+//            //station start
+//            Data.writeData = makeBodyStartStation();
+//        } else if(op[0] == OPUtil.OP_OFFENCE_INFO) {
+//            //offence
+//            Data.writeData = makeBodyOffence();
+//        } else if(op[0] == OPUtil.OP_END_DRIVE) {
+//            //drive end
+//            Data.writeData = makeBodyEndDrive();
+//        } else if(op[0] == OPUtil.OP_EMERGENCY_INFO) {
+//            //emergency
+//            Data.writeData = makeBodyEmergency();
+//        }
     }
 
     private byte[] makeHeader() {

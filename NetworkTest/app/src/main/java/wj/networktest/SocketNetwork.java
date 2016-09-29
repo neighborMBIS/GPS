@@ -1,6 +1,7 @@
 package wj.networktest;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -19,7 +20,7 @@ import java.net.SocketAddress;
  * Created by user on 2016-09-27.
  */
 
-public class ToServer extends Thread {
+public class SocketNetwork extends Thread {
     private String IP;
     private int PORT;
     private Socket socket;
@@ -44,7 +45,7 @@ public class ToServer extends Thread {
 //        return ourInstance;
 //    }
 
-    public ToServer(String IP, int PORT, Handler mHandler) {
+    public SocketNetwork(String IP, int PORT, Handler mHandler) {
         runFlag = true;
         this.IP = IP;
         this.PORT = PORT;
@@ -58,7 +59,7 @@ public class ToServer extends Thread {
     @Override
     public synchronized void run() {
         try {
-            //타임아웃 : 5초
+            //타임아웃
             socket.connect(sAddress, HandlerPosition.SERVER_CONNECT_TIMEOUT);
 //            socket = new Socket(this.IP, this.PORT);
 
@@ -69,32 +70,35 @@ public class ToServer extends Thread {
 
             Log.d("[Client]", " Server connected !!");
         } catch (IOException e) {
-            mHandler.sendEmptyMessage(HandlerPosition.SOCKET_CONNECT_ERROR);
+            try {
+                sleep(HandlerPosition.SERVER_CONNECT_TIMEOUT);
+                mHandler.sendEmptyMessage(HandlerPosition.SOCKET_CONNECT_ERROR);
+            } catch (InterruptedException e1) {
+            }
+
         }
         if (dis != null) {
+            mHandler.sendEmptyMessage(HandlerPosition.SOCKET_CONNECT_SUCCESS);
             readData();
         }
     }
 
     public void writeData(byte[] data) {
-        try {
-            if (socket != null && dos != null) {
+        if (socket != null && dos != null) {
+            try {
                 dos.write(data);
                 Log.d("[sendData]", " send byte Data !!");
-            } else {
+            } catch (IOException e) {
                 mHandler.sendEmptyMessage(HandlerPosition.WRITE_SERVER_DISCONNECT_ERROR);
-                Log.d("[sendData]", " Failed send byte Data null !!");
+                Log.d("[sendData]", " Failed send byte Data !!");
             }
-        } catch (IOException e) {
-            mHandler.sendEmptyMessage(HandlerPosition.WRITE_SERVER_DISCONNECT_ERROR);
-            Log.d("[sendData]", " Failed send byte Data !!");
         }
     }
 
     public void close() {
         try {
             runFlag = false;
-            if(os != null && is != null &&
+            if (os != null && is != null &&
                     dos != null && dis != null) {
                 os.close();
                 is.close();
@@ -111,29 +115,34 @@ public class ToServer extends Thread {
             try {
                 //바이트 크기는 넉넉하게 잡아서 할 것.
                 //가변적으로 못바꾸니 넉넉하게 잡고 알아서 fix 하기
-                if (dis.read() == -1) {
-                    //서버의 연결이 끊김 = 재연결 시도 메세지를 핸들러에 보냄
-                    mHandler.sendEmptyMessage(HandlerPosition.READ_SERVER_DISCONNECT_ERROR);
-                    close();
+                byte[] headerData = new byte[18];
+                dis.read(headerData);
+                byte[] dataLengthBuf = new byte[4];
+                for (int i = 0; i < 4; i++) {
+                    dataLengthBuf[i] = headerData[i + 14];
+                }
+
+                int dataLength = Func.byteToInteger(dataLengthBuf);
+                byte[] bodyData = new byte[dataLength];
+                dis.read(bodyData);
+
+                if (bodyData.length > 0) {
+                    //정상적인 데이터 수신
+                    Data.readData = Func.mergyByte(headerData, bodyData);
+                    mHandler.sendEmptyMessage(HandlerPosition.DATA_READ_SUCESS);
                 } else {
-                    byte[] bb = new byte[18];
-                    dis.read(bb);
-
-                    byte[] dataLengthBuf = new byte[4];
-                    for (int i = 0; i < 4; i++) {
-                        dataLengthBuf[i] = bb[i + 14];
+                    //잘못된 값이 서버에서 들어왔을 때
+                    if(dis.read() == -1) {
+                        //만약 -1이면 서버가 끊어진거임.
+                        runFlag = false;
+                        mHandler.sendEmptyMessage(HandlerPosition.READ_SERVER_DISCONNECT_ERROR);
+                    } else {
+                        mHandler.sendEmptyMessage(HandlerPosition.READ_DATA_ERROR);
                     }
-                    int dataLength = Func.byteToInteger(dataLengthBuf);
-                    byte[] bodyData = new byte[dataLength];
-                    dis.read(bodyData);
-
-                    Data.readData = bodyData;
-                    mHandler.sendEmptyMessage(HandlerPosition.READ_SUCESS);
                 }
             } catch (IOException e) {
-                //e.printStackTrace();
-                //status = false;
             }
+
         }
     }
 
@@ -143,5 +152,16 @@ public class ToServer extends Thread {
 
     public void setSocket(Socket socket) {
         this.socket = socket;
+    }
+
+    private void readErrorCheck() {
+        try {
+            if (dis.read() == -1) {
+                //서버의 연결이 끊김 = 재연결 시도 메세지를 핸들러에 보냄
+                close();
+                mHandler.sendEmptyMessage(HandlerPosition.READ_SERVER_DISCONNECT_ERROR);
+            }
+        } catch (IOException e) {
+        }
     }
 }

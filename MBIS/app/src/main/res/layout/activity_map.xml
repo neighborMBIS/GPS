@@ -63,34 +63,6 @@
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.5"
-                    android:layout_gravity="top">
-
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#000"
-                        android:text="Network Log"
-                        android:id="@+id/textView3" />
-
-                    <ScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:id="@+id/realscroll">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=" "
-                            android:id="@+id/eventtext" />
-                    </ScrollView>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
                     android:layout_height="2dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp"
@@ -114,12 +86,6 @@
                             android:text="Device Log"
                             android:id="@+id/textView4" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="4dp"
-                            android:text="00"
-                            android:id="@+id/timer" />
                     </LinearLayout>
 
                     <ScrollView
@@ -137,16 +103,32 @@
 
             </LinearLayout>
         </LinearLayout>
-
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/map"
+        <LinearLayout
             android:layout_width="300dp"
             android:layout_height="match_parent"
-            android:layout_margin="3dp"
-            android:padding="5dp"
-            android:background="@drawable/my_border"
-            android:layout_weight="1">
-        </com.google.android.gms.maps.MapView>
+            android:orientation="vertical">
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/map"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="3dp"
+                android:padding="5dp"
+                android:background="@drawable/my_border"
+                android:layout_weight="0.8">
+            </com.google.android.gms.maps.MapView>
+
+            <ScrollView
+                android:layout_width="300dp"
+                android:layout_height="100dp"
+                android:id="@+id/readScroll">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" "
+                    android:id="@+id/readText" />
+            </ScrollView>
+        </LinearLayout>
 
         <FrameLayout
             android:orientation="horizontal"

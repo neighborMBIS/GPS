@@ -68,6 +68,13 @@ public class Func {
         return buffer.getLong();
     }
 
+    public static int byteToInteger(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+        buffer.put(bytes);
+        buffer.flip();//need flip
+        return buffer.getInt();
+    }
+
     public static byte[] mergyByte(byte[] b1, byte[] b2) {
         byte[] temp = new byte[b1.length + b2.length];
 

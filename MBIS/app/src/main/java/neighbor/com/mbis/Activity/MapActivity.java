@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -53,12 +52,15 @@ import neighbor.com.mbis.MapUtil.Adapter.MyArrayAdapter;
 import neighbor.com.mbis.MapUtil.BytePosition;
 import neighbor.com.mbis.MapUtil.HandlerPosition;
 import neighbor.com.mbis.MapUtil.Thread.BusTimer;
+import neighbor.com.mbis.MapUtil.Thread.SocketNetwork;
+import neighbor.com.mbis.MapUtil.Thread.SocketReadTimeout;
 import neighbor.com.mbis.MapUtil.Value.LogicBuffer;
 import neighbor.com.mbis.MapUtil.Value.MapVal;
 import neighbor.com.mbis.MapUtil.OP_code;
 import neighbor.com.mbis.MapUtil.Value.RouteBuffer;
-import neighbor.com.mbis.MapUtil.SendData;
+import neighbor.com.mbis.MapUtil.Data;
 import neighbor.com.mbis.MapUtil.Value.StationSubBuffer_1;
+import neighbor.com.mbis.Network.NetworkUtil;
 import neighbor.com.mbis.R;
 import neighbor.com.mbis.MapUtil.Value.StationBuffer;
 import neighbor.com.mbis.Function.FileManage;
@@ -76,13 +78,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     StationSubBuffer_1 sssBuf = StationSubBuffer_1.getInstance();
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
-    TextView emergencyButton, currentlatView, currentlonView, eventtextView, devicetext, timerText, startDisplay, arriveDisplay, waitDisplay;
-    ScrollView eventscroll, realscroll;
+    TextView emergencyButton, currentlatView, currentlonView, devicetext, startDisplay, arriveDisplay, waitDisplay, readText;
+    ScrollView eventscroll, readScroll;
     ListView movingStationList;
     private ImageView busImage;
     private ViewGroup lockImage;
 
     PolylineOptions rectOptions;
+    SocketNetwork sNetwork;
 
 
     MapVal mv = MapVal.getInstance();
@@ -99,17 +102,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     static byte[] op;
 
-    //통신 변수들
-    Socket socket;
-    final String IP = "127.0.0.1"; //genymotion host
-    final int PORT = 12345; // port number
-
-    private InputStream is;
-    private OutputStream os;
-    private DataInputStream dis;
-    private DataOutputStream dos;
-    private Thread thread;
-
     BusTimer busTimer;
 
     //이벤트 발생할 때 데이터 전송하려면 이벤트 발생하는곳에 사용 : sendData(byte[]배열);
@@ -117,7 +109,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        connectServer();
 
         TimeZone jst = TimeZone.getTimeZone("JST");
         Calendar cal = Calendar.getInstance(jst);
@@ -126,7 +117,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         eventFileManage = new FileManage(fileName);
 
-        busTimer = new BusTimer(mHandler);
+        busTimer = new BusTimer(HandlerPosition.BUSTIMER_30SEC, mHandler);
+
+        sNetwork = new SocketNetwork(NetworkUtil.IP, NetworkUtil.PORT, mHandler);
+        sNetwork.start();
+
 
         checkGpsService();
         getItem(savedInstanceState);
@@ -175,9 +170,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         currentlatView = (TextView) findViewById(R.id.curlat);
         currentlonView = (TextView) findViewById(R.id.curlon);
-        eventtextView = (TextView) findViewById(R.id.eventtext);
         devicetext = (TextView) findViewById(R.id.devicetext);
-        timerText = (TextView) findViewById(R.id.timer);
+        readText = (TextView) findViewById(R.id.readText);
 
         busImage = (ImageView) findViewById(R.id.busImage);
         startDisplay = (TextView) findViewById(R.id.startDisplay);
@@ -189,7 +183,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         movingStationList = (ListView) findViewById(R.id.movingStationList);
 
         eventscroll = (ScrollView) findViewById(R.id.eventscroll);
-        realscroll = (ScrollView) findViewById(R.id.realscroll);
+        readScroll = (ScrollView) findViewById(R.id.readScroll);
 
         mapView = (MapView) findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
@@ -306,27 +300,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
-        busTimer.interrupt();
-
-        //
-        boolean tlife3 = false;
-        tlife3 = busTimer.isAlive();
-        Toast.makeText(this, "" + tlife3, Toast.LENGTH_SHORT).show();
-        //
+        busTimer.cancel();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
-        try {
-            os.close();
-            is.close();
-            dos.close();
-            dis.close();
-            socket.close();
-        } catch (IOException e) {
-        }
     }
 
     @Override
@@ -352,98 +332,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    //서버와 연결하는 메소드
-    public void connectServer() {
-        new Thread() {
-            public void run() {
-                try {
-                    socket = new Socket(IP, PORT);
-                    Log.d("[Client]", " Server connected !!");
-
-                    //자바에서 한거랑 똑같으니 참고하기
-                    is = socket.getInputStream();
-                    dis = new DataInputStream(is);
-                    os = socket.getOutputStream();
-                    dos = new DataOutputStream(os);
-
-                    thread = new Thread(new ReceiveMsg());
-                    thread.setDaemon(true);
-                    thread.start();
-
-                } catch (Exception e) {
-                    Log.d("[ChatActivity]", " connectServer() Exception !!");
-                }
-            }
-        }.start();
-
-    }
-
-    String recv = "";
-
-    // 내부클래스로 서버에서 받은 메세지를 처리
-    class ReceiveMsg implements Runnable {
-
-        @SuppressWarnings("null")
-        @Override
-        public synchronized void run() {
-            while (true) {
-                try {
-                    //바이트 크기는 넉넉하게 잡아서 할 것.
-                    //가변적으로 못바꾸니 넉넉하게 잡고 알아서 fix 하기
-                    byte[] bb = new byte[2048];
-
-                    dis.read(bb);
-//                    for (int i = 0; i < bb.length; i++) {
-//                        recv = recv + String.format("02X ", bb[i]);
-//                    }
-//                    mHandler.sendEmptyMessage(1);
-                } catch (IOException e) {
-                    //e.printStackTrace();
-                    //status = false;
-                    try {
-                        os.close();
-                        is.close();
-                        dos.close();
-                        dis.close();
-                        socket.close();
-                        break;
-                    } catch (IOException e1) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    public void sendData(byte[] data) {        //메세지를 보내는 메서드
-        try {
-            if (socket != null) {
-                dos.write(data);
-                mv.setSr_cnt(mv.getSr_cnt() + 1);
-                Log.e("[sendData]", " send byte Data !!");
-            } else {
-                Log.e("[sendData]", " Failed send byte Data !! (socket = null)");
-            }
-        } catch (IOException e) {
-            Log.e("[sendData]", " Failed send byte Data !! (socket = null)");
-            connectServer();
-        }
-    }
-
-    private void writeLogFile() {
+    private void sendData() {
         String dd = "";
-        for (int j = 0; j < SendData.data.length; j++) {
-            eventtextView.append(String.format("%02X ", SendData.data[j]));
-            dd = dd + String.format("%02X ", SendData.data[j]);
+        for (int j = 0; j < Data.writeData.length; j++) {
+            dd = dd + String.format("%02X ", Data.writeData[j]);
         }
         eventFileManage.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
                 " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
-                ")\n[SEND:" + SendData.data.length + "] - " + dd);
-
-        eventtextView.append("\n");
+                ")\n[SEND:" + Data.writeData.length + "] - " + dd);
+        sNetwork.writeData(Data.writeData);
         eventscroll.fullScroll(View.FOCUS_DOWN);
-        sendData(SendData.data);
-        LogicBuffer.countBy_30sec = 30;
+        busTimer.cancel();
+        busTimer.start();
     }
 
     private void addUtilDefault(Location location, GpsStatus gpsStatus) {
@@ -617,7 +517,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Setter.setBody_StartDrive();
         op_code = new OP_code(op);
 
-        writeLogFile();
+        sendData();
 
         //운행 시작하면 30초씩 센다.
         busTimer.start();
@@ -639,7 +539,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Setter.setBody_ArriveStation();
         op_code = new OP_code(op);
 
-        writeLogFile();
+        sendData();
         if (stationBuf != sBuf.getReferenceLatPosition().size() - 1) {
             mflag = true;
         }
@@ -657,7 +557,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Setter.setBody_ArriveStation();
         op_code = new OP_code(op);
 
-        writeLogFile();
+        sendData();
     }
 
     private void stationStart() {
@@ -672,7 +572,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Setter.setBody_StartStation();
         op_code = new OP_code(op);
 
-        writeLogFile();
+        sendData();
 
     }
 
@@ -689,15 +589,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Setter.setBody_EndDrive();
         op_code = new OP_code(op);
 
-//        //
-//        boolean tlife2 = false;
-//        tlife2 = busTimer.isAlive();
-//        Toast.makeText(this, "" + tlife2, Toast.LENGTH_SHORT).show();
-//        //
+        busTimer.cancel();
 
-
-
-        writeLogFile();
+        sendData();
 
         startFlag = false;
         LogicBuffer.jumpBuf = new int[]{-2, -1, 0};
@@ -720,11 +614,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Setter.setBody_EndDrive();
         op_code = new OP_code(op);
 
-        writeLogFile();
+        sendData();
 
-        busTimer.interrupt();
-
-
+        busTimer.cancel();
 
         startFlag = false;
         LogicBuffer.jumpBuf = new int[]{-2, -1, 0};
@@ -747,7 +639,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         op_code = new OP_code(op);
 
-        writeLogFile();
+        sendData();
     }
 
     private void emergencyInfo() {
@@ -763,7 +655,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         op_code = new OP_code(op);
 
-        writeLogFile();
+        sendData();
     }
 
     private void busLocationInfo() {
@@ -779,7 +671,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         op_code = new OP_code(op);
 
-        writeLogFile();
+        sendData();
     }
 
 
@@ -963,65 +855,73 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-//    private void movingBox(boolean flag) {
-//
-////        if (stationBuf != 0 && !flag) {
-//        movingStationList.setSelection(sBuf.getReferenceStationId().size() - stationBuf - movingStationList.getChildCount() + 1);
-////        }
-//
-//
-//        for (int a = 0; a < movingStationList.getChildCount(); a++) {
-//            movingStationList.getChildAt(a).setBackgroundResource(R.drawable.focus_after);
-//            movingStationList.getChildAt(a).findViewById(R.id.item_imageView).setVisibility(View.INVISIBLE);
-//        }
-//        if (stationBuf == 0) {
-//            movingStationList.getChildAt(movingStationList.getChildCount() - 1).setBackgroundResource(R.drawable.focus);
-//            movingStationList.getChildAt(movingStationList.getChildCount() - 1).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-////            movingStationList.getChildAt(0).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
-//        } else if (stationBuf == 1) {
-//            movingStationList.getChildAt(movingStationList.getChildCount() - 2).setBackgroundResource(R.drawable.focus);
-//            movingStationList.getChildAt(movingStationList.getChildCount() - 2).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-//        }
-//        else if (stationBuf >= movingStationList.getChildCount()) {
-//            movingStationList.setSelection(0);
-//            movingStationList
-//                    .getChildAt(sBuf.getReferenceStationId().size()-1 - stationBuf)
-//                    .findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-//            movingStationList.getChildAt(sBuf.getReferenceStationId().size()-1 - stationBuf)
-//                    .setBackgroundResource(R.drawable.focus);
-//            movingStationList.getChildAt(movingStationList.getChildCount() - (sBuf.getReferenceStationId().size() - stationBuf)).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
-//        }
-//        else {
-////            if(flag) {
-//            movingStationList.getChildAt(movingStationList.getChildCount() - 3).setBackgroundResource(R.drawable.focus);
-//            movingStationList.getChildAt(movingStationList.getChildCount() - 3).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-////            movingStationList.getChildAt(2).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
-////            } else {
-////                movingStationList.getChildAt(movingStationList.getChildCount() - 3).setBackgroundResource(R.drawable.focus);
-////                movingStationList.getChildAt(movingStationList.getChildCount() - 3).findViewById(R.id.item_imageView).setVisibility(View.VISIBLE);
-//////            movingStationList.getChildAt(2).findViewById(R.id.item_imageView).setBackgroundResource(R.mipmap.ic_directions_bus_black_24dp);
-////            }
-//        }
-//    }
-
-
     final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case HandlerPosition.SEND_BUS_LOCATION_INFO:
-                    timerText.setText(String.valueOf(LogicBuffer.countBy_30sec));
-
                     busLocationInfo();
                     devicetext.append("\n정주기 전송!");
-
-                    LogicBuffer.countBy_30sec = 30;
                     break;
                 case HandlerPosition.TIME_CHANGE:
-                    timerText.setText(String.valueOf(LogicBuffer.countBy_30sec));
+                    break;
+                //소켓 연결 성공!
+                case HandlerPosition.SOCKET_CONNECT_SUCCESS:
+                    cTimer.cancel();
+                    cTimer.start();
+                    readText.append("Socket Connect Success\n");
+                    break;
+                //소켓 연결 실패!
+                case HandlerPosition.SOCKET_CONNECT_ERROR:
+                    readText.append("Socket Connect Error\n");
+                    retryConnection();
+                    break;
+                //연결 중 서버가 죽었을 때
+                case HandlerPosition.READ_SERVER_DISCONNECT_ERROR:
+                    readText.append("Server Disconnect Error(Read)\n");
+                    retryConnection();
+                    break;
+                //데이터 전송이 실패했을 때
+                case HandlerPosition.WRITE_SERVER_DISCONNECT_ERROR:
+                    readText.append("Server Disconnect Error(Write)\n");
+                    retryConnection();
+                    break;
+                //데이터 수신 성공!
+                case HandlerPosition.DATA_READ_SUCESS:
+                    cTimer.cancel();
+                    cTimer.start();
+
+                    String dd = "";
+                    for (int i = 0; i < Data.readData.length; i++) {
+                        dd = dd + String.format("%02x ", Data.readData[i]);
+                        readText.append(String.format("%02x ", Data.readData[i]));
+                    }
+                    eventFileManage.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
+                            " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
+                            ")\n[RECV:" + Data.readData.length + "] - " + dd);
+                    readText.append("\n");
+                    break;
+                //잘못된 데이터가 왔을 때
+                case HandlerPosition.READ_DATA_ERROR:
+                    readText.append("Server Read Data Error\n");
+                    break;
+                //타임아웃!
+                case HandlerPosition.READ_TIMEOUT_ERROR:
+                    readText.append("\nTime out!\n");
+                    retryConnection();
+                    cTimer.cancel();
+                    cTimer.start();
                     break;
             }
         }
     };
+
+    private void retryConnection() {
+        cTimer.cancel();
+        sNetwork.close();
+        sNetwork = new SocketNetwork(NetworkUtil.IP, NetworkUtil.PORT, mHandler);
+        sNetwork.start();
+    }
+    SocketReadTimeout cTimer = new SocketReadTimeout(HandlerPosition.SERVER_READ_TIMEOUT, mHandler);
 
 }
