@@ -45,3 +45,9 @@ captures/
 gen-external-apklibs
 
 *.csv
+
+app/build
+app/src/main/assets/*
+app/src/androidTest/*
+app/src/test/*
+app/src/main/java/Network/*

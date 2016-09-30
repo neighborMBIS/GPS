@@ -67,6 +67,15 @@ public class Func {
         buffer.flip();//need flip
         return buffer.getLong();
     }
+    public static long byteToLong(byte[] bytes, int len) {
+        long value = 0;
+        for (int i = 0; i < len; i++) {
+            //int shift = (len - 1 - i) * 8;
+            int shift = i * 8;
+            value += (bytes[bytes.length - 1 - i] & 0x000000FF) << shift;
+        }
+        return value;
+    }
 
     public static int byteToInteger(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
@@ -75,6 +84,15 @@ public class Func {
         return buffer.getInt();
     }
 
+    public static int byteToInteger(byte[] bytes, int len) {
+        int value = 0;
+        for (int i = 0; i < len; i++) {
+            //int shift = (len - 1 - i) * 8;
+            int shift = i * 8;
+            value += (bytes[bytes.length - 1 - i] & 0x000000FF) << shift;
+        }
+        return value;
+    }
     public static byte[] mergyByte(byte[] b1, byte[] b2) {
         byte[] temp = new byte[b1.length + b2.length];
 

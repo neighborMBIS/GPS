@@ -27,7 +27,7 @@ public class MapVal {
     private long routeID;
     private String routeNum, routeForm, routeDivision;
 
-    //시도출종위반돌발
+    //시 도 출 종 위반 돌발 앞뒤
     private int reservation;
 
     //도출종위반
@@ -59,6 +59,14 @@ public class MapVal {
 
     //돌발
     private int emergencyCode;
+
+
+    //앞뒤차정보
+    private int beforeBusDistance, beforeBusTime, beforeBusNum, afterBusDistance, afterBusTime, afterBusNum,
+                remainDistance, remainTime;
+
+
+
 
     public int getVersion() {
         return version;
@@ -387,5 +395,69 @@ public class MapVal {
 
     public void setEmergencyCode(int emergencyCode) {
         this.emergencyCode = emergencyCode;
+    }
+
+    public int getBeforeBusDistance() {
+        return beforeBusDistance;
+    }
+
+    public void setBeforeBusDistance(int beforeBusDistance) {
+        this.beforeBusDistance = beforeBusDistance;
+    }
+
+    public int getBeforeBusTime() {
+        return beforeBusTime;
+    }
+
+    public void setBeforeBusTime(int beforeBusTime) {
+        this.beforeBusTime = beforeBusTime;
+    }
+
+    public int getBeforeBusNum() {
+        return beforeBusNum;
+    }
+
+    public void setBeforeBusNum(int beforeBusNum) {
+        this.beforeBusNum = beforeBusNum;
+    }
+
+    public int getAfterBusDistance() {
+        return afterBusDistance;
+    }
+
+    public void setAfterBusDistance(int afterBusDistance) {
+        this.afterBusDistance = afterBusDistance;
+    }
+
+    public int getAfterBusTime() {
+        return afterBusTime;
+    }
+
+    public void setAfterBusTime(int afterBusTime) {
+        this.afterBusTime = afterBusTime;
+    }
+
+    public int getAfterBusNum() {
+        return afterBusNum;
+    }
+
+    public void setAfterBusNum(int afterBusNum) {
+        this.afterBusNum = afterBusNum;
+    }
+
+    public int getRemainDistance() {
+        return remainDistance;
+    }
+
+    public void setRemainDistance(int remainDistance) {
+        this.remainDistance = remainDistance;
+    }
+
+    public int getRemainTime() {
+        return remainTime;
+    }
+
+    public void setRemainTime(int remainTime) {
+        this.remainTime = remainTime;
     }
 }

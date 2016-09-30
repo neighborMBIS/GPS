@@ -51,6 +51,7 @@ import neighbor.com.mbis.Function.Setter;
 import neighbor.com.mbis.MapUtil.Adapter.MyArrayAdapter;
 import neighbor.com.mbis.MapUtil.BytePosition;
 import neighbor.com.mbis.MapUtil.HandlerPosition;
+import neighbor.com.mbis.MapUtil.Receive_OP;
 import neighbor.com.mbis.MapUtil.Thread.BusTimer;
 import neighbor.com.mbis.MapUtil.Thread.SocketNetwork;
 import neighbor.com.mbis.MapUtil.Thread.SocketReadTimeout;
@@ -67,18 +68,20 @@ import neighbor.com.mbis.Function.FileManage;
 import neighbor.com.mbis.googlemap.AddMarker;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
-    private GoogleMap gmap;
+        private GoogleMap gmap;
     private MapView mapView;
     AddMarker mAddmarker;
-    FileManage eventFileManage;
     Marker busMarker;
+
+    FileManage eventFileManage;
 
     StationBuffer sBuf = StationBuffer.getInstance();
     StationSubBuffer_1 ssBuf = StationSubBuffer_1.getInstance();
     StationSubBuffer_1 sssBuf = StationSubBuffer_1.getInstance();
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
-    TextView emergencyButton, currentlatView, currentlonView, devicetext, startDisplay, arriveDisplay, waitDisplay, readText;
+    TextView emergencyButton, currentlatView, currentlonView, devicetext, startDisplay, arriveDisplay, waitDisplay, readText
+            , beforeBusDistanceText, beforeBusTimeText, beforeBusNumText, afterBusDistanceText, afterBusTimeText, afterBusNumText;
     ScrollView eventscroll, readScroll;
     ListView movingStationList;
     private ImageView busImage;
@@ -171,7 +174,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         currentlatView = (TextView) findViewById(R.id.curlat);
         currentlonView = (TextView) findViewById(R.id.curlon);
         devicetext = (TextView) findViewById(R.id.devicetext);
-        readText = (TextView) findViewById(R.id.readText);
+
+        beforeBusDistanceText = (TextView) findViewById(R.id.beforeBusDistanceText);
+        beforeBusTimeText = (TextView) findViewById(R.id.beforeBusTimeText);
+        beforeBusNumText = (TextView) findViewById(R.id.beforeBusNumText);
+        afterBusDistanceText = (TextView) findViewById(R.id.afterBusDistanceText);
+        afterBusTimeText = (TextView) findViewById(R.id.afterBusTimeText);
+        afterBusNumText = (TextView) findViewById(R.id.afterBusNumText);
+
 
         busImage = (ImageView) findViewById(R.id.busImage);
         startDisplay = (TextView) findViewById(R.id.startDisplay);
@@ -183,8 +193,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         movingStationList = (ListView) findViewById(R.id.movingStationList);
 
         eventscroll = (ScrollView) findViewById(R.id.eventscroll);
-        readScroll = (ScrollView) findViewById(R.id.readScroll);
 
+//        readText = (TextView) findViewById(R.id.readText);
+//        readScroll = (ScrollView) findViewById(R.id.readScroll);
         mapView = (MapView) findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
@@ -195,8 +206,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         lBuf.getStationListBuf().add("");
         lBuf.getStationListBuf().add("");
 
-        for(int i=0 ; i<sBuf.getReferenceStationName().size() ; i++) {
-            lBuf.getStationListBuf().add(sBuf.getReferenceStationName().get(sBuf.getReferenceStationName().size() -1 -i));
+        for (int i = 0; i < sBuf.getReferenceStationName().size(); i++) {
+            lBuf.getStationListBuf().add(sBuf.getReferenceStationName().get(sBuf.getReferenceStationName().size() - 1 - i));
         }
         lBuf.getStationListBuf().add("");
 
@@ -358,7 +369,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             sBuf.addDistance(Func.getDistance(latD, lngD, sBuf.getReferenceLatPosition().get(i), sBuf.getReferenceLngPosition().get(i)));
         }
 
-        if (startFlag && !mflag && sBuf.getDistance().get(stationBuf) > sBuf.getRemark().get(stationBuf) * 2 ) {//노선이탈
+        if (startFlag && !mflag && sBuf.getDistance().get(stationBuf) > sBuf.getRemark().get(stationBuf) * 2) {//노선이탈
 
             offenceInfo(2);
             driveEnd();
@@ -840,7 +851,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //운행 시작 전
         if (stationBuf < 0) {
         } else if (mflag && sBuf.getDistance().get(stationBuf) >= DETECTRANGE) {
-            if(startFlag) {
+            if (startFlag) {
                 if (stationBuf == sBuf.getReferenceLatPosition().size() - 1) {
                     //출발지점이 마지막 역이라면 출발 없음
                     return;
@@ -849,7 +860,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     stationStart();
                     devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 출발");
                 }
-            }Log.e("비정상출발 체크", "stationBuf : " + stationBuf + " \n0 : " + LogicBuffer.startBuf[0] + " \n1 : " + LogicBuffer.startBuf[1] + " \n2 : " + LogicBuffer.startBuf[2]);
+            }
+            Log.e("비정상출발 체크", "stationBuf : " + stationBuf + " \n0 : " + LogicBuffer.startBuf[0] + " \n1 : " + LogicBuffer.startBuf[1] + " \n2 : " + LogicBuffer.startBuf[2]);
 
             mflag = false;
         }
@@ -867,50 +879,41 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     break;
                 //소켓 연결 성공!
                 case HandlerPosition.SOCKET_CONNECT_SUCCESS:
-                    cTimer.cancel();
-                    cTimer.start();
-                    readText.append("Socket Connect Success\n");
+                    retryCountdownTimer();
+//                    readText.append("Socket Connect Success\n");
                     break;
                 //소켓 연결 실패!
                 case HandlerPosition.SOCKET_CONNECT_ERROR:
-                    readText.append("Socket Connect Error\n");
+//                    readText.append("Socket Connect Error\n");
                     retryConnection();
                     break;
                 //연결 중 서버가 죽었을 때
                 case HandlerPosition.READ_SERVER_DISCONNECT_ERROR:
-                    readText.append("Server Disconnect Error(Read)\n");
+//                    readText.append("Server Disconnect Error(Read)\n");
                     retryConnection();
                     break;
                 //데이터 전송이 실패했을 때
                 case HandlerPosition.WRITE_SERVER_DISCONNECT_ERROR:
-                    readText.append("Server Disconnect Error(Write)\n");
+//                    readText.append("Server Disconnect Error(Write)\n");
                     retryConnection();
                     break;
                 //데이터 수신 성공!
                 case HandlerPosition.DATA_READ_SUCESS:
-                    cTimer.cancel();
-                    cTimer.start();
+                    retryCountdownTimer();
+                    recvData();
 
-                    String dd = "";
-                    for (int i = 0; i < Data.readData.length; i++) {
-                        dd = dd + String.format("%02x ", Data.readData[i]);
-                        readText.append(String.format("%02x ", Data.readData[i]));
-                    }
-                    eventFileManage.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
-                            " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
-                            ")\n[RECV:" + Data.readData.length + "] - " + dd);
-                    readText.append("\n");
                     break;
                 //잘못된 데이터가 왔을 때
                 case HandlerPosition.READ_DATA_ERROR:
-                    readText.append("Server Read Data Error\n");
+//                    readText.append("Server Read Data Error\n");
+                    retryConnection();
+                    retryCountdownTimer();
                     break;
                 //타임아웃!
                 case HandlerPosition.READ_TIMEOUT_ERROR:
-                    readText.append("\nTime out!\n");
+//                    readText.append("\nTime out!\n");
                     retryConnection();
-                    cTimer.cancel();
-                    cTimer.start();
+                    retryCountdownTimer();
                     break;
             }
         }
@@ -922,6 +925,35 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         sNetwork = new SocketNetwork(NetworkUtil.IP, NetworkUtil.PORT, mHandler);
         sNetwork.start();
     }
+
+    private void retryCountdownTimer() {
+        cTimer.cancel();
+        cTimer.start();
+    }
+
     SocketReadTimeout cTimer = new SocketReadTimeout(HandlerPosition.SERVER_READ_TIMEOUT, mHandler);
 
+    private void recvData() {
+        String dd = "";
+        for (int i = 0; i < Data.readData.length; i++) {
+            dd = dd + String.format("%02x ", Data.readData[i]);
+//            readText.append(String.format("%02x ", Data.readData[i]));
+        }
+        eventFileManage.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
+                " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
+                ")\n[RECV:" + Data.readData.length + "] - " + dd);
+//        readText.append("\n");
+
+        new Receive_OP(Data.readData[BytePosition.HEADER_OPCODE]);
+        makeOtherBusInfoView();
+    }
+
+    private void makeOtherBusInfoView() {
+        beforeBusDistanceText.setText("" + mv.getBeforeBusDistance());
+        beforeBusTimeText.setText("" + mv.getBeforeBusTime());
+        beforeBusNumText.setText("" + mv.getBeforeBusNum());
+        afterBusDistanceText.setText("" + mv.getAfterBusDistance());
+        afterBusTimeText.setText("" + mv.getAfterBusTime());
+        afterBusNumText.setText("" + mv.getAfterBusNum());
+    }
 }

@@ -100,4 +100,37 @@ public class BytePosition {
     public final static int BODY_BUSLOCATION_DRIVEDIVISION = 87;
     public final static int BODY_BUSLOCATION_RESERVATION = 88;
 
+
+
+    //BODY(OTHER BUS INFO)
+    public final static int BODY_OTHER_BUS_INFO_SIZE = 72;
+    public final static int BODY_OTHER_BUS_INFO_SENDYEAR_DATE = 18;
+    public final static int BODY_OTHER_BUS_INFO_SENDMONTH = 20;
+    public final static int BODY_OTHER_BUS_INFO_SENDDAY = 22;
+    public final static int BODY_OTHER_BUS_INFO_SENDHOUR_TIME = 24;
+    public final static int BODY_OTHER_BUS_INFO_SENDMIN = 26;
+    public final static int BODY_OTHER_BUS_INFO_SENDSEC = 28;
+    public final static int BODY_OTHER_BUS_INFO_DEVICEID = 30;
+    public final static int BODY_OTHER_BUS_INFO_ROUTEID_INFO = 38;
+    public final static int BODY_OTHER_BUS_INFO_ROUTENUM = 46;
+    public final static int BODY_OTHER_BUS_INFO_ROUTENUMEXPANSION = 51;
+    public final static int BODY_OTHER_BUS_INFO_ROUTEFORM = 53;
+    public final static int BODY_OTHER_BUS_INFO_ROUTEDIVISION = 54;
+    public final static int BODY_OTHER_BUS_INFO_BEFORE_BUS_DISTANCE= 56;
+    public final static int BODY_OTHER_BUS_INFO_BEFORE_BUS_TIME = 57;
+    public final static int BODY_OTHER_BUS_INFO_BEFORE_BUS_NUM = 58;
+    public final static int BODY_OTHER_BUS_INFO_AFTER_BUS_DISTANCE= 60;
+    public final static int BODY_OTHER_BUS_INFO_AFTER_BUS_TIME = 61;
+    public final static int BODY_OTHER_BUS_INFO_AFTER_BUS_NUM = 62;
+    public final static int BODY_OTHER_BUS_INFO_REMAIN_DISTANCE = 64;
+    public final static int BODY_OTHER_BUS_INFO_REMAIN_TIME = 66;
+    public final static int BODY_OTHER_BUS_INFO_RESERVATION = 68;
+
+
+
+
+
+
+
+
 }

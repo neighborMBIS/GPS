@@ -2,4 +2,4 @@
 /src/main/assets
 /src/androidTest
 /src/test
-/src/main/java/Network
+/src/main/java/Network/*
