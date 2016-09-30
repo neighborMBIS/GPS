@@ -81,7 +81,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
     TextView emergencyButton, currentlatView, currentlonView, devicetext, startDisplay, arriveDisplay, waitDisplay, readText
-            , beforeBusDistanceText, beforeBusTimeText, beforeBusNumText, afterBusDistanceText, afterBusTimeText, afterBusNumText;
+            , beforeBusDistanceText, beforeBusTimeText, beforeBusNumText, afterBusDistanceText, afterBusTimeText, afterBusNumText
+            , driveState, ascending_descending, myBusNum, routeID;
     ScrollView eventscroll, readScroll;
     ListView movingStationList;
     private ImageView busImage;
@@ -182,6 +183,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         afterBusTimeText = (TextView) findViewById(R.id.afterBusTimeText);
         afterBusNumText = (TextView) findViewById(R.id.afterBusNumText);
 
+        driveState = (TextView) findViewById(R.id.driveState);
+        ascending_descending = (TextView) findViewById(R.id.ascending_descending);
+        myBusNum = (TextView) findViewById(R.id.myBusNum);
+        routeID = (TextView) findViewById(R.id.routeID);
 
         busImage = (ImageView) findViewById(R.id.busImage);
         startDisplay = (TextView) findViewById(R.id.startDisplay);
@@ -583,6 +588,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Setter.setBody_StartStation();
         op_code = new OP_code(op);
 
+        makeMyBusInfoView();
         sendData();
 
     }
@@ -955,5 +961,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         afterBusDistanceText.setText("" + mv.getAfterBusDistance());
         afterBusTimeText.setText("" + mv.getAfterBusTime());
         afterBusNumText.setText("" + mv.getAfterBusNum());
+    }
+    private void makeMyBusInfoView() {
+        routeID.setText("" + mv.getRouteID());
+        myBusNum.setText("" + 1234);
+        if(mv.getDriveDivision() == 0) {
+            driveState.setText("정상운행");
+        } else if(mv.getDriveDivision() == 1) {
+            driveState.setText("공 차");
+        } else if(mv.getDriveDivision() == 2) {
+            driveState.setText("막 차");
+        } else {
+            driveState.setText("");
+        }
+        if(directionSwitch == 1) {
+            ascending_descending.setText("상 행");
+        } else if(directionSwitch == 2) {
+            ascending_descending.setText("하 행");
+        } else {
+            ascending_descending.setText("");
+        }
     }
 }
