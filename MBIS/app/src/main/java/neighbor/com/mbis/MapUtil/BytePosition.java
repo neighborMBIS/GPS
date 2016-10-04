@@ -128,6 +128,56 @@ public class BytePosition {
 
 
 
+    //ACK
+    public final static int BODY_ACK_SIZE = 33;
+    public final static int BODY_ACK_SENDYEAR_DATE = 18;
+    public final static int BODY_ACK_SENDMONTH = 20;
+    public final static int BODY_ACK_SENDDAY = 22;
+    public final static int BODY_ACK_SENDHOUR_TIME = 24;
+    public final static int BODY_ACK_SENDMIN = 26;
+    public final static int BODY_ACK_SENDSEC = 28;
+    public final static int BODY_ACK_OPCODE = 30;
+    public final static int BODY_ACK_RESERVATION = 31;
+
+    //NACK
+    public final static int BODY_NACK_SIZE = 33;
+    public final static int BODY_NACK_SENDYEAR_DATE = 18;
+    public final static int BODY_NACK_SENDMONTH = 20;
+    public final static int BODY_NACK_SENDDAY = 22;
+    public final static int BODY_NACK_SENDHOUR_TIME = 24;
+    public final static int BODY_NACK_SENDMIN = 26;
+    public final static int BODY_NACK_SENDSEC = 28;
+    public final static int BODY_NACK_OPCODE = 30;
+    public final static int BODY_NACK_RESERVATION = 31;
+
+    //USER CERTIFICATION
+    public final static int BODY_USER_CERTIFICATION_SIZE = 40;
+    public final static int BODY_USER_CERTIFICATION_SENDYEAR_DATE = 18;
+    public final static int BODY_USER_CERTIFICATION_SENDMONTH = 20;
+    public final static int BODY_USER_CERTIFICATION_SENDDAY = 22;
+    public final static int BODY_USER_CERTIFICATION_SENDHOUR_TIME = 24;
+    public final static int BODY_USER_CERTIFICATION_SENDMIN = 26;
+    public final static int BODY_USER_CERTIFICATION_SENDSEC = 28;
+    public final static int BODY_USER_CERTIFICATION_PHONE_NUM = 30;
+    public final static int BODY_USER_CERTIFICATION_BUS_NUM = 34;
+    public final static int BODY_USER_CERTIFICATION_RESERVATION = 36;
+
+
+    //USER CERTIFICATION AFTER DEVICEID SEND
+    public final static int BODY_USER_CERTIFICATION_AFTER_SIZE = 43;
+    public final static int BODY_USER_CERTIFICATION_AFTER_SENDYEAR_DATE = 18;
+    public final static int BODY_USER_CERTIFICATION_AFTER_SENDMONTH = 20;
+    public final static int BODY_USER_CERTIFICATION_AFTER_SENDDAY = 22;
+    public final static int BODY_USER_CERTIFICATION_AFTER_SENDHOUR_TIME = 24;
+    public final static int BODY_USER_CERTIFICATION_AFTER_SENDMIN = 26;
+    public final static int BODY_USER_CERTIFICATION_AFTER_SENDSEC = 28;
+    public final static int BODY_USER_CERTIFICATION_AFTER_DEVICEID = 30;
+    public final static int BODY_USER_CERTIFICATION_AFTER_OPERATION_DIVISION_CODE = 38;
+    public final static int BODY_USER_CERTIFICATION_AFTER_RESERVATION = 39;
+
+
+
+
 
 
 

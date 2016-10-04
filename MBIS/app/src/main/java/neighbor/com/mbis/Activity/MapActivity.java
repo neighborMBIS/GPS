@@ -36,12 +36,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.TimeZone;
@@ -74,6 +68,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     Marker busMarker;
 
     FileManage eventFileManage;
+    FileManage locationFileManage;
+    FileManage operationFileManage;
+
 
     StationBuffer sBuf = StationBuffer.getInstance();
     StationSubBuffer_1 ssBuf = StationSubBuffer_1.getInstance();
@@ -117,9 +114,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         TimeZone jst = TimeZone.getTimeZone("JST");
         Calendar cal = Calendar.getInstance(jst);
 
-        String fileName = String.format("%02d", cal.get(Calendar.YEAR) - 2000) + String.format("%02d", (cal.get(Calendar.MONTH) + 1)) + String.format("%02d", cal.get(Calendar.DATE));
+        String packetFileName = String.format("%02d", cal.get(Calendar.YEAR) - 2000) + String.format("%02d", (cal.get(Calendar.MONTH) + 1)) + String.format("%02d", cal.get(Calendar.DATE)) + " packet";
+        String locationFileName = String.format("%02d", cal.get(Calendar.YEAR) - 2000) + String.format("%02d", (cal.get(Calendar.MONTH) + 1)) + String.format("%02d", cal.get(Calendar.DATE)) + " location";
+        String operationFileName = String.format("%02d", cal.get(Calendar.YEAR) - 2000) + String.format("%02d", (cal.get(Calendar.MONTH) + 1)) + String.format("%02d", cal.get(Calendar.DATE)) + " operation";
 
-        eventFileManage = new FileManage(fileName);
+        eventFileManage = new FileManage(packetFileName);
+        locationFileManage = new FileManage(locationFileName);
+        operationFileManage = new FileManage(operationFileName);
 
         busTimer = new BusTimer(HandlerPosition.BUSTIMER_30SEC, mHandler);
 
@@ -245,6 +246,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
         movingStationList.setSelection(sBuf.getReferenceStationId().size() - 1);
+
+        makeMyBusInfoView();
     }
 
     public void setLog() {
@@ -356,7 +359,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         eventFileManage.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
                 " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
                 ")\n[SEND:" + Data.writeData.length + "] - " + dd);
+
         sNetwork.writeData(Data.writeData);
+        mv.setSr_cnt(mv.getSr_cnt()+1);
         eventscroll.fullScroll(View.FOCUS_DOWN);
         busTimer.cancel();
         busTimer.start();
@@ -436,6 +441,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (i >= 3) {
             mv.setGpsState(0);
         } else mv.setGpsState(128);
+
+
+        locationFileManage.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
+                " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
+                ")\n" + "( " + latD + " , " + lngD + " )" );
+
 
     }
 
@@ -746,7 +757,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         builder.setTitle("Emergency!!!!!");
 
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dia, final int position) { // TODO Auto-generated method stub } }); final AlertDialog dialog = builder.create(); button = (Button) findViewById(R.id.buttonMeenu); button.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { dialog.show(); } });
+            public void onClick(DialogInterface dia, final int position) {
+
                 mv.setEmergencyCode(position);
 
                 android.app.AlertDialog.Builder alt_bld = new android.app.AlertDialog.Builder(MapActivity.this);
@@ -756,9 +768,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             public void onClick(DialogInterface dialog, int id) {
                                 if (stationBuf < 0) {
                                     devicetext.append("\n신고 실패..(운행중이 아닙니다.)");
+                                    operationFileManage.saveData("\n신고 실패..(운행중이 아닙니다.)");
                                 } else {
                                     emergencyInfo();
                                     devicetext.append("\n신고 완료!!");
+                                    operationFileManage.saveData("\n신고 완료!!");
                                 }
                             }
                         }).setNegativeButton("No",
@@ -801,6 +815,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                     driveStart();
                     devicetext.append("\n정상 운행 시작 ");
+                    operationFileManage.saveData("\n정상 운행 시작 ");
                 }
 
                 LogicBuffer.jumpBuf[0] = LogicBuffer.jumpBuf[1];
@@ -820,15 +835,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             //도착한 곳이 교차로
                             stationArrive();
                             devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 도착(교)");
+                            operationFileManage.saveData("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 도착(교차로)");
                         } else {
                             //도착한 곳이 역
                             stationArrive();
                             devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 도착(역)");
+                            operationFileManage.saveData("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 도착(역)");
                         }
                     } else {
                         //역 점프
                         stationArrive();
                         devicetext.append("\n역 점프 발생");
+                        operationFileManage.saveData("\n역 점프 발생");
                     }
                 }
                 //비정상 출발일 시 연속된 3역을 검사한다.
@@ -839,6 +857,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         stationArrive();
                         devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 비정상 운행 시작");
                         devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 도착");
+                        operationFileManage.saveData("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 비정상 운행 시작");
+                        operationFileManage.saveData("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 도착");
                     }
                 }
                 if (stationBuf != sBuf.getReferenceLatPosition().size() - 1) {
@@ -848,6 +868,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     driveEnd(i);
                     //상하행 변경
                     devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 운행 종료");
+                    operationFileManage.saveData("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 운행 종료");
 
                 }
                 Log.e("비정상도착 체크", "stationBuf : " + stationBuf + " \n0 : " + LogicBuffer.startBuf[0] + " \n1 : " + LogicBuffer.startBuf[1] + " \n2 : " + LogicBuffer.startBuf[2]);
@@ -865,6 +886,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     //출발지점이 마지막 역이 아니라면 그냥 해당 역에서 출발한 것을 알림
                     stationStart();
                     devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 출발");
+                    operationFileManage.saveData("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 출발");
                 }
             }
             Log.e("비정상출발 체크", "stationBuf : " + stationBuf + " \n0 : " + LogicBuffer.startBuf[0] + " \n1 : " + LogicBuffer.startBuf[1] + " \n2 : " + LogicBuffer.startBuf[2]);
@@ -880,6 +902,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 case HandlerPosition.SEND_BUS_LOCATION_INFO:
                     busLocationInfo();
                     devicetext.append("\n정주기 전송!");
+                    operationFileManage.saveData("\n정주기 전송!");
                     break;
                 case HandlerPosition.TIME_CHANGE:
                     break;
@@ -950,6 +973,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 ")\n[RECV:" + Data.readData.length + "] - " + dd);
 //        readText.append("\n");
 
+        mv.setSr_cnt(mv.getSr_cnt()+1);
         new Receive_OP(Data.readData[BytePosition.HEADER_OPCODE]);
         makeOtherBusInfoView();
     }
