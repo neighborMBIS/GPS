@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 
 import neighbor.com.mbis.CSV_Util.RouteStationUtil;
 import neighbor.com.mbis.Database.DBManager;
+import neighbor.com.mbis.MapUtil.Value.MapVal;
 import neighbor.com.mbis.MapUtil.Value.RouteBuffer;
 import neighbor.com.mbis.R;
 
@@ -41,6 +42,8 @@ public class SelectRouteActivity extends AppCompatActivity {
     SharedPreferences pref;
     private static final String MY_DB="my_db";
     private static String HasVisited = "hasVisited";
+    String text;
+    MapVal mv = MapVal.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +74,13 @@ public class SelectRouteActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Cursor c = (Cursor)mList.getItemAtPosition(position);
 
-                String text = c.getString(1).toString();
+                text = c.getString(1).toString();
                 rBuf.setRouteID(Long.parseLong(text));
                 rBuf.setRouteName(c.getString(2).toString());
                 String dir = c.getString(3).toString();
                 rBuf.setDirection(Integer.parseInt(dir));
 
-                Intent i = new Intent(getApplicationContext(), RouteStationActivity.class);
-                i.putExtra("routeInfo", text);
-                startActivity(i);
+                DialogSelectOption();
             }
         });
     }
@@ -281,6 +282,33 @@ public class SelectRouteActivity extends AppCompatActivity {
             addStationList();
             addRouteStationList();
         }
+    }
+    private void DialogSelectOption() {
+        final String items[] = { "정상운행", "공차", "막차" };
+        AlertDialog.Builder ab = new AlertDialog.Builder(this);
+        ab.setTitle("Title");
+        ab.setSingleChoiceItems(items, 0,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        mv.setDriveDivision(whichButton);
+                        Toast.makeText(getApplicationContext(), ""+whichButton , Toast.LENGTH_SHORT).show();
+                    }
+                }).setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // OK 버튼 클릭시 , 여기서 선택한 값을 메인 Activity 로 넘기면 된다.
+//                        Toast.makeText(getApplicationContext(), ""+whichButton , Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(getApplicationContext(), RouteStationActivity.class);
+                        i.putExtra("routeInfo", text);
+                        startActivity(i);
+                    }
+                }).setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // Cancel 버튼 클릭시
+                    }
+                });
+        ab.show();
     }
 
 }

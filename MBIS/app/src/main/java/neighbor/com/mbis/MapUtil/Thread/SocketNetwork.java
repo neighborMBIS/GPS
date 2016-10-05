@@ -17,6 +17,7 @@ import neighbor.com.mbis.MapUtil.BytePosition;
 import neighbor.com.mbis.MapUtil.Data;
 import neighbor.com.mbis.MapUtil.HandlerPosition;
 import neighbor.com.mbis.MapUtil.OPUtil;
+import neighbor.com.mbis.MapUtil.Value.MapVal;
 
 /**
  * Created by user on 2016-09-27.
@@ -36,6 +37,8 @@ public class SocketNetwork extends Thread {
     private DataInputStream dis;
     private OutputStream os;
     private DataOutputStream dos;
+
+    MapVal mv = MapVal.getInstance();
 
 
 //    private static ToServer ourInstance = null;
@@ -88,6 +91,7 @@ public class SocketNetwork extends Thread {
     public void writeData(byte[] data) {
         if (socket != null && dos != null) {
             try {
+                mv.setSr_cnt(mv.getSr_cnt() + 1);
                 dos.write(data);
                 Log.d("[sendData]", " send byte Data !!");
             } catch (IOException e) {
@@ -131,6 +135,7 @@ public class SocketNetwork extends Thread {
 
                     if (bodyData.length > 0) {
                         //정상적인 데이터 수신
+                        mv.setSr_cnt(mv.getSr_cnt() + 1);
                         Data.readData = Func.mergyByte(headerData, bodyData);
                         mHandler.sendEmptyMessage(HandlerPosition.DATA_READ_SUCESS);
                     } else {

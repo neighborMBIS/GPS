@@ -12,13 +12,28 @@ public class Receive_OP {
     MapVal mv = MapVal.getInstance();
     public Receive_OP(byte op_code) {
         switch (op_code) {
+            case OPUtil.OP_ACK:
+                break;
+            case OPUtil.OP_NACK:
+                break;
+            case OPUtil.OP_USER_CERTIFICATION_AFTER_DEVICEID_SEND:
+                addUtilUserCertificationAfterDeviceIdSend();
+                break;
             case OPUtil.OP_OTHER_BUS_INFO:
                 addUtilOtherBusInfo();
                 break;
         }
     }
 
-    public void addUtilOtherBusInfo() {
+    private void addUtilUserCertificationAfterDeviceIdSend() {
+        byte[] deviceID = new byte[8];
+        for(int i=0 ; i < deviceID.length ; i++) {
+            deviceID[i] = Data.readData[i+BytePosition.BODY_USER_CERTIFICATION_AFTER_DEVICEID];
+        }
+        mv.setDeviceID(Func.byteToLong(deviceID));
+    }
+
+    private void addUtilOtherBusInfo() {
         byte[] beforeBusDis = new byte[1];
         byte[] beforeBusTime = new byte[1];
         byte[] afterBusDis = new byte[1];
@@ -30,7 +45,6 @@ public class Receive_OP {
         beforeBusTime[0] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_BEFORE_BUS_TIME];
         afterBusDis[0] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_AFTER_BUS_DISTANCE];
         afterBusTime[0] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_AFTER_BUS_TIME];
-
 
         mv.setBeforeBusDistance(Func.byteToInteger(beforeBusDis, 1));
         mv.setBeforeBusTime(Func.byteToInteger(beforeBusTime, 1));

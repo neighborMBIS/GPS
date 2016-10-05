@@ -62,7 +62,7 @@ import neighbor.com.mbis.Function.FileManage;
 import neighbor.com.mbis.googlemap.AddMarker;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
-        private GoogleMap gmap;
+    private GoogleMap gmap;
     private MapView mapView;
     AddMarker mAddmarker;
     Marker busMarker;
@@ -77,9 +77,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     StationSubBuffer_1 sssBuf = StationSubBuffer_1.getInstance();
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
-    TextView emergencyButton, currentlatView, currentlonView, devicetext, startDisplay, arriveDisplay, waitDisplay, readText
-            , beforeBusDistanceText, beforeBusTimeText, beforeBusNumText, afterBusDistanceText, afterBusTimeText, afterBusNumText
-            , driveState, ascending_descending, myBusNum, routeID;
+    TextView emergencyButton, currentlatView, currentlonView, devicetext, startDisplay, arriveDisplay, waitDisplay, readText, beforeBusDistanceText, beforeBusTimeText, beforeBusNumText, afterBusDistanceText, afterBusTimeText, afterBusNumText, driveState, ascending_descending, myBusNum, routeID;
     ScrollView eventscroll, readScroll;
     ListView movingStationList;
     private ImageView busImage;
@@ -361,7 +359,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 ")\n[SEND:" + Data.writeData.length + "] - " + dd);
 
         sNetwork.writeData(Data.writeData);
-        mv.setSr_cnt(mv.getSr_cnt()+1);
         eventscroll.fullScroll(View.FOCUS_DOWN);
         busTimer.cancel();
         busTimer.start();
@@ -445,7 +442,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         locationFileManage.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
                 " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
-                ")\n" + "( " + latD + " , " + lngD + " )" );
+                ")\n" + "( " + latD + " , " + lngD + " )");
 
 
     }
@@ -973,7 +970,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 ")\n[RECV:" + Data.readData.length + "] - " + dd);
 //        readText.append("\n");
 
-        mv.setSr_cnt(mv.getSr_cnt()+1);
         new Receive_OP(Data.readData[BytePosition.HEADER_OPCODE]);
         makeOtherBusInfoView();
     }
@@ -986,21 +982,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         afterBusTimeText.setText("" + mv.getAfterBusTime());
         afterBusNumText.setText("" + mv.getAfterBusNum());
     }
+
     private void makeMyBusInfoView() {
         routeID.setText("" + mv.getRouteID());
         myBusNum.setText("" + 1234);
-        if(mv.getDriveDivision() == 0) {
+        if (mv.getDriveDivision() == 0) {
             driveState.setText("정상운행");
-        } else if(mv.getDriveDivision() == 1) {
+        } else if (mv.getDriveDivision() == 1) {
             driveState.setText("공 차");
-        } else if(mv.getDriveDivision() == 2) {
+        } else if (mv.getDriveDivision() == 2) {
             driveState.setText("막 차");
         } else {
             driveState.setText("");
         }
-        if(directionSwitch == 1) {
+        if (directionSwitch == 1) {
             ascending_descending.setText("상 행");
-        } else if(directionSwitch == 2) {
+        } else if (directionSwitch == 2) {
             ascending_descending.setText("하 행");
         } else {
             ascending_descending.setText("");

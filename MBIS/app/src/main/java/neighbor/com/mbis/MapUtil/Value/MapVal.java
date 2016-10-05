@@ -17,8 +17,8 @@ public class MapVal {
     }
 
     //헤더
-    private int version = 1, sr_cnt = 1, localCode = 1, dataLength;
-    private long deviceID = 188900977659375L;
+    private int version = 1, sr_cnt = 1, localCode = 2, dataLength;
+    private long deviceID = 0;
 
     //기본정보
     private int sendYear, sendMonth, sendDay, sendHour, sendMin, sendSec,

@@ -30,6 +30,9 @@ public class RouteStationActivity extends AppCompatActivity {
     String[] routeStationDB = new String[]{"station_id", "station_order", "direction", "remark"};
     String[] stationDB = new String[]{"station_id", "station_nm", "admin_nm", "sido_cd", "x", "y", "station_division"};
 
+    Cursor c;
+    Cursor cc;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +43,8 @@ public class RouteStationActivity extends AppCompatActivity {
         Intent intent = getIntent();
         key = intent.getStringExtra("routeInfo");
 
-        Cursor c = db.queryRouteStation(
+
+        c = db.queryRouteStation(
                 routeStationDB,
                 "route_id=? and direction=?",
                 new String[]{key, Integer.toString(rBuf.getDirection())},
@@ -54,7 +58,7 @@ public class RouteStationActivity extends AppCompatActivity {
         } else if (rBuf.getDirection() == 2) {
             k = 1;
         }
-        Cursor cc = db.queryRouteStation(
+        cc = db.queryRouteStation(
                 routeStationDB,
                 "route_id=? and direction=?",
                 new String[]{key, Integer.toString(k)},
@@ -65,6 +69,11 @@ public class RouteStationActivity extends AppCompatActivity {
 
 //        Cursor c = rsDB.myQuery(key);
 
+        dbController();
+        findViewById(R.id.goMap).performClick();
+    }
+
+    private void dbController() {
 
         if (c != null) {
             while (c.moveToNext()) {
