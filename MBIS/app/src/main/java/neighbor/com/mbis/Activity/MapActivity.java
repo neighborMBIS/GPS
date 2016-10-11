@@ -91,7 +91,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     LogicBuffer lBuf = LogicBuffer.getInstance();
     OP_code op_code;
 
-    final int DETECTRANGE = 30;
+    final int DETECTRANGE = 50;
 
     static boolean mflag = false;
     static boolean startFlag = false;
@@ -317,7 +317,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
+
         busTimer.cancel();
+        cTimer.cancel();
+        sNetwork.close();
+
+        sBuf.clearAll();
+        ssBuf.clearAll();
+        sssBuf.clearAll();
+        lBuf.getStationListBuf().clear();
+
     }
 
     @Override
@@ -440,11 +449,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         } else mv.setGpsState(128);
 
 
-        locationFileManage.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
-                " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
-                ")\n" + "( " + latD + " , " + lngD + " )");
-
-
+        locationFileManage.saveData("#" + latD + "," + lngD);
     }
 
     private void addUtilArriveStation() {

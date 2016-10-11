@@ -60,9 +60,8 @@ public class LoginActivity extends AppCompatActivity {
 
         getPhone = (EditText) findViewById(R.id.phoneNum);
         getBusNum = (EditText) findViewById(R.id.busNum);
-
-        getPhone.setText("12312312");
-        getBusNum.setText("304");
+        getPhone.setText("12341234");
+        getBusNum.setText("5678");
 //
 //        tv = (TextView) findViewById(R.id.textView);
         findViewById(R.id.sendButton).setOnTouchListener(new View.OnTouchListener() {
@@ -117,16 +116,34 @@ public class LoginActivity extends AppCompatActivity {
     public void nextPage(View v) {
         switch (v.getId()) {
             case R.id.sendButton:
-                byte[] op = new byte[]{0x03};
-                mv.setDataLength(BytePosition.BODY_USER_CERTIFICATION_SIZE - BytePosition.HEADER_SIZE);
-                h.setOp_code(op);
-                Setter.setHeader();
-                byte[] otherBusInfo = makeBodyOtherBusInfo();
-                makeHeader();
 
-                Data.writeData = Func.mergyByte(headerBuf, otherBusInfo);
+                if (getPhone.length() == 8 || getPhone.length() == 7) {
+                    if (getBusNum.length() > 0 && getBusNum.length() < 5) {
 
-                sendData();
+                        byte[] op = new byte[]{0x03};
+                        mv.setDataLength(BytePosition.BODY_USER_CERTIFICATION_SIZE - BytePosition.HEADER_SIZE);
+                        h.setOp_code(op);
+                        Setter.setHeader();
+                        byte[] otherBusInfo = makeBodyOtherBusInfo();
+                        makeHeader();
+
+                        Data.writeData = Func.mergyByte(headerBuf, otherBusInfo);
+
+                        sendData();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "차량번호를 다시 한 번 확인 해 주세요.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), "전화번호를 다시 한 번 확인 해 주세요.", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case R.id.cheat:
+                sNetwork.close();
+                cTimer.cancel();
+                mv.setDeviceID(2567812341234L);
+                finish();
+                startActivity(new Intent(getApplicationContext(), SelectRouteActivity.class));
+                Toast.makeText(getApplicationContext(), "^^;;", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -207,7 +224,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
         if (mv.getDeviceID() != 0) {
-
             sNetwork.close();
             cTimer.cancel();
             finish();

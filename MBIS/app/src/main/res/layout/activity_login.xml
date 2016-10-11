@@ -14,21 +14,26 @@
 
     <LinearLayout
         android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
             android:layout_width="100dp"
+            android:textSize="20dp"
             android:layout_height="wrap_content"
-            android:text="PHONE" />
+            android:text="핸드폰 번호" />
 
         <EditText
-            android:layout_width="250dp"
+            android:layout_marginLeft="20dp"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
+            android:hint="'010' 과 '-' 를 제외한 8자리 숫자"
             android:id="@+id/phoneNum" />
     </LinearLayout>
 
     <LinearLayout
+        android:layout_marginBottom="20dp"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -36,10 +41,13 @@
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="BUS NUM" />
+            android:textSize="20dp"
+            android:text="버스 번호" />
 
         <EditText
-            android:layout_width="250dp"
+            android:layout_marginLeft="20dp"
+            android:layout_width="220dp"
+            android:hint="4자리 이하의 숫자"
             android:layout_height="wrap_content"
             android:id="@+id/busNum" />
     </LinearLayout>
@@ -51,6 +59,7 @@
         android:layout_height="wrap_content">
 
         <Button
+            android:layout_marginTop="10dp"
             android:background="@drawable/button_selector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -61,5 +70,24 @@
             android:id="@+id/sendButton" />
 
     </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:background="@drawable/my_border"
+            android:gravity="center"
+            android:textSize="10dp"
+            android:text="\?"
+            android:padding="0dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:id="@+id/cheat"
+            android:onClick="nextPage"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+    </RelativeLayout>
 
 </LinearLayout>

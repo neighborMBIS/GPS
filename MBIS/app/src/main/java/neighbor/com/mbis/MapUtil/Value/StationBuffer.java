@@ -113,4 +113,13 @@ public class StationBuffer {
     public void addRemark(int item) {remark.add(item);}
     public void addStationOrder(int item) {stationOrder.add(item);}
 
+    public void clearAll() {
+        referenceLatPosition.clear();
+        referenceLngPosition.clear();
+        referenceStationId.clear();
+        distance.clear();
+        remark.clear();
+        stationDivision.clear();
+        stationOrder.clear();
+    }
 }

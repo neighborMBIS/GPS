@@ -111,5 +111,13 @@ public class StationSubBuffer_1 {
     public void addDistance(double item) {distance.add(item);}
     public void addRemark(int item) {remark.add(item);}
     public void addStationOrder(int item) {stationOrder.add(item);}
-
+    public void clearAll() {
+        referenceLatPosition.clear();
+        referenceLngPosition.clear();
+        referenceStationId.clear();
+        distance.clear();
+        remark.clear();
+        stationDivision.clear();
+        stationOrder.clear();
+    }
 }

@@ -7,5 +7,5 @@ package neighbor.com.mbis.Network;
 public class NetworkUtil {
     //통신 변수들
     public final static String IP = "127.0.0.1";
-    public final static int PORT = 11111; // port number
+    public final static int PORT = 33333; // port number
 }

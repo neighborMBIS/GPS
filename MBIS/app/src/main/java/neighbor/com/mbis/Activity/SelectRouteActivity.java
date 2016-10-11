@@ -283,10 +283,11 @@ public class SelectRouteActivity extends AppCompatActivity {
             addRouteStationList();
         }
     }
+
     private void DialogSelectOption() {
         final String items[] = { "정상운행", "공차", "막차" };
         AlertDialog.Builder ab = new AlertDialog.Builder(this);
-        ab.setTitle("Title");
+        ab.setTitle("운행 구분");
         ab.setSingleChoiceItems(items, 0,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
