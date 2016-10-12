@@ -182,23 +182,9 @@ public class RouteStationActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
 
-        sBuf.getReferenceStationId().clear();
-        sBuf.getReferenceLatPosition().clear();
-        sBuf.getReferenceLngPosition().clear();
-        sBuf.getStationOrder().clear();
-        sBuf.getReferenceStationName().clear();
-
-        ssBuf.getReferenceStationId().clear();
-        ssBuf.getReferenceLatPosition().clear();
-        ssBuf.getReferenceLngPosition().clear();
-        ssBuf.getStationOrder().clear();
-        ssBuf.getReferenceStationName().clear();
-
-        sssBuf.getReferenceStationId().clear();
-        sssBuf.getReferenceLatPosition().clear();
-        sssBuf.getReferenceLngPosition().clear();
-        sssBuf.getStationOrder().clear();
-        sssBuf.getReferenceStationName().clear();
+        sBuf.clearAll();
+        ssBuf.clearAll();
+        sssBuf.clearAll();
 
     }
 }

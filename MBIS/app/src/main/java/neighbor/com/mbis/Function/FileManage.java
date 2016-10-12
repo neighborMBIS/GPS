@@ -31,9 +31,9 @@ public class FileManage {
 
     public void saveData(String data) {
         try {
-            Log.e("SaveData: ", "11");
+//            Log.e("SaveData: ", "11");
             try {
-                Log.e("SaveData: ", "22");
+//                Log.e("SaveData: ", "22");
                 //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
                 FileWriter wr = new FileWriter(file, true); //두번째 파라미터 true: 기존파일에 추가할지 여부를 나타냅니다.
 
@@ -51,7 +51,7 @@ public class FileManage {
 
     }
 
-    public void saveData(byte [] data) {
+    public void saveData(byte[] data) {
         try {
             Log.e("SaveData: ", "11");
             try {
@@ -62,10 +62,10 @@ public class FileManage {
                 PrintWriter writer = new PrintWriter(wr);
 
                 String hexStrin2 = new java.math.BigInteger(data).toString(16);
-                for(int i =0; i < data.length ; i++) {
+                for (int i = 0; i < data.length; i++) {
                     writer.print(data[i] + " ");
                 }
-                writer. println(hexStrin2);
+                writer.println(hexStrin2);
                 writer.close();
             } catch (IOException e) {
                 Log.e("SaveData: ", "33");
@@ -76,6 +76,7 @@ public class FileManage {
         }
 
     }
+
     public void saveData(char[] data) {
         try {
             Log.e("SaveData: ", "11");
@@ -100,6 +101,7 @@ public class FileManage {
         }
 
     }
+
     public void saveData(double data) {
         try {
             Log.e("SaveData: ", "11");

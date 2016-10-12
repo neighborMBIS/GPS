@@ -79,6 +79,7 @@ public class SelectRouteActivity extends AppCompatActivity {
                 rBuf.setRouteName(c.getString(2).toString());
                 String dir = c.getString(3).toString();
                 rBuf.setDirection(Integer.parseInt(dir));
+                mv.setRouteForm(dir);
 
                 DialogSelectOption();
             }

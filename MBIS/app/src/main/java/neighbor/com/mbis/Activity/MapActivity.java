@@ -55,6 +55,7 @@ import neighbor.com.mbis.MapUtil.OP_code;
 import neighbor.com.mbis.MapUtil.Value.RouteBuffer;
 import neighbor.com.mbis.MapUtil.Data;
 import neighbor.com.mbis.MapUtil.Value.StationSubBuffer_1;
+import neighbor.com.mbis.MapUtil.Value.StationSubBuffer_2;
 import neighbor.com.mbis.Network.NetworkUtil;
 import neighbor.com.mbis.R;
 import neighbor.com.mbis.MapUtil.Value.StationBuffer;
@@ -74,7 +75,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     StationBuffer sBuf = StationBuffer.getInstance();
     StationSubBuffer_1 ssBuf = StationSubBuffer_1.getInstance();
-    StationSubBuffer_1 sssBuf = StationSubBuffer_1.getInstance();
+    StationSubBuffer_2 sssBuf = StationSubBuffer_2.getInstance();
     RouteBuffer rBuf = RouteBuffer.getInstance();
 
     TextView emergencyButton, currentlatView, currentlonView, devicetext, startDisplay, arriveDisplay, waitDisplay, readText, beforeBusDistanceText, beforeBusTimeText, beforeBusNumText, afterBusDistanceText, afterBusTimeText, afterBusNumText, driveState, ascending_descending, myBusNum, routeID;
@@ -124,7 +125,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         sNetwork = new SocketNetwork(NetworkUtil.IP, NetworkUtil.PORT, mHandler);
         sNetwork.start();
-
 
         checkGpsService();
         getItem(savedInstanceState);
@@ -204,47 +204,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        lBuf.getStationListBuf().add("");
-        lBuf.getStationListBuf().add("");
-        lBuf.getStationListBuf().add("");
-        lBuf.getStationListBuf().add("");
-        lBuf.getStationListBuf().add("");
-
-        for (int i = 0; i < sBuf.getReferenceStationName().size(); i++) {
-            lBuf.getStationListBuf().add(sBuf.getReferenceStationName().get(sBuf.getReferenceStationName().size() - 1 - i));
-        }
-        lBuf.getStationListBuf().add("");
-
-//        ArrayAdapter mAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, sBuf.getReferenceStationId());
-        MyArrayAdapter mAdapter = new MyArrayAdapter(this, R.layout.map_item, lBuf.getStationListBuf());
-        movingStationList.setAdapter(mAdapter);
-        movingStationList.setClickable(false);
-        movingStationList.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                int act = motionEvent.getAction();
-                switch (act & MotionEvent.ACTION_MASK) {
-                    case MotionEvent.ACTION_DOWN:
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        motionEvent.setAction(MotionEvent.ACTION_CANCEL);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        break;
-                    case MotionEvent.ACTION_POINTER_UP:
-                        break;
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                        break;
-                    case MotionEvent.ACTION_CANCEL:
-                        break;
-                    default:
-                        break;
-                }
-                return false;
-            }
-        });
-        movingStationList.setSelection(sBuf.getReferenceStationId().size() - 1);
-
+        settingMovingStationList();
         makeMyBusInfoView();
     }
 
@@ -322,10 +282,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         cTimer.cancel();
         sNetwork.close();
 
-        sBuf.clearAll();
-        ssBuf.clearAll();
-        sssBuf.clearAll();
-        lBuf.getStationListBuf().clear();
+//        sBuf.clearAll();
+//        ssBuf.clearAll();
+//        sssBuf.clearAll();
+//        lBuf.getStationListBuf().clear();
 
     }
 
@@ -363,7 +323,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         for (int j = 0; j < Data.writeData.length; j++) {
             dd = dd + String.format("%02X ", Data.writeData[j]);
         }
-        eventFileManage.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
+        eventFileManage.saveData("\n(" + mv.getSendYear() + "." + mv.getSendMonth() + "." + mv.getSendDay() +
                 " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
                 ")\n[SEND:" + Data.writeData.length + "] - " + dd);
 
@@ -420,7 +380,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //노선정보
         mv.setRouteID(rBuf.getRouteID());
         mv.setRouteNum(rBuf.getRouteName());
-        mv.setRouteForm("1");
         mv.setRouteDivision("00");
 
         //GPS정보
@@ -619,11 +578,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Setter.setBody_EndDrive();
         op_code = new OP_code(op);
 
-        busTimer.cancel();
 
         sendData();
 
+        busTimer.cancel();
         startFlag = false;
+        stationBuf = -1;
+        retryConnection();
+
         LogicBuffer.jumpBuf = new int[]{-2, -1, 0};
         LogicBuffer.startBuf = new int[]{-10, -10, -10};
         mflag = false;
@@ -647,8 +609,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         sendData();
 
         busTimer.cancel();
-
         startFlag = false;
+        stationBuf = -1;
+        retryConnection();
+
         LogicBuffer.jumpBuf = new int[]{-2, -1, 0};
         LogicBuffer.startBuf = new int[]{-10, -10, -10};
         mflag = false;
@@ -711,34 +675,55 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 false).setPositiveButton("Yes",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        mflag = false;
+                        busTimer.cancel();
+                        startFlag = false;
+                        stationBuf = -1;
 
-                        sBuf.getReferenceStationId().clear();
-                        sBuf.getReferenceLatPosition().clear();
-                        sBuf.getReferenceLngPosition().clear();
-                        sBuf.getStationOrder().clear();
-                        sBuf.getReferenceStationName().clear();
+                        sBuf.clearAll();
 
-                        if (rBuf.getDirection() == 1) {
-                            rBuf.setDirection(2);
+                        if (rBuf.getDirection() == directionSwitch) {
+                            if(directionSwitch == 1) {
+                                rBuf.setDirection(2);
+                            } else if(directionSwitch == 2) {
+                                rBuf.setDirection(1);
+                            }
                             sBuf.setReferenceStationId(sssBuf.getReferenceStationId());
                             sBuf.setReferenceLatPosition(sssBuf.getReferenceLatPosition());
                             sBuf.setReferenceLngPosition(sssBuf.getReferenceLngPosition());
                             sBuf.setStationOrder(sssBuf.getStationOrder());
                             sBuf.setReferenceStationName(sssBuf.getReferenceStationName());
-                        } else if (rBuf.getDirection() == 2) {
-                            rBuf.setDirection(1);
+                            sBuf.setStationDivision(sssBuf.getStationDivision());
+                            sBuf.setRemark(sssBuf.getRemark());
+                        } else {
+                            if(directionSwitch == 1) {
+                                rBuf.setDirection(2);
+                            } else if(directionSwitch == 2) {
+                                rBuf.setDirection(1);
+                            }
                             sBuf.setReferenceStationId(ssBuf.getReferenceStationId());
                             sBuf.setReferenceLatPosition(ssBuf.getReferenceLatPosition());
                             sBuf.setReferenceLngPosition(ssBuf.getReferenceLngPosition());
                             sBuf.setStationOrder(ssBuf.getStationOrder());
                             sBuf.setReferenceStationName(ssBuf.getReferenceStationName());
+                            sBuf.setStationDivision(ssBuf.getStationDivision());
+                            sBuf.setRemark(ssBuf.getRemark());
                         }
+                        lBuf.getStationListBuf().clear();
+                        settingMovingStationList();
+
+                        recreate();
                     }
                 }).setNegativeButton("No",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // Action for 'NO' Button
+                        mflag = false;
                         dialog.cancel();
+                        lBuf.getStationListBuf().clear();
+                        settingMovingStationList();
+
+                        recreate();
                     }
                 });
         AlertDialog alert = alt_bld.create();
@@ -866,14 +851,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if (stationBuf != sBuf.getReferenceLatPosition().size() - 1) {
                     mflag = true;
                 } else {
-                    //마지막 역 도착 운행종료
-                    driveEnd(i);
                     //상하행 변경
                     devicetext.append("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 운행 종료");
                     operationFileManage.saveData("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 운행 종료");
+                    //마지막 역 도착 운행종료
+                    driveEnd(i);
+                    mflag = true;
 
                 }
-                Log.e("비정상도착 체크", "stationBuf : " + stationBuf + " \n0 : " + LogicBuffer.startBuf[0] + " \n1 : " + LogicBuffer.startBuf[1] + " \n2 : " + LogicBuffer.startBuf[2]);
+                if(stationBuf != -1)
+                Log.e("비정상도착 체크","stationName : " + sBuf.getReferenceStationName().get(stationBuf) + "\nstationBuf : " + stationBuf + " \n0 : " + LogicBuffer.startBuf[0] + " \n1 : " + LogicBuffer.startBuf[1] + " \n2 : " + LogicBuffer.startBuf[2]);
             }
         }
 
@@ -891,7 +878,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     operationFileManage.saveData("\n" + sBuf.getReferenceStationId().get(stationBuf) + " 출발");
                 }
             }
-            Log.e("비정상출발 체크", "stationBuf : " + stationBuf + " \n0 : " + LogicBuffer.startBuf[0] + " \n1 : " + LogicBuffer.startBuf[1] + " \n2 : " + LogicBuffer.startBuf[2]);
+            Log.e("비정상출발 체크","stationName : " + sBuf.getReferenceStationName().get(stationBuf) +  "\nstationBuf : " + stationBuf + " \n0 : " + LogicBuffer.startBuf[0] + " \n1 : " + LogicBuffer.startBuf[1] + " \n2 : " + LogicBuffer.startBuf[2]);
 
             mflag = false;
         }
@@ -1007,5 +994,50 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         } else {
             ascending_descending.setText("");
         }
+    }
+    private void settingMovingStationList() {
+
+
+        lBuf.getStationListBuf().add("");
+        lBuf.getStationListBuf().add("");
+        lBuf.getStationListBuf().add("");
+        lBuf.getStationListBuf().add("");
+        lBuf.getStationListBuf().add("");
+
+        for (int i = 0; i < sBuf.getReferenceStationName().size(); i++) {
+            lBuf.getStationListBuf().add(sBuf.getReferenceStationName().get(sBuf.getReferenceStationName().size() - 1 - i));
+        }
+        lBuf.getStationListBuf().add("");
+
+//        ArrayAdapter mAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, sBuf.getReferenceStationId());
+        MyArrayAdapter mAdapter = new MyArrayAdapter(this, R.layout.map_item, lBuf.getStationListBuf());
+        movingStationList.setAdapter(mAdapter);
+        movingStationList.setClickable(false);
+        movingStationList.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                int act = motionEvent.getAction();
+                switch (act & MotionEvent.ACTION_MASK) {
+                    case MotionEvent.ACTION_DOWN:
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        motionEvent.setAction(MotionEvent.ACTION_CANCEL);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        break;
+                    case MotionEvent.ACTION_POINTER_UP:
+                        break;
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                        break;
+                    default:
+                        break;
+                }
+                return false;
+            }
+        });
+        movingStationList.setSelection(sBuf.getReferenceStationId().size() - 1);
+
     }
 }
