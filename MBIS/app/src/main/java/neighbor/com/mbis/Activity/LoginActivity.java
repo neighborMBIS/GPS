@@ -143,7 +143,6 @@ public class LoginActivity extends AppCompatActivity {
                 mv.setDeviceID(2567812341234L);
                 finish();
                 startActivity(new Intent(getApplicationContext(), SelectRouteActivity.class));
-                Toast.makeText(getApplicationContext(), "^^;;", Toast.LENGTH_SHORT).show();
                 break;
         }
     }

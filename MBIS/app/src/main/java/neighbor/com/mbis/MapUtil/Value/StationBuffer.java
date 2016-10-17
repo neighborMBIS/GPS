@@ -19,8 +19,8 @@ public class StationBuffer {
     private ArrayList<Integer> remark;
     private ArrayList<Integer> stationOrder;
     private ArrayList<Integer> stationDivision;
-
     private ArrayList<String> referenceStationName;
+
     public ArrayList<String> getReferenceStationName() {
         return referenceStationName;
     }
@@ -117,6 +117,7 @@ public class StationBuffer {
         referenceLatPosition.clear();
         referenceLngPosition.clear();
         referenceStationId.clear();
+        referenceStationName.clear();
         distance.clear();
         remark.clear();
         stationDivision.clear();

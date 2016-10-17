@@ -115,6 +115,7 @@ public class StationSubBuffer_2 {
         referenceLatPosition.clear();
         referenceLngPosition.clear();
         referenceStationId.clear();
+        referenceStationName.clear();
         distance.clear();
         remark.clear();
         stationDivision.clear();

@@ -25,6 +25,7 @@ public class LogicBuffer {
     public static int startBuf[] = new int[]{-10, -10, -10};
     public static double locationXBuf=0, locationYBuf=0;
     ArrayList<String> stationListBuf = new ArrayList<String>();
+    public double arriveLatBuf, arriveLngBuf;
 
 
     public int getArriveTimeBuf() {
@@ -65,5 +66,21 @@ public class LogicBuffer {
 
     public void setStationListBuf(ArrayList<String> stationListBuf) {
         this.stationListBuf = stationListBuf;
+    }
+
+    public double getArriveLngBuf() {
+        return arriveLngBuf;
+    }
+
+    public void setArriveLngBuf(double arriveLngBuf) {
+        this.arriveLngBuf = arriveLngBuf;
+    }
+
+    public double getArriveLatBuf() {
+        return arriveLatBuf;
+    }
+
+    public void setArriveLatBuf(double arriveLatBuf) {
+        this.arriveLatBuf = arriveLatBuf;
     }
 }

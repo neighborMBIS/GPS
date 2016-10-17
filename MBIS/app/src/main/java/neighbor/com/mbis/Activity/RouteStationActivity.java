@@ -1,5 +1,6 @@
 package neighbor.com.mbis.Activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import neighbor.com.mbis.R;
 import neighbor.com.mbis.MapUtil.Value.StationBuffer;
 
 public class RouteStationActivity extends AppCompatActivity {
+
+    public static Activity rsActivity;
 
     TextView tv;
 
@@ -37,6 +40,8 @@ public class RouteStationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_station);
+
+        rsActivity = RouteStationActivity.this;
 
         tv = (TextView) findViewById(R.id.myLog);
 
