@@ -48,7 +48,7 @@ public class SelectRouteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.activity_select_route);
 
         mList = (ListView)findViewById(R.id.mList);
         tv = (TextView) findViewById(R.id.text);

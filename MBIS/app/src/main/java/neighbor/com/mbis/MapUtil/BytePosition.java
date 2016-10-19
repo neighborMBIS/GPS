@@ -176,6 +176,34 @@ public class BytePosition {
     public final static int BODY_USER_CERTIFICATION_AFTER_RESERVATION = 39;
 
 
+    //ROUTE STATION INFORMATION
+    public final static int BODY_ROUTE_STATION_SENDYEAR_DATE = 18;
+    public final static int BODY_ROUTE_STATION_SENDMONTH = 20;
+    public final static int BODY_ROUTE_STATION_SENDDAY = 22;
+    public final static int BODY_ROUTE_STATION_SENDHOUR_TIME = 24;
+    public final static int BODY_ROUTE_STATION_SENDMIN = 26;
+    public final static int BODY_ROUTE_STATION_SENDSEC = 28;
+
+    public final static int BODY_ROUTE_STATION_REVISION_NUM = 30;
+
+    public final static int BODY_ROUTE_STATION_ROUTEID_INFO = 32;
+    public final static int BODY_ROUTE_STATION_ROUTENUM = 40;
+    public final static int BODY_ROUTE_STATION_ROUTENUMEXPANSION = 45;
+    public final static int BODY_ROUTE_STATION_ROUTEFORM = 47;
+    public final static int BODY_ROUTE_STATION_ROUTEDIVISION = 48;
+
+    public final static int BODY_ROUTE_STATION_TOTALSTATIONNUM = 50;
+
+    public final static int BODY_ROUTE_STATION_APPLY_SENDYEAR_DATE = 52;
+    public final static int BODY_ROUTE_STATION_APPLY_SENDMONTH = 54;
+    public final static int BODY_ROUTE_STATION_APPLY_SENDDAY = 56;
+    public final static int BODY_ROUTE_STATION_APPLY_SENDHOUR_TIME = 58;
+    public final static int BODY_ROUTE_STATION_APPLY_SENDMIN = 60;
+    public final static int BODY_ROUTE_STATION_APPLY_SENDSEC = 62;
+
+    public final static int BODY_ROUTE_STATION_STATIONINFO_START = 64;
+    public final static int BODY_ROUTE_STATION_DATA_SIZE = 11;
+
 
 
 

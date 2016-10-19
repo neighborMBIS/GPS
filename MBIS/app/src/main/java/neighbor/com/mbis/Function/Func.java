@@ -61,20 +61,22 @@ public class Func {
         return b;
     }
 
+
     public static long byteToLong(byte[] bytes) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-        buffer.put(bytes);
-        buffer.flip();//need flip
-        return buffer.getLong();
-    }
-    public static long byteToLong(byte[] bytes, int len) {
-        long value = 0;
-        for (int i = 0; i < len; i++) {
-            //int shift = (len - 1 - i) * 8;
-            int shift = i * 8;
-            value += (bytes[bytes.length - 1 - i] & 0x000000FF) << shift;
+
+        ByteBuffer byte_buf = ByteBuffer.allocate(8);
+        final byte[] change = new byte[8];
+
+        for (int i = 0; i < 8; i++) {
+            change[i] = (byte) 0x00;
         }
-        return value;
+        for (int i = 0; i < bytes.length; i++) {
+            change[8 -1 - i] = bytes[bytes.length - 1 - i];
+        }
+        byte_buf = ByteBuffer.wrap(change);
+        byte_buf.order(ByteOrder.BIG_ENDIAN);
+
+        return byte_buf.getLong();
     }
 
     public static int byteToInteger(byte[] bytes) {

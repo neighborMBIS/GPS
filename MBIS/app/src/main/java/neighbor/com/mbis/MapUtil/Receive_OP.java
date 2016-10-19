@@ -22,6 +22,9 @@ public class Receive_OP {
             case OPUtil.OP_OTHER_BUS_INFO:
                 addUtilOtherBusInfo();
                 break;
+            case OPUtil.OP_ROUTE_STATION_DATA_INFO:
+                addUtilRouteStationDataInfo();
+                break;
         }
     }
 
@@ -58,6 +61,48 @@ public class Receive_OP {
         afterBusNum[1] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_AFTER_BUS_NUM+1];
         mv.setBeforeBusNum(Func.byteToInteger(beforeBusNum, 2));
         mv.setAfterBusNum(Func.byteToInteger(afterBusNum, 2));
+    }
+
+    private void addUtilRouteStationDataInfo() {
+        byte[] revisionNum = new byte[2];
+
+        byte[] routeID = new byte[8];
+        byte[] routeNum1 = new byte[5];
+        byte[] routeNum2 = new byte[2];
+        byte[] routeForm = new byte[1];
+        byte[] routeDivision = new byte[2];
+
+        byte[] applyDate = new byte[6];
+        byte[] applyTime = new byte[6];
+
+        byte[] totalStationNum = new byte[2];
+
+
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_REVISION_NUM, revisionNum, 0,revisionNum.length);
+
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTEID_INFO, routeID, 0,routeID.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTENUM, routeNum1, 0,routeNum1.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTENUMEXPANSION, routeNum2, 0,routeNum2.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTEFORM, routeForm, 0,routeForm.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTEDIVISION, routeDivision, 0,routeDivision.length);
+
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_APPLY_SENDYEAR_DATE, applyDate, 0,applyDate.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_APPLY_SENDHOUR_TIME, applyTime, 0,applyTime.length);
+
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_TOTALSTATIONNUM, totalStationNum, 0,totalStationNum.length);
+
+        mv.setRevisionNum_RS(Func.byteToInteger(revisionNum, 2));
+
+        mv.setRouteID_RS(Func.byteToLong(routeID));
+        mv.setRouteNum_RS(new String(routeNum1) + "-" + new String(routeNum2));
+        mv.setRouteForm_RS(new String(routeForm));
+        mv.setRouteDivision_RS(new String(routeDivision));
+
+        mv.setApplyDate_RS(new String(applyDate));
+        mv.setApplyTime_RS(new String(applyTime));
+
+        mv.setTotalStationNum_RS(Func.byteToInteger(totalStationNum, 2));
+
     }
 
 }

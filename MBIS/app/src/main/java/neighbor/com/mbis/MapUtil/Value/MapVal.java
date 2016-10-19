@@ -67,6 +67,12 @@ public class MapVal {
 
 
 
+    //라우트스테이션 정보
+    private int revisionNum_RS, totalStationNum_RS;
+    private String applyDate_RS, applyTime_RS;
+    private long routeID_RS;
+    private String routeNum_RS, routeForm_RS, routeDivision_RS;
+
 
     public int getVersion() {
         return version;
@@ -459,5 +465,70 @@ public class MapVal {
 
     public void setRemainTime(int remainTime) {
         this.remainTime = remainTime;
+    }
+
+    public int getRevisionNum_RS() {
+        return revisionNum_RS;
+    }
+
+    public void setRevisionNum_RS(int revisionNum_RS) {
+        this.revisionNum_RS = revisionNum_RS;
+    }
+
+    public int getTotalStationNum_RS() {
+        return totalStationNum_RS;
+    }
+
+    public void setTotalStationNum_RS(int totalStationNum_RS) {
+        this.totalStationNum_RS = totalStationNum_RS;
+    }
+
+
+    public long getRouteID_RS() {
+        return routeID_RS;
+    }
+
+    public void setRouteID_RS(long routeID_RS) {
+        this.routeID_RS = routeID_RS;
+    }
+
+    public String getRouteNum_RS() {
+        return routeNum_RS;
+    }
+
+    public void setRouteNum_RS(String routeNum_RS) {
+        this.routeNum_RS = routeNum_RS;
+    }
+
+    public String getRouteForm_RS() {
+        return routeForm_RS;
+    }
+
+    public void setRouteForm_RS(String routeForm_RS) {
+        this.routeForm_RS = routeForm_RS;
+    }
+
+    public String getRouteDivision_RS() {
+        return routeDivision_RS;
+    }
+
+    public void setRouteDivision_RS(String routeDivision_RS) {
+        this.routeDivision_RS = routeDivision_RS;
+    }
+
+    public String getApplyDate_RS() {
+        return applyDate_RS;
+    }
+
+    public void setApplyDate_RS(String applyDate_RS) {
+        this.applyDate_RS = applyDate_RS;
+    }
+
+    public String getApplyTime_RS() {
+        return applyTime_RS;
+    }
+
+    public void setApplyTime_RS(String applyTime_RS) {
+        this.applyTime_RS = applyTime_RS;
     }
 }
