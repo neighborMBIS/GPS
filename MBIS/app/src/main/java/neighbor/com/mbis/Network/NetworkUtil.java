@@ -5,5 +5,4 @@ package neighbor.com.mbis.Network;
  */
 
 public class NetworkUtil {
-    //통신 변수들
 }

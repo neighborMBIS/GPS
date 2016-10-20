@@ -24,9 +24,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import neighbor.com.mbis.CSV_Util.RouteStationUtil;
 import neighbor.com.mbis.Database.DBManager;
+import neighbor.com.mbis.Function.FileManage;
 import neighbor.com.mbis.MapUtil.Value.MapVal;
 import neighbor.com.mbis.MapUtil.Value.RouteBuffer;
 import neighbor.com.mbis.R;
@@ -55,6 +58,7 @@ public class SelectRouteActivity extends AppCompatActivity {
 
         db = DBManager.getInstance(this);
         isHasVisited(this);
+        checkDB(1);
 
 //        cAdapter = new MyCursorAdapter(this, dbHelper.query(new String[]{"route_id"}, null, null, null, null, null));
 
@@ -313,4 +317,41 @@ public class SelectRouteActivity extends AppCompatActivity {
         ab.show();
     }
 
+    private void checkDB(int flag) {
+        TimeZone jst = TimeZone.getTimeZone("JST");
+        Calendar cal = Calendar.getInstance(jst);
+
+        String today = String.format("%02d", cal.get(Calendar.YEAR) - 2000)
+                + String.format("%02d", (cal.get(Calendar.MONTH) + 1))
+                + String.format("%02d", cal.get(Calendar.DATE))
+                + String.format("%02d", (cal.get(Calendar.HOUR_OF_DAY)) + 9)
+                + String.format("%02d", cal.get(Calendar.MINUTE))
+                + String.format("%02d", (cal.get(Calendar.SECOND)));
+        long todayLong = Long.parseLong(today);
+        String applyDateTime = "";
+        String applyFileName = "";
+        int apply_table_type = 0;
+
+        if(flag == 1) {
+            Cursor cursor = db.queryConfig(new String[]{"apply_date", "apply_time", "apply_file_name", "apply_table_type"}, null, null, null, null, null);
+
+            if (cursor != null) {
+                if (cursor.moveToLast()) {
+                    applyDateTime = cursor.getString(0) + cursor.getString(1);
+                    applyFileName = cursor.getString(2);
+                }
+            }
+        }
+
+        if (!applyDateTime.equals("")) {
+            long applyDateTimeLong = Long.parseLong(applyDateTime);
+
+            if (todayLong > applyDateTimeLong) {
+                FileManage fm = new FileManage(applyFileName);
+                db.deleteRoute(null, null);
+                fm.readFileWriteDB(applyFileName, flag, db);
+            }
+        }
+
+    }
 }

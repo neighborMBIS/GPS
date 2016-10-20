@@ -45,6 +45,7 @@ import neighbor.com.mbis.Function.Setter;
 import neighbor.com.mbis.MapUtil.Adapter.MyArrayAdapter;
 import neighbor.com.mbis.MapUtil.BytePosition;
 import neighbor.com.mbis.MapUtil.HandlerPosition;
+import neighbor.com.mbis.MapUtil.OPUtil;
 import neighbor.com.mbis.MapUtil.Receive_OP;
 import neighbor.com.mbis.MapUtil.Thread.BusTimer;
 import neighbor.com.mbis.MapUtil.Thread.SocketNetwork;
@@ -968,7 +969,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //        readText.append("\n");
 
         new Receive_OP(Data.readData[BytePosition.HEADER_OPCODE]);
-        makeOtherBusInfoView();
+        if(Data.readData[BytePosition.HEADER_OPCODE] == OPUtil.OP_OTHER_BUS_INFO) {
+            makeOtherBusInfoView();
+        }
     }
 
     private void makeOtherBusInfoView() {
