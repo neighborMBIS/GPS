@@ -120,10 +120,12 @@ public class SelectRouteActivity extends AppCompatActivity {
         }
         File[] allFiles = f.listFiles();
 
-        for (File file : allFiles) {
-            if (file.getName().endsWith(".csv")) {
-                csvFiles.add(file);
-                overwriteDB(file);
+        if(allFiles != null) {
+            for (File file : allFiles) {
+                if (file.getName().endsWith(".csv")) {
+                    csvFiles.add(file);
+                    overwriteDB(file);
+                }
             }
         }
     }
