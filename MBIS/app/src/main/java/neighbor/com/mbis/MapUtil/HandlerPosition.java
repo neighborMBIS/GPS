@@ -22,5 +22,5 @@ public class HandlerPosition {
     public final static int SOCKET_CONNECT_SUCCESS = 100;
     public final static int DATA_READ_SUCESS = 101;
 
-    public final static int SPLASH_LOCATION_RANGE = 5;
+    public final static int SPLASH_LOCATION_RANGE = 30;
 }

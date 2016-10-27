@@ -16,7 +16,7 @@ public class StationSubBuffer_1 {
     private ArrayList<Double> referenceLatPosition;
     private ArrayList<Double> referenceLngPosition;
     private ArrayList<Double> distance;
-    private ArrayList<Integer> remark;
+    private ArrayList<Double> remark;
     private ArrayList<Integer> stationOrder;
     private ArrayList<Integer> stationDivision;
 
@@ -36,7 +36,7 @@ public class StationSubBuffer_1 {
         referenceLngPosition = new ArrayList<Double>();
         distance = new ArrayList<Double>();
         referenceStationId = new ArrayList<Long>();
-        remark = new ArrayList<Integer>();
+        remark = new ArrayList<Double>();
         stationOrder= new ArrayList<Integer>();
         stationDivision= new ArrayList<Integer>();
         referenceStationName= new ArrayList<String >();
@@ -76,11 +76,11 @@ public class StationSubBuffer_1 {
         this.referenceStationId = refernceUniqueNum;
     }
 
-    public ArrayList<Integer> getRemark() {
+    public ArrayList<Double> getRemark() {
         return remark;
     }
 
-    public void setRemark(ArrayList<Integer> remark) {
+    public void setRemark(ArrayList<Double> remark) {
         this.remark = remark;
     }
 
@@ -109,7 +109,7 @@ public class StationSubBuffer_1 {
         referenceStationId.add(item);
     }
     public void addDistance(double item) {distance.add(item);}
-    public void addRemark(int item) {remark.add(item);}
+    public void addRemark(double item) {remark.add(item);}
     public void addStationOrder(int item) {stationOrder.add(item);}
     public void clearAll() {
         referenceLatPosition.clear();

@@ -12,7 +12,7 @@ public class RouteBuffer {
 
     private long routeID;
     private String routeName;
-    private int direction;
+    private int routeType;
 
 
     private RouteBuffer() {
@@ -35,10 +35,10 @@ public class RouteBuffer {
         this.routeID = routeID;
     }
 
-    public int getDirection() {
-        return direction;
+    public int getRouteType() {
+        return routeType;
     }
-    public void setDirection(int direction) {
-        this.direction = direction;
+    public void setRouteType(int routeType) {
+        this.routeType = routeType;
     }
 }

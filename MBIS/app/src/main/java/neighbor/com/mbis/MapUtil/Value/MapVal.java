@@ -63,15 +63,21 @@ public class MapVal {
 
     //앞뒤차정보
     private int beforeBusDistance, beforeBusTime, beforeBusNum, afterBusDistance, afterBusTime, afterBusNum,
-                remainDistance, remainTime;
-
-
+            remainDistance, remainTime;
 
     //라우트스테이션 정보
     private int revisionNum_RS, totalStationNum_RS;
     private String applyDate_RS, applyTime_RS;
     private long routeID_RS;
     private String routeNum_RS, routeForm_RS, routeDivision_RS;
+
+    //라우트 정보
+    private int revisionNum_R, totalRouteNum_R;
+    private String applyDate_R, applyTime_R;
+
+    //스테이션 정보
+    private int revisionNum_S, totalStationNum_S;
+    private String applyDate_S, applyTime_S;
 
 
     public int getVersion() {
@@ -531,4 +537,69 @@ public class MapVal {
     public void setApplyTime_RS(String applyTime_RS) {
         this.applyTime_RS = applyTime_RS;
     }
+
+    public int getRevisionNum_R() {
+        return revisionNum_R;
+    }
+
+    public void setRevisionNum_R(int revisionNum_R) {
+        this.revisionNum_R = revisionNum_R;
+    }
+
+    public int getTotalRouteNum_R() {
+        return totalRouteNum_R;
+    }
+
+    public void setTotalRouteNum_R(int totalRouteNum_R) {
+        this.totalRouteNum_R = totalRouteNum_R;
+    }
+
+    public String getApplyDate_R() {
+        return applyDate_R;
+    }
+
+    public void setApplyDate_R(String applyDate_R) {
+        this.applyDate_R = applyDate_R;
+    }
+
+    public String getApplyTime_R() {
+        return applyTime_R;
+    }
+
+    public void setApplyTime_R(String applyTime_R) {
+        this.applyTime_R = applyTime_R;
+    }
+
+    public int getRevisionNum_S() {
+        return revisionNum_S;
+    }
+
+    public void setRevisionNum_S(int revisionNum_S) {
+        this.revisionNum_S = revisionNum_S;
+    }
+
+    public int getTotalStationNum_S() {
+        return totalStationNum_S;
+    }
+
+    public void setTotalStationNum_S(int totalStationNum_S) {
+        this.totalStationNum_S = totalStationNum_S;
+    }
+
+    public String getApplyDate_S() {
+        return applyDate_S;
+    }
+
+    public void setApplyDate_S(String applyDate_S) {
+        this.applyDate_S = applyDate_S;
+    }
+
+    public String getApplyTime_S() {
+        return applyTime_S;
+    }
+
+    public void setApplyTime_S(String applyTime_S) {
+        this.applyTime_S = applyTime_S;
+    }
+
 }

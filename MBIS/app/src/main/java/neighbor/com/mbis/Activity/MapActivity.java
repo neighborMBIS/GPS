@@ -93,13 +93,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     LogicBuffer lBuf = LogicBuffer.getInstance();
     OP_code op_code;
 
-    final int DETECTRANGE = 50;
+    final int DETECTRANGE = 30;
 
     static boolean mflag = false;
     static boolean startFlag = false;
     static int stationBuf = -1;
 
-    int directionSwitch = rBuf.getDirection();
+    int directionSwitch = rBuf.getRouteType();
 
     static byte[] op;
 
@@ -357,7 +357,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             devicetext.append("\n노선이탈 운행종료");
             Log.e("Buffer", "\n" + LogicBuffer.startBuf[0] + "," + LogicBuffer.startBuf[1] + "," + LogicBuffer.startBuf[2] + "\n"
                     + LogicBuffer.jumpBuf[0] + "," + LogicBuffer.jumpBuf[1] + "," + LogicBuffer.jumpBuf[2]
-                    + "\n" + directionSwitch + " " + rBuf.getDirection());
+                    + "\n" + directionSwitch + " " + rBuf.getRouteType());
         }
 
 
@@ -682,11 +682,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                         sBuf.clearAll();
 
-                        if (rBuf.getDirection() == directionSwitch) {
+                        if (rBuf.getRouteType() == directionSwitch) {
                             if (directionSwitch == 1) {
-                                rBuf.setDirection(2);
+                                rBuf.setRouteType(2);
                             } else if (directionSwitch == 2) {
-                                rBuf.setDirection(1);
+                                rBuf.setRouteType(1);
                             }
                             sBuf.setReferenceStationId(sssBuf.getReferenceStationId());
                             sBuf.setReferenceLatPosition(sssBuf.getReferenceLatPosition());
@@ -698,9 +698,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             sBuf.setRemark(sssBuf.getRemark());
                         } else {
                             if (directionSwitch == 1) {
-                                rBuf.setDirection(2);
+                                rBuf.setRouteType(2);
                             } else if (directionSwitch == 2) {
-                                rBuf.setDirection(1);
+                                rBuf.setRouteType(1);
                             }
                             sBuf.setReferenceStationId(ssBuf.getReferenceStationId());
                             sBuf.setReferenceLatPosition(ssBuf.getReferenceLatPosition());
@@ -1030,7 +1030,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     case MotionEvent.ACTION_DOWN:
                         break;
                     case MotionEvent.ACTION_MOVE:
-//                        motionEvent.setAction(MotionEvent.ACTION_CANCEL);
+                        motionEvent.setAction(MotionEvent.ACTION_CANCEL);
                         break;
                     case MotionEvent.ACTION_UP:
                         break;

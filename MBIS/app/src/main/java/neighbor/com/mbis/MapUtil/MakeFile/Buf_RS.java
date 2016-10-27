@@ -1,14 +1,14 @@
-package neighbor.com.mbis.MapUtil.Value;
+package neighbor.com.mbis.MapUtil.MakeFile;
 
 /**
  * Created by user on 2016-10-19.
  */
 
-public class RSBuf {
+public class Buf_RS {
     private int stationOrder;
     private long stationID;
-    private int distance;
-    private int time;
+    private int stationDistance;
+    private int stationTime;
 
     public int getStationOrder() {
         return stationOrder;
@@ -26,19 +26,19 @@ public class RSBuf {
         this.stationID = stationID;
     }
 
-    public int getDistance() {
-        return distance;
+    public int getStationDistance() {
+        return stationDistance;
     }
 
-    public void setDistance(int distance) {
-        this.distance = distance;
+    public void setStationDistance(int stationDistance) {
+        this.stationDistance = stationDistance;
     }
 
-    public int getTime() {
-        return time;
+    public int getStationTime() {
+        return stationTime;
     }
 
-    public void setTime(int time) {
-        this.time = time;
+    public void setStationTime(int stationTime) {
+        this.stationTime = stationTime;
     }
 }

@@ -22,12 +22,14 @@ import neighbor.com.mbis.MapUtil.BytePosition;
 import neighbor.com.mbis.MapUtil.Data;
 import neighbor.com.mbis.MapUtil.Form.Form_Header;
 import neighbor.com.mbis.MapUtil.HandlerPosition;
+import neighbor.com.mbis.MapUtil.MakeFile.MakeRouteFile;
+import neighbor.com.mbis.MapUtil.MakeFile.MakeRouteStationFile;
+import neighbor.com.mbis.MapUtil.MakeFile.MakeStationFile;
 import neighbor.com.mbis.MapUtil.OPUtil;
 import neighbor.com.mbis.MapUtil.Receive_OP;
 import neighbor.com.mbis.MapUtil.Thread.SocketNetwork;
 import neighbor.com.mbis.MapUtil.Thread.SocketReadTimeout;
 import neighbor.com.mbis.MapUtil.Value.MapVal;
-import neighbor.com.mbis.MapUtil.Value.RSBuf;
 import neighbor.com.mbis.Network.NetworkUtil;
 import neighbor.com.mbis.R;
 
@@ -226,50 +228,15 @@ public class LoginActivity extends AppCompatActivity {
         new Receive_OP(opCode);
         if(opCode == OPUtil.OP_USER_CERTIFICATION_AFTER_DEVICEID_SEND) {
             userCertificationSuccess();
+        } else if(opCode == OPUtil.OP_ROUTE_DATA_INFO) {
+            new MakeRouteFile();
+        } else if(opCode == OPUtil.OP_STATION_DATA_INFO) {
+            new MakeStationFile();
         } else if(opCode == OPUtil.OP_ROUTE_STATION_DATA_INFO) {
-            updateRouteStationInfo();
+            new MakeRouteStationFile();
         }
     }
 
-    private void updateRouteStationInfo() {
-        //arr : 받은 데이터 모두 저장 할 버퍼
-        byte[] arr = new byte[0];
-
-        for (int i = 0; i < Data.readData.length; i++) {
-            if (i > BytePosition.BODY_ROUTE_STATION_STATIONINFO_START-1 && !(i > Data.readData.length - 5)) {
-                arr = Func.mergyByte(arr, new byte[]{Data.readData[i]});
-            }
-        }
-
-        FileManage fm = new FileManage(mv.getApplyDate_RS() + mv.getApplyTime_RS()+"RS", "csv");
-
-        for (int i = 0; i < mv.getTotalStationNum_RS(); i++) {
-            byte[] order = new byte[2];
-            byte[] id = new byte[5];
-            byte[] dis = new byte[2];
-            byte[] time = new byte[2];
-
-            RSBuf b = new RSBuf();
-
-            System.arraycopy(arr, BytePosition.BODY_ROUTE_STATION_DATA_SIZE * i, order, 0, order.length);
-            System.arraycopy(arr, BytePosition.BODY_ROUTE_STATION_DATA_SIZE * i + order.length, id, 0, id.length);
-            System.arraycopy(arr, BytePosition.BODY_ROUTE_STATION_DATA_SIZE * i + order.length + id.length, dis, 0, dis.length);
-            System.arraycopy(arr, BytePosition.BODY_ROUTE_STATION_DATA_SIZE * i + order.length + id.length + dis.length, time, 0, time.length);
-
-            b.setStationOrder(Func.byteToInteger(order, order.length));
-            b.setStationID(Func.byteToLong(id));
-            b.setDistance(Func.byteToInteger(dis, dis.length));
-            b.setTime(Func.byteToInteger(time, time.length));
-
-            fm.saveData(b.getStationID() + ","
-                    + b.getStationOrder() + ","
-                    + b.getStationID() + ","
-                    + b.getStationOrder() + ","
-                    + b.getStationOrder() + ","
-                    + b.getDistance()*2 + ","
-            );
-        }
-    }
 
 
     private void userCertificationSuccess() {

@@ -25,6 +25,12 @@ public class Receive_OP {
             case OPUtil.OP_ROUTE_STATION_DATA_INFO:
                 addUtilRouteStationDataInfo();
                 break;
+            case OPUtil.OP_ROUTE_DATA_INFO:
+                addUtilRouteDataInfo();
+                break;
+            case OPUtil.OP_STATION_DATA_INFO:
+                addUtilStationDataInfo();
+                break;
         }
     }
 
@@ -102,6 +108,56 @@ public class Receive_OP {
         mv.setApplyTime_RS(new String(applyTime));
 
         mv.setTotalStationNum_RS(Func.byteToInteger(totalStationNum, 2));
+
+    }
+
+    private void addUtilRouteDataInfo() {
+        byte[] revisionNum = new byte[2];
+
+        byte[] applyDate = new byte[6];
+        byte[] applyTime = new byte[6];
+
+        byte[] totalRouteNum = new byte[1];
+
+
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_REVISION_NUM, revisionNum, 0,revisionNum.length);
+
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_APPLY_SENDYEAR_DATE, applyDate, 0,applyDate.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_APPLY_SENDHOUR_TIME, applyTime, 0,applyTime.length);
+
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_TOTALROUTENUM, totalRouteNum, 0,totalRouteNum.length);
+
+        mv.setRevisionNum_R(Func.byteToInteger(revisionNum, 2));
+
+        mv.setApplyDate_R(new String(applyDate));
+        mv.setApplyTime_R(new String(applyTime));
+
+        mv.setTotalRouteNum_R(Func.byteToInteger(totalRouteNum, 1));
+
+    }
+
+    private void addUtilStationDataInfo() {
+        byte[] revisionNum = new byte[2];
+
+        byte[] applyDate = new byte[6];
+        byte[] applyTime = new byte[6];
+
+        byte[] totalStationNum = new byte[2];
+
+
+        System.arraycopy(Data.readData, BytePosition.BODY_STATION_REVISION_NUM, revisionNum, 0,revisionNum.length);
+
+        System.arraycopy(Data.readData, BytePosition.BODY_STATION_APPLY_SENDYEAR_DATE, applyDate, 0,applyDate.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_STATION_APPLY_SENDHOUR_TIME, applyTime, 0,applyTime.length);
+
+        System.arraycopy(Data.readData, BytePosition.BODY_STATION_TOTALSTATIONNUM, totalStationNum, 0,totalStationNum.length);
+
+        mv.setRevisionNum_S(Func.byteToInteger(revisionNum, 2));
+
+        mv.setApplyDate_S(new String(applyDate));
+        mv.setApplyTime_S(new String(applyTime));
+
+        mv.setTotalStationNum_S(Func.byteToInteger(totalStationNum, 2));
 
     }
 
