@@ -30,7 +30,7 @@ public class FTPThread extends Thread {
         String[] myUpdateFileName = new String[3];
 
         try {
-            conn = new FTPManager("197.168.100.020", 21, "admin", "test1234");
+            conn = new FTPManager(mv.getFtpIP(), mv.getFtpPort(), mv.getFtpID(), mv.getFtpPW());
 
             conn.connect();
             conn.login();
