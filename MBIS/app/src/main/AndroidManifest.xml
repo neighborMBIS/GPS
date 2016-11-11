@@ -19,26 +19,23 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity android:name=".Activity.StartScreen"
+        <activity
+            android:name=".Activity.StartScreen"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Activity.LoginActivity"
             android:label="@string/title_activity_login"
-            android:screenOrientation="portrait">
-        </activity>
-
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".Activity.SelectRouteActivity"
             android:label="@string/title_activity_select_route"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".Activity.RouteStationActivity"
             android:screenOrientation="portrait"
@@ -47,6 +44,11 @@
             android:name=".Activity.MapActivity"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <service
+            android:name=".Network.NetworkService"
+            android:enabled="true"
+            android:exported="true" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -59,6 +61,9 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <service
+            android:name=".Network.NetworkIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

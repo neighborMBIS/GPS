@@ -10,6 +10,7 @@ import neighbor.com.mbis.MapUtil.Value.MapVal;
 
 public class Receive_OP {
     MapVal mv = MapVal.getInstance();
+
     public Receive_OP(byte op_code) {
         switch (op_code) {
             case OPUtil.OP_ACK:
@@ -31,13 +32,20 @@ public class Receive_OP {
             case OPUtil.OP_STATION_DATA_INFO:
                 addUtilStationDataInfo();
                 break;
+            case OPUtil.OP_FTP_INFO:
+                addUtilFTPInfo();
+                break;
+            case OPUtil.OP_CONTROL_INFO:
+                addUtilControlInfo();
+                break;
+
         }
     }
 
     private void addUtilUserCertificationAfterDeviceIdSend() {
         byte[] deviceID = new byte[8];
-        for(int i=0 ; i < deviceID.length ; i++) {
-            deviceID[i] = Data.readData[i+BytePosition.BODY_USER_CERTIFICATION_AFTER_DEVICEID];
+        for (int i = 0; i < deviceID.length; i++) {
+            deviceID[i] = Data.readData[i + BytePosition.BODY_USER_CERTIFICATION_AFTER_DEVICEID];
         }
         mv.setDeviceID(Func.byteToLong(deviceID));
     }
@@ -62,9 +70,9 @@ public class Receive_OP {
         mv.setAfterBusTime(Func.byteToInteger(afterBusTime, 1));
 
         beforeBusNum[0] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_BEFORE_BUS_NUM];
-        beforeBusNum[1] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_BEFORE_BUS_NUM+1];
+        beforeBusNum[1] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_BEFORE_BUS_NUM + 1];
         afterBusNum[0] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_AFTER_BUS_NUM];
-        afterBusNum[1] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_AFTER_BUS_NUM+1];
+        afterBusNum[1] = Data.readData[BytePosition.BODY_OTHER_BUS_INFO_AFTER_BUS_NUM + 1];
         mv.setBeforeBusNum(Func.byteToInteger(beforeBusNum, 2));
         mv.setAfterBusNum(Func.byteToInteger(afterBusNum, 2));
     }
@@ -84,18 +92,18 @@ public class Receive_OP {
         byte[] totalStationNum = new byte[2];
 
 
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_REVISION_NUM, revisionNum, 0,revisionNum.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_REVISION_NUM, revisionNum, 0, revisionNum.length);
 
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTEID_INFO, routeID, 0,routeID.length);
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTENUM, routeNum1, 0,routeNum1.length);
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTENUMEXPANSION, routeNum2, 0,routeNum2.length);
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTEFORM, routeForm, 0,routeForm.length);
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTEDIVISION, routeDivision, 0,routeDivision.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTEID_INFO, routeID, 0, routeID.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTENUM, routeNum1, 0, routeNum1.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTENUMEXPANSION, routeNum2, 0, routeNum2.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTEFORM, routeForm, 0, routeForm.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_ROUTEDIVISION, routeDivision, 0, routeDivision.length);
 
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_APPLY_SENDYEAR_DATE, applyDate, 0,applyDate.length);
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_APPLY_SENDHOUR_TIME, applyTime, 0,applyTime.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_APPLY_SENDYEAR_DATE, applyDate, 0, applyDate.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_APPLY_SENDHOUR_TIME, applyTime, 0, applyTime.length);
 
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_TOTALSTATIONNUM, totalStationNum, 0,totalStationNum.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_STATION_TOTALSTATIONNUM, totalStationNum, 0, totalStationNum.length);
 
         mv.setRevisionNum_RS(Func.byteToInteger(revisionNum, 2));
 
@@ -120,12 +128,12 @@ public class Receive_OP {
         byte[] totalRouteNum = new byte[1];
 
 
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_REVISION_NUM, revisionNum, 0,revisionNum.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_REVISION_NUM, revisionNum, 0, revisionNum.length);
 
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_APPLY_SENDYEAR_DATE, applyDate, 0,applyDate.length);
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_APPLY_SENDHOUR_TIME, applyTime, 0,applyTime.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_APPLY_SENDYEAR_DATE, applyDate, 0, applyDate.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_APPLY_SENDHOUR_TIME, applyTime, 0, applyTime.length);
 
-        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_TOTALROUTENUM, totalRouteNum, 0,totalRouteNum.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_ROUTE_TOTALROUTENUM, totalRouteNum, 0, totalRouteNum.length);
 
         mv.setRevisionNum_R(Func.byteToInteger(revisionNum, 2));
 
@@ -145,12 +153,12 @@ public class Receive_OP {
         byte[] totalStationNum = new byte[2];
 
 
-        System.arraycopy(Data.readData, BytePosition.BODY_STATION_REVISION_NUM, revisionNum, 0,revisionNum.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_STATION_REVISION_NUM, revisionNum, 0, revisionNum.length);
 
-        System.arraycopy(Data.readData, BytePosition.BODY_STATION_APPLY_SENDYEAR_DATE, applyDate, 0,applyDate.length);
-        System.arraycopy(Data.readData, BytePosition.BODY_STATION_APPLY_SENDHOUR_TIME, applyTime, 0,applyTime.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_STATION_APPLY_SENDYEAR_DATE, applyDate, 0, applyDate.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_STATION_APPLY_SENDHOUR_TIME, applyTime, 0, applyTime.length);
 
-        System.arraycopy(Data.readData, BytePosition.BODY_STATION_TOTALSTATIONNUM, totalStationNum, 0,totalStationNum.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_STATION_TOTALSTATIONNUM, totalStationNum, 0, totalStationNum.length);
 
         mv.setRevisionNum_S(Func.byteToInteger(revisionNum, 2));
 
@@ -161,4 +169,50 @@ public class Receive_OP {
 
     }
 
+    private void addUtilFTPInfo() {
+
+        byte[] deviceId = new byte[8];
+        byte[] ftpIp = new byte[16];
+        byte[] ftpPort = new byte[2];
+        byte[] ftpId = new byte[10];
+        byte[] ftpPw = new byte[10];
+        byte[] ftpMode = new byte[1];
+        byte[] pathData = new byte[30];
+        byte[] stationFileName = new byte[20];
+        byte[] routeFileName = new byte[20];
+        byte[] routeStationFileName = new byte[20];
+
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_DEVICEID, deviceId, 0, deviceId.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_IP, ftpIp, 0, ftpIp.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_PORT, ftpPort, 0, ftpPort.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_ID, ftpId, 0, ftpId.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_PW, ftpPw, 0, ftpPw.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_MODE, ftpMode, 0, ftpMode.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_PATH_DATA, pathData, 0, pathData.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_STATION_FILE_NAME, stationFileName, 0, stationFileName.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_ROUTE_FILE_NAME, routeFileName, 0, routeFileName.length);
+        System.arraycopy(Data.readData, BytePosition.BODY_FTP_ROUTESTATION_FILE_NAME, routeStationFileName, 0, routeStationFileName.length);
+
+        mv.setFtpDeviceID(Func.byteToLong(deviceId));
+        mv.setFtpIP(new String(ftpIp));
+        mv.setFtpPort(Func.byteToInteger(ftpPort, 2));
+        mv.setFtpID(new String(ftpId));
+        mv.setFtpPW(new String(ftpPw));
+        mv.setFtpMode(Func.byteToInteger(ftpMode, 1));
+        mv.setPathData(new String(pathData));
+        mv.setStationFileName(new String(stationFileName));
+        mv.setRouteFileName(new String(routeFileName));
+        mv.setRouteStationFileName(new String(routeStationFileName));
+
+    }
+
+    private void addUtilControlInfo() {
+        byte[] deviceId = new byte[8];
+        byte[] controlCode = new byte[1];
+
+        System.arraycopy(Data.readData, BytePosition.BODY_CONTROL_DEVICEID, deviceId, 0, deviceId.length);
+        controlCode[0] = Data.readData[BytePosition.BODY_CONTROL_CONTROLCODE];
+
+        mv.setControlDeviceID(Func.byteToLong(deviceId));
+    }
 }

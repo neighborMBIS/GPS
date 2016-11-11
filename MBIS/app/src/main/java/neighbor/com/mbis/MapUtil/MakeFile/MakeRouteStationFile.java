@@ -5,7 +5,7 @@ import android.os.Environment;
 import java.io.File;
 import java.util.ArrayList;
 
-import neighbor.com.mbis.Function.FileManage;
+import neighbor.com.mbis.Function.FileManager;
 import neighbor.com.mbis.Function.Func;
 import neighbor.com.mbis.MapUtil.BytePosition;
 import neighbor.com.mbis.MapUtil.Data;
@@ -31,7 +31,7 @@ public class MakeRouteStationFile {
 
         ArrayList<Buf_RS> BufRSArr = new ArrayList<Buf_RS>();
 
-        FileManage fm = new FileManage(mv.getApplyDate_RS() + mv.getApplyTime_RS() + "-" + "RS", "csv");
+        FileManager fm = new FileManager(mv.getApplyDate_RS() + mv.getApplyTime_RS() + "-" + "RS", "csv");
 
         File f = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)));
         if (!f.exists()) {

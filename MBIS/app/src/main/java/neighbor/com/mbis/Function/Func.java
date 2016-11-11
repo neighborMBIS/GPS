@@ -1,8 +1,14 @@
 package neighbor.com.mbis.Function;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.util.Formatter;
 
 /**
  * Created by user on 2016-08-31.
@@ -71,7 +77,7 @@ public class Func {
             change[i] = (byte) 0x00;
         }
         for (int i = 0; i < bytes.length; i++) {
-            change[8 -1 - i] = bytes[bytes.length - 1 - i];
+            change[8 - 1 - i] = bytes[bytes.length - 1 - i];
         }
         byte_buf = ByteBuffer.wrap(change);
         byte_buf.order(ByteOrder.BIG_ENDIAN);
@@ -95,6 +101,7 @@ public class Func {
         }
         return value;
     }
+
     public static byte[] mergyByte(byte[] b1, byte[] b2) {
         byte[] temp = new byte[b1.length + b2.length];
 
@@ -218,12 +225,36 @@ public class Func {
             true_bearing = radian_bearing * (180 / 3.141592);
         }
 
-        return (int)true_bearing;
+        return (int) true_bearing;
     }
 
     public static int getSpeed(double latA, double lngA, double latB, double lngB) {
         double distance = getDistance(latA, lngA, latB, lngB);
-        return (int) ((distance*3600)/1000);
+        return (int) ((distance * 3600) / 1000);
 
+    }
+
+    public static String getStringByMD5(String fileName) throws Exception {
+        MessageDigest algorithm = MessageDigest.getInstance("MD5");
+        FileInputStream fis = new FileInputStream(new File(fileName));
+        BufferedInputStream bis = new BufferedInputStream(fis);
+        DigestInputStream dis = new DigestInputStream(bis, algorithm);
+
+        // read the file and update the hash calculation
+        while (dis.read() != -1)
+            ;
+
+        // get the hash value as byte array
+        byte[] hash = algorithm.digest();
+
+        return byteArray2Hex(hash);
+    }
+
+    private static String byteArray2Hex(byte[] hash) {
+        Formatter formatter = new Formatter();
+        for (byte b : hash) {
+            formatter.format("%02x", b);
+        }
+        return formatter.toString();
     }
 }

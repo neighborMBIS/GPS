@@ -23,6 +23,9 @@ public class OPUtil {
     public final static byte OP_STATION_DATA_INFO = (byte) 0x72;
     public final static byte OP_ROUTE_DATA_INFO = (byte) 0x71;
 
+    public final static byte OP_FTP_INFO = (byte) 0x33;
+    public final static byte OP_CONTROL_INFO = (byte) 0x34;
+
 
     public static boolean opCheck(byte[] op) {
         if (op[0] == OP_ACK
@@ -40,6 +43,8 @@ public class OPUtil {
                 || op[0] == OP_ROUTE_STATION_DATA_INFO
                 || op[0] == OP_STATION_DATA_INFO
                 || op[0] == OP_ROUTE_DATA_INFO
+                || op[0] == OP_FTP_INFO
+                || op[0] == OP_CONTROL_INFO
                 ) return true;
         else return false;
     }
@@ -60,6 +65,8 @@ public class OPUtil {
                 || op == OP_ROUTE_STATION_DATA_INFO
                 || op == OP_STATION_DATA_INFO
                 || op == OP_ROUTE_DATA_INFO
+                || op == OP_FTP_INFO
+                || op == OP_CONTROL_INFO
                 ) return true;
         else return false;
     }

@@ -14,16 +14,16 @@ import java.io.PrintWriter;
 import neighbor.com.mbis.CSV_Util.RouteUtil;
 import neighbor.com.mbis.Database.DBManager;
 
-public class FileManage {
+public class FileManager {
 
     String state;
     File path;    //저장 데이터가 존재하는 디렉토리경로
     File file;     //파일명까지 포함한 경로
 
-    public FileManage(String name) {
+    public FileManager(String name) {
         getState(name);
     }
-    public FileManage(String name, String fileType) {
+    public FileManager(String name, String fileType) {
         getState(name, fileType);
     }
 

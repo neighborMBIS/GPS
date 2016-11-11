@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-import neighbor.com.mbis.Function.FileManage;
+import neighbor.com.mbis.Function.FileManager;
 import neighbor.com.mbis.Function.Func;
 import neighbor.com.mbis.MapUtil.BytePosition;
 import neighbor.com.mbis.MapUtil.Data;
@@ -34,7 +34,7 @@ public class MakeStationFile {
 
         ArrayList<Buf_S> BufSArr = new ArrayList<Buf_S>();
 
-        FileManage fm = new FileManage(mv.getApplyDate_S() + mv.getApplyTime_S() + "-" + "S", "csv");
+        FileManager fm = new FileManager(mv.getApplyDate_S() + mv.getApplyTime_S() + "-" + "S", "csv");
 
         File f = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)));
         if (!f.exists()) {

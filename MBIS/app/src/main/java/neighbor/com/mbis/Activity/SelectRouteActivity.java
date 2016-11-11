@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -35,7 +36,6 @@ import neighbor.com.mbis.CSV_Util.RouteStationUtil;
 import neighbor.com.mbis.CSV_Util.RouteUtil;
 import neighbor.com.mbis.CSV_Util.StationUtil;
 import neighbor.com.mbis.Database.DBManager;
-import neighbor.com.mbis.Function.FileManage;
 import neighbor.com.mbis.MapUtil.Value.MapVal;
 import neighbor.com.mbis.MapUtil.Value.RouteBuffer;
 import neighbor.com.mbis.R;
@@ -56,6 +56,8 @@ public class SelectRouteActivity extends AppCompatActivity {
     String text;
     MapVal mv = MapVal.getInstance();
 
+    FloatingActionButton logoutButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,9 +65,20 @@ public class SelectRouteActivity extends AppCompatActivity {
 
         mList = (ListView)findViewById(R.id.mList);
         tv = (TextView) findViewById(R.id.text);
+        logoutButton = (FloatingActionButton) findViewById(R.id.logoutButton);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+                Intent i = new Intent(SelectRouteActivity.this, LoginActivity.class);
+                i.putExtra("flag", false);
+                startActivity(i);
+            }
+        });
 
         db = DBManager.getInstance(this);
         isHasVisited(this);
+
 
         setTodayLong();
         checkData();
@@ -114,7 +127,7 @@ public class SelectRouteActivity extends AppCompatActivity {
     private void checkData() {
         ArrayList<File> csvFiles = new ArrayList<File>();
 
-        File f = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)));
+        File f = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)) + "/data");
         if (!f.exists()) {
             return;
         }
@@ -136,8 +149,11 @@ public class SelectRouteActivity extends AppCompatActivity {
             FileReader reader = new FileReader(file);
             BufferedReader in = new BufferedReader(reader);
 
-            String[] fileName = file.getName().split("-");
+            String[] fileName = file.getName().split("_");
 
+
+            //db 삭제하기 전에 백업하기.
+            backupDB();
             if(todayLong > Long.parseLong(fileName[0])) {
                 if(fileName[1].startsWith("R.")) {
                     db.deleteRoute(null, null);
@@ -149,12 +165,22 @@ public class SelectRouteActivity extends AppCompatActivity {
                     db.deleteRouteStation(null, null);
                     write_RS(in);
                 }
+
                 file.delete();
                 recreate();
             }
 
         } catch (IOException e) {
             Toast.makeText(this, "Fail ToT", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void backupDB() {
+        Cursor cr = null;
+        Cursor cs = null;
+        Cursor crs = null;
+        try {
+        } catch (Exception e) {
         }
     }
 

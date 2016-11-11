@@ -253,6 +253,41 @@ public class BytePosition {
     public final static int BODY_STATION_DATA_SIZE = 51;
 
 
+    //FTP
+    public final static int BODY_FTP_SIZE = 247;
+    public final static int BODY_FTP_SENDYEAR_DATE = 18;
+    public final static int BODY_FTP_SENDMONTH = 20;
+    public final static int BODY_FTP_SENDDAY = 22;
+    public final static int BODY_FTP_SENDHOUR_TIME = 24;
+    public final static int BODY_FTP_SENDMIN = 26;
+    public final static int BODY_FTP_SENDSEC = 28;
+    public final static int BODY_FTP_DEVICEID = 30;
+    public final static int BODY_FTP_IP = 38;
+    public final static int BODY_FTP_PORT = 54;
+    public final static int BODY_FTP_ID = 56;
+    public final static int BODY_FTP_PW = 66;
+    public final static int BODY_FTP_MODE = 76;
+    public final static int BODY_FTP_PATH_SW_APP = 77;
+    public final static int BODY_FTP_PATH_DATA = 107;
+    public final static int BODY_FTP_PATH_UPLOAD = 137;
+    public final static int BODY_FTP_STATION_FILE_NAME = 167;
+    public final static int BODY_FTP_ROUTE_FILE_NAME = 187;
+    public final static int BODY_FTP_ROUTESTATION_FILE_NAME = 207;
+    public final static int BODY_FTP_APP_FILE_NAME = 227;
+
+
+    //CONTROL
+    public final static int BODY_CONTROL_SIZE = 39;
+    public final static int BODY_CONTROL_SENDYEAR_DATE = 18;
+    public final static int BODY_CONTROL_SENDMONTH = 20;
+    public final static int BODY_CONTROL_SENDDAY = 22;
+    public final static int BODY_CONTROL_SENDHOUR_TIME = 24;
+    public final static int BODY_CONTROL_SENDMIN = 26;
+    public final static int BODY_CONTROL_SENDSEC = 28;
+    public final static int BODY_CONTROL_DEVICEID = 30;
+    public final static int BODY_CONTROL_CONTROLCODE = 38;
+
+
 
 
 }

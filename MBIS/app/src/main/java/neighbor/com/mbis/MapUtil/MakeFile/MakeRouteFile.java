@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-import neighbor.com.mbis.Function.FileManage;
+import neighbor.com.mbis.Function.FileManager;
 import neighbor.com.mbis.Function.Func;
 import neighbor.com.mbis.MapUtil.BytePosition;
 import neighbor.com.mbis.MapUtil.Data;
@@ -35,7 +35,7 @@ public class MakeRouteFile {
 
         ArrayList<Buf_R> BufRArr = new ArrayList<Buf_R>();
 
-        FileManage fm = new FileManage(mv.getApplyDate_R() + mv.getApplyTime_R() + "-" + "R", "csv");
+        FileManager fm = new FileManager(mv.getApplyDate_R() + mv.getApplyTime_R() + "-" + "R", "csv");
 
         File f = new File(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)));
         if (!f.exists()) {

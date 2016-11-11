@@ -26,6 +26,9 @@ public class LogicBuffer {
     public static double locationXBuf=0, locationYBuf=0;
     ArrayList<String> stationListBuf = new ArrayList<String>();
     public double arriveLatBuf, arriveLngBuf;
+    public static long[] applyDateTime = new long[3];
+    public static String[] ftpServerFileName = new String[3];
+    public static String[] md5 = new String[3];
 
 
     public int getArriveTimeBuf() {

@@ -42,6 +42,7 @@ public class RouteStationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_station);
 
+
         rsActivity = RouteStationActivity.this;
 
         tv = (TextView) findViewById(R.id.myLog);
@@ -76,7 +77,7 @@ public class RouteStationActivity extends AppCompatActivity {
 //        Cursor c = rsDB.myQuery(key);
 
         dbController();
-//        findViewById(R.id.goMap).performClick();
+        findViewById(R.id.goMap).performClick();
     }
 
     private void dbController() {

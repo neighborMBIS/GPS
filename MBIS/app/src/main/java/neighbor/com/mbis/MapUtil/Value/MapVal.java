@@ -79,6 +79,13 @@ public class MapVal {
     private int revisionNum_S, totalStationNum_S;
     private String applyDate_S, applyTime_S;
 
+    private long ftpDeviceID;
+    private String ftpIP, ftpID, ftpPW, pathSwApp, pathData, pathUpload, appFileName, stationFileName, routeFileName, routeStationFileName;
+    private int ftpPort, ftpMode;
+
+
+    private long controlDeviceID;
+
 
     public int getVersion() {
         return version;
@@ -602,4 +609,115 @@ public class MapVal {
         this.applyTime_S = applyTime_S;
     }
 
+    public String getFtpIP() {
+        return ftpIP;
+    }
+
+    public void setFtpIP(String ftpIP) {
+        this.ftpIP = ftpIP;
+    }
+
+    public String getFtpID() {
+        return ftpID;
+    }
+
+    public void setFtpID(String ftpID) {
+        this.ftpID = ftpID;
+    }
+
+    public String getFtpPW() {
+        return ftpPW;
+    }
+
+    public void setFtpPW(String ftpPW) {
+        this.ftpPW = ftpPW;
+    }
+
+    public String getPathSwApp() {
+        return pathSwApp;
+    }
+
+    public void setPathSwApp(String pathSwApp) {
+        this.pathSwApp = pathSwApp;
+    }
+
+    public String getPathData() {
+        return pathData;
+    }
+
+    public void setPathData(String pathData) {
+        this.pathData = pathData;
+    }
+
+    public String getPathUpload() {
+        return pathUpload;
+    }
+
+    public void setPathUpload(String pathUpload) {
+        this.pathUpload = pathUpload;
+    }
+
+    public int getFtpPort() {
+        return ftpPort;
+    }
+
+    public void setFtpPort(int ftpPort) {
+        this.ftpPort = ftpPort;
+    }
+
+    public int getFtpMode() {
+        return ftpMode;
+    }
+
+    public void setFtpMode(int ftpMode) {
+        this.ftpMode = ftpMode;
+    }
+
+    public String getAppFileName() {
+        return appFileName;
+    }
+
+    public void setAppFileName(String appFileName) {
+        this.appFileName = appFileName;
+    }
+
+    public String getStationFileName() {
+        return stationFileName;
+    }
+
+    public void setStationFileName(String stationFileName) {
+        this.stationFileName = stationFileName;
+    }
+
+    public String getRouteFileName() {
+        return routeFileName;
+    }
+
+    public void setRouteFileName(String routeFileName) {
+        this.routeFileName = routeFileName;
+    }
+
+    public String getRouteStationFileName() {
+        return routeStationFileName;
+    }
+
+    public void setRouteStationFileName(String routeStationFileName) {
+        this.routeStationFileName = routeStationFileName;
+    }
+
+    public long getFtpDeviceID() {
+        return ftpDeviceID;
+    }
+
+    public void setFtpDeviceID(long ftpDeviceID) {
+        this.ftpDeviceID = ftpDeviceID;
+    }
+
+    public long getControlDeviceID() {
+        return controlDeviceID;
+    }
+
+    public void setControlDeviceID(long controlDeviceID) {
+        this.controlDeviceID = controlDeviceID;
+    }
 }
