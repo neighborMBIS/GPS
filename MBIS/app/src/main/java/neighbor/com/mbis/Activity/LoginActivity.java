@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -31,12 +32,15 @@ import neighbor.com.mbis.MapUtil.MakeFile.MakeRouteStationFile;
 import neighbor.com.mbis.MapUtil.MakeFile.MakeStationFile;
 import neighbor.com.mbis.MapUtil.OPUtil;
 import neighbor.com.mbis.MapUtil.Receive_OP;
+import neighbor.com.mbis.MapUtil.Thread.FTPInfoThread;
 import neighbor.com.mbis.MapUtil.Thread.FTPThread;
 import neighbor.com.mbis.MapUtil.Thread.SocketReadTimeout;
 import neighbor.com.mbis.MapUtil.Value.MapVal;
 import neighbor.com.mbis.Network.NetworkIntentService;
 import neighbor.com.mbis.Network.NetworkUtil;
 import neighbor.com.mbis.R;
+
+import static java.lang.Thread.sleep;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -60,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
 
     boolean socketFlag = false;
 
-    private NetworkIntentService mService;
+    public static NetworkIntentService mService;
 
 
     @Override
@@ -73,14 +77,19 @@ public class LoginActivity extends AppCompatActivity {
         mService = new NetworkIntentService(NetworkUtil.IP, NetworkUtil.PORT, mHandler);
 
         Intent intent = getIntent();
+        //그냥 접속
         if (intent.getBooleanExtra("flag", true)) {
-            startService(new Intent(LoginActivity.this,  mService.getClass()));
-            bindService(new Intent(LoginActivity.this,  mService.getClass()), mConnection, Context.BIND_AUTO_CREATE);
-        } else {
+            mv.setDeviceID(setting.getLong("deviceID", 0));
+            startService(new Intent(LoginActivity.this, mService.getClass()));
+            bindService(new Intent(LoginActivity.this, mService.getClass()), mConnection, Context.BIND_AUTO_CREATE);
+        }
+        //Select 화면에서 로그아웃 버튼 눌렀을 때
+        else {
+            editor.remove("deviceID");
             editor.remove("chk_auto");
             editor.commit();
+            mv.setDeviceID(0);
         }
-
 //        sNetwork = new SocketNetwork(NetworkUtil.IP, NetworkUtil.PORT, mHandler);
 //        sNetwork.start();
 
@@ -100,6 +109,8 @@ public class LoginActivity extends AppCompatActivity {
 //        findViewById(R.id.zzzzz).performClick();
 
 //        tv = (TextView) findViewById(R.id.textView);
+
+//        Toast.makeText(this, mv.getDeviceID() + "", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -112,8 +123,14 @@ public class LoginActivity extends AppCompatActivity {
             getPhone.setText(setting.getString("ID", ""));
             getBusNum.setText(setting.getString("PW", ""));
             chk_auto.setChecked(true);
-            findViewById(R.id.sendButton).performClick();
+//            findViewById(R.id.sendButton).performClick();
 //            findViewById(R.id.cheat).performClick();
+        }
+
+
+        if (mv.getDeviceID() != 0) {
+            finish();
+            startActivity(new Intent(getApplicationContext(), SelectRouteActivity.class));
         }
     }
 
@@ -129,6 +146,7 @@ public class LoginActivity extends AppCompatActivity {
 //                            recvText.append("\n");
 //                        }
 //                    }
+                    Log.e("recv", String.format("%02d", Data.readData[BytePosition.HEADER_OPCODE]));
                     recvData(Data.readData[BytePosition.HEADER_OPCODE]);
                     break;
 
@@ -334,9 +352,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private void retryConnection() {
         cTimer.cancel();
-        stopService(new Intent(LoginActivity.this, mService.getClass()));
+        mService.close();
+        mService.stopSelf();
         startService(new Intent(LoginActivity.this, mService.getClass()));
-        bindService(new Intent(LoginActivity.this,  mService.getClass()), mConnection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(LoginActivity.this, mService.getClass()), mConnection, Context.BIND_AUTO_CREATE);
 
 //        sNetwork.close();
 //        sNetwork = new SocketNetwork(NetworkUtil.IP, NetworkUtil.PORT, mHandler);
@@ -362,7 +381,7 @@ public class LoginActivity extends AppCompatActivity {
         mService.writeData();
     }
 
-    private void recvData(byte opCode) {
+    private synchronized void recvData(byte opCode) {
         String dd = "";
         for (int i = 0; i < Data.readData.length; i++) {
             dd = dd + String.format("%02x ", Data.readData[i]);
@@ -379,19 +398,28 @@ public class LoginActivity extends AppCompatActivity {
 
 //        new Receive_OP(Data.readData[BytePosition.HEADER_OPCODE]);
         new Receive_OP(opCode);
-        if (opCode == OPUtil.OP_USER_CERTIFICATION_AFTER_DEVICEID_SEND) {
-            userCertificationSuccess();
-        } else if (opCode == OPUtil.OP_ROUTE_DATA_INFO) {
-            new MakeRouteFile();
-        } else if (opCode == OPUtil.OP_STATION_DATA_INFO) {
-            new MakeStationFile();
-        } else if (opCode == OPUtil.OP_ROUTE_STATION_DATA_INFO) {
-            new MakeRouteStationFile();
-        } else if (opCode == OPUtil.OP_FTP_INFO) {
-
-        } else if (opCode == OPUtil.OP_CONTROL_INFO) {
-            if(Data.readData[BytePosition.BODY_CONTROL_CONTROLCODE] == 0x12) {
-                new FTPThread().start();
+        synchronized (this) {
+            if (opCode == OPUtil.OP_USER_CERTIFICATION_AFTER_DEVICEID_SEND) {
+                userCertificationSuccess();
+            } else if (opCode == OPUtil.OP_ROUTE_DATA_INFO) {
+                new MakeRouteFile();
+            } else if (opCode == OPUtil.OP_STATION_DATA_INFO) {
+                new MakeStationFile();
+            } else if (opCode == OPUtil.OP_ROUTE_STATION_DATA_INFO) {
+                new MakeRouteStationFile();
+            }
+//            else if(Data.readFTPData != null) {
+//            }
+            else if (opCode == OPUtil.OP_FTP_INFO) {
+                FTPInfoThread ftpInfoThread = new FTPInfoThread();
+                ftpInfoThread.setPriority(Thread.MAX_PRIORITY);
+                ftpInfoThread.start();
+            } else if (opCode == OPUtil.OP_CONTROL_INFO) {
+                if (Data.readData[BytePosition.BODY_CONTROL_CONTROLCODE] == 0x12) {
+                    FTPThread ftpThread = new FTPThread();
+                    ftpThread.setPriority(Thread.MIN_PRIORITY);
+                    ftpThread.start();
+                }
             }
         }
     }
@@ -401,6 +429,8 @@ public class LoginActivity extends AppCompatActivity {
         if (mv.getDeviceID() != 0) {
 //            sNetwork.close();
 
+            editor.putLong("deviceID", mv.getDeviceID());
+            editor.commit();
             cTimer.cancel();
             finish();
             startActivity(new Intent(getApplicationContext(), SelectRouteActivity.class));

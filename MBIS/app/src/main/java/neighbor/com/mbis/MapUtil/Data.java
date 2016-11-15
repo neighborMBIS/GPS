@@ -6,4 +6,5 @@ package neighbor.com.mbis.MapUtil;
 public class Data {
     public static byte[] writeData;
     public static byte[] readData;
+    public static byte[] readFTPData;
 }

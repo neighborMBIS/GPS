@@ -22,11 +22,12 @@ public class StartScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_screen);
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // CALL_PHONE 권한을 Android OS 에 요청한다.
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
-
         }
 
         Handler h = new Handler() {

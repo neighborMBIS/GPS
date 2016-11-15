@@ -100,19 +100,19 @@ public class FTPManager {
     }
 
     //파일전송을 받는다
-    public File get(String source, String target){
+    public File get(String savePath, String recv2FTP){
 
         OutputStream output = null;
         try{
-            File local = new File(source);
+            File local = new File(savePath);
             output = new FileOutputStream(local);
         }catch(Exception e){
             e.printStackTrace();
         }
-        File file = new File(source);
+        File file = new File(savePath);
         try{
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE); //이 코드는 반드시 서버와 커넥션이후에 써야된다
-            boolean flag = ftpClient.retrieveFile(target, output);
+            boolean flag = ftpClient.retrieveFile(recv2FTP, output);
             output.flush();
             output.close();
 
@@ -122,7 +122,6 @@ public class FTPManager {
         }catch(Exception e){
             e.printStackTrace();
         }
-
         return null;
     }
 

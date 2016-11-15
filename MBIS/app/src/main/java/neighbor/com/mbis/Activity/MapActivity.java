@@ -108,7 +108,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     BusTimer busTimer;
 
 
-    private NetworkIntentService mService;
+    private NetworkIntentService mService = LoginActivity.mService;
 
     //이벤트 발생할 때 데이터 전송하려면 이벤트 발생하는곳에 사용 : sendData(byte[]배열);
     @Override
@@ -289,6 +289,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         busTimer.cancel();
         cTimer.cancel();
+        mService.stopSelf();
 //        sNetwork.close();
 
 //        sBuf.clearAll();
@@ -335,6 +336,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         eventFileManager.saveData("\n(" + mv.getSendYear() + "." + mv.getSendMonth() + "." + mv.getSendDay() +
                 " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
                 ")\n[SEND:" + Data.writeData.length + "] - " + dd);
+        mService.writeData();
 
 //        NetworkService.socket.writeData(Data.writeData);
 //        mService.sendData();
@@ -954,10 +956,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     };
 
     private void retryConnection() {
-        cTimer.cancel();
 
-        stopService(new Intent(MapActivity.this, mService.getClass()));
+        cTimer.cancel();
+        mService.close();
+        mService.stopSelf();
+        mService.setHandler(mHandler);
         startService(new Intent(MapActivity.this, mService.getClass()));
+        bindService(new Intent(MapActivity.this,  mService.getClass()), mConnection, Context.BIND_AUTO_CREATE);
 //        sNetwork.close();
 //        sNetwork = new SocketNetwork(NetworkUtil.IP, NetworkUtil.PORT, mHandler);
 //        sNetwork.start();
@@ -1090,7 +1095,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         cTimer.cancel();
 //                        sNetwork.close();
 
-                        stopService(new Intent(MapActivity.this, mService.getClass()));
+                        mService.stopSelf();
+//                        stopService(new Intent(MapActivity.this, mService.getClass()));
 
                         //Exit from activity.
                         finish();

@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import neighbor.com.mbis.Function.FTPManager;
 import neighbor.com.mbis.Function.Func;
+import neighbor.com.mbis.MapUtil.Data;
 import neighbor.com.mbis.MapUtil.Value.LogicBuffer;
 import neighbor.com.mbis.MapUtil.Value.MapVal;
 import neighbor.com.mbis.Network.NetworkUtil;
@@ -37,6 +38,7 @@ public class FTPInfoThread extends Thread {
 
             conn.get(NetworkUtil.FILE_PATH + "/info.txt", "info.txt");
             conn.disconnect();
+            Data.readFTPData = null;
 
         } catch (FileNotFoundException e) {
             System.err.println("FileNotFoundException");

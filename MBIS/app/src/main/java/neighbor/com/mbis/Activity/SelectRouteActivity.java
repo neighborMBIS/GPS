@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,6 +71,8 @@ public class SelectRouteActivity extends AppCompatActivity {
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                LoginActivity.mService.close();
+                LoginActivity.mService.stopSelf();
                 finish();
                 Intent i = new Intent(SelectRouteActivity.this, LoginActivity.class);
                 i.putExtra("flag", false);
@@ -109,6 +113,9 @@ public class SelectRouteActivity extends AppCompatActivity {
                 DialogSelectOption();
             }
         });
+
+//        Toast.makeText(this, mv.getDeviceID() + "", Toast.LENGTH_SHORT).show();
+
     }
 
     private void setTodayLong() {
@@ -146,7 +153,8 @@ public class SelectRouteActivity extends AppCompatActivity {
     public void overwriteDB(File file) {
 
         try {
-            FileReader reader = new FileReader(file);
+//            FileReader reader = new FileReader(file, "UTF8");
+            InputStreamReader reader = new InputStreamReader(new FileInputStream(file),"euc-kr");
             BufferedReader in = new BufferedReader(reader);
 
             String[] fileName = file.getName().split("_");
