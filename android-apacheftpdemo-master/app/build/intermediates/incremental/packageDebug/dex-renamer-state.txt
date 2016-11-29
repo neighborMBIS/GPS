@@ -1,0 +1,7 @@
+#Wed Nov 02 17:45:53 KST 2016
+base.0=C\:\\Users\\user\\Desktop\\MBIScode\\android-apacheftpdemo-master\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_c5be2a63d8d219e3354804a7637916bb2a10d7b1
+renamed.1=classes.dex
+renamed.0=classes2.dex
+file.1=C\:\\Users\\user\\Desktop\\MBIScode\\android-apacheftpdemo-master\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_bea20f009d3569395d822303c14d781aea2f9fed\\classes.dex
+base.1=C\:\\Users\\user\\Desktop\\MBIScode\\android-apacheftpdemo-master\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_bea20f009d3569395d822303c14d781aea2f9fed
+file.0=C\:\\Users\\user\\Desktop\\MBIScode\\android-apacheftpdemo-master\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_c5be2a63d8d219e3354804a7637916bb2a10d7b1\\classes.dex

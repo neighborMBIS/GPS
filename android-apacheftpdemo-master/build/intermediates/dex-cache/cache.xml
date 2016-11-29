@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="C:\Users\user\Desktop\MBIScode\android-apacheftpdemo-master\app\libs\commons-net.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.1"
+        sha1="cd0d5510908225f76c5fe5a3f1df4fa44866f81e">
+        <dex dex="C:\Users\user\Desktop\MBIScode\android-apacheftpdemo-master\app\build\intermediates\transforms\dex\debug\folders\1000\2\commons-net_2504d312884d5c1683244c163fe6daf1000d92cc\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\user\Desktop\MBIScode\android-apacheftpdemo-master\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.1"
+        sha1="f3bd39085e4b9238a6cf2032bd251e28491702c3">
+        <dex dex="C:\Users\user\Desktop\MBIScode\android-apacheftpdemo-master\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_bea20f009d3569395d822303c14d781aea2f9fed\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\user\Desktop\MBIScode\android-apacheftpdemo-master\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.1"
+        sha1="113756e843306c39278ddfc2e47a9dbc24c832dc">
+        <dex dex="C:\Users\user\Desktop\MBIScode\android-apacheftpdemo-master\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_c5be2a63d8d219e3354804a7637916bb2a10d7b1\classes.dex" />
+    </item>
+
+</items>

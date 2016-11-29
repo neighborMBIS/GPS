@@ -11,10 +11,18 @@ public class ReferenceUtil {
     public static ReferenceUtil getInstance() {
         return ourInstance;
     }
+    private ReferenceUtil() {
+        referenceLatPosition = new ArrayList<Double>();
+        referenceLngPosition = new ArrayList<Double>();
+        distance = new ArrayList<Double>();
+        refernceUniqueNum = new ArrayList<Integer>();
+    }
 
     private String routeName;
     private ArrayList<Double> referenceLatPosition;
     private ArrayList<Double> referenceLngPosition;
+    private ArrayList<Double> distance;
+    private ArrayList<Integer> refernceUniqueNum;
 
     public ArrayList<Double> getDistance() {
         return distance;
@@ -24,8 +32,6 @@ public class ReferenceUtil {
         this.distance = distance;
     }
 
-    private ArrayList<Double> distance;
-    private ArrayList<Integer> refernceUniqueNum;
 
     public String getRouteName() {
         return routeName;
@@ -75,10 +81,4 @@ public class ReferenceUtil {
     }
     public void addDistance(double item) {distance.add(item);}
 
-    private ReferenceUtil() {
-        referenceLatPosition = new ArrayList<Double>();
-        referenceLngPosition = new ArrayList<Double>();
-        distance = new ArrayList<Double>();
-        refernceUniqueNum = new ArrayList<Integer>();
-    }
 }

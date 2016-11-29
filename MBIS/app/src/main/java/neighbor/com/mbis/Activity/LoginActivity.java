@@ -374,8 +374,8 @@ public class LoginActivity extends AppCompatActivity {
         for (int j = 0; j < Data.writeData.length; j++) {
             dd = dd + String.format("%02X ", Data.writeData[j]);
         }
-        eventFileManager.saveData("\n(" + mv.getSendYear() + ":" + mv.getSendMonth() + ":" + mv.getSendDay() +
-                " - " + mv.getSendHour() + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
+        eventFileManager.saveData("\n(" + (mv.getSendYear()-2000) + "." + mv.getSendMonth() + "." + mv.getSendDay() +
+                " - " + (mv.getSendHour()+9) + ":" + mv.getSendMin() + ":" + mv.getSendSec() +
                 ")\n[SEND:" + Data.writeData.length + "] - " + dd);
         Log.e("[sendData]", "111");
         mService.writeData();

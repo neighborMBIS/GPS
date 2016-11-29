@@ -2,6 +2,4 @@
     <string name="app_name">MBIS</string>
     <string name="title_activity_select_route">차량 노선 선택</string>
     <string name="title_activity_login">사용자 인증</string>
-    <string name="title_activity_stos">CSVtoSQLite</string>
-    <string name="title_activity_list">ListActivity</string>
 </resources>
